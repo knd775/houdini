@@ -1,5 +1,18 @@
 # houdini-react
 
+## 1.2.0
+
+### Minor Changes
+
+-   [#1044](https://github.com/HoudiniGraphql/houdini/pull/1044) [`987a6f2`](https://github.com/HoudiniGraphql/houdini/commit/987a6f24b3fd453dafdbc03ae2de610a8c4cd257) Thanks [@AlecAivazis](https://github.com/AlecAivazis)! - Add suspense integration
+
+### Patch Changes
+
+-   [#1048](https://github.com/HoudiniGraphql/houdini/pull/1048) [`184ddbd`](https://github.com/HoudiniGraphql/houdini/commit/184ddbdf0e82da56b479c5009f105f04fd6ac00e) Thanks [@mpellegrini](https://github.com/mpellegrini)! - Include explicit types export conditions in package.json exports
+
+-   Updated dependencies [[`184ddbd`](https://github.com/HoudiniGraphql/houdini/commit/184ddbdf0e82da56b479c5009f105f04fd6ac00e), [`7161781`](https://github.com/HoudiniGraphql/houdini/commit/71617814116ce4ead9fce2c7aeef2391a952f8a5)]:
+    -   houdini@1.2.0
+
 ## 1.1.7
 
 ### Dependency Changes
