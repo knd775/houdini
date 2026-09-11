@@ -16,20 +16,26 @@ merged into it.
 
 ## Running a preview build
 
-Push to this branch. An empty commit is enough:
+Any of these works. The first two need nothing but a browser or the GitHub mobile app:
 
-```bash
-git commit --allow-empty -m "chore: build preview" && git push origin preview
-```
+- Tick the checkbox on the [Preview builds](../../issues) issue.
+- Comment `/preview` on any issue in this repo.
+- Press **Run workflow** on the Preview release workflow in the Actions tab.
+- Push to this branch: `git commit --allow-empty -m "chore: build preview" && git push origin preview`
 
-There's no button in the Actions tab. GitHub only fires `workflow_dispatch` and `schedule` for
-workflow files that exist on the repository's default branch, and putting this workflow on `main`
-would break the rule above. A push to any branch does run that branch's workflows, so pushing here
-is the trigger.
+The comment and checkbox paths are owner-only, since anyone can comment on a public repo. Both react
+to what you did and then post the install URLs back as a comment when the build finishes, so you
+never need to open the run.
 
-If you want the button, make this the fork's default branch with
-`gh repo edit knd775/houdini --default-branch preview`. `main` stays pristine either way. The cost is
-that the repo homepage and a fresh `git clone` then land on this branch.
+### Why this branch is the default branch
+
+GitHub fires `issue_comment`, `issues`, `workflow_dispatch` and `schedule` only for workflow files
+that exist on the repository's **default** branch. Putting this workflow on `main` would break the
+rule above, so the default branch is this one instead. `main` is untouched either way. The visible
+cost is that the repo homepage and a fresh `git clone` land here rather than on the Houdini source.
+
+Revert with `gh repo edit knd775/houdini --default-branch main`, which leaves only the push trigger
+working.
 
 Each build fast-forwards `main` to upstream first, so it doubles as a sync. That push is the only
 thing the workflow writes to this repository, and `git merge --ff-only` means it fails loudly rather
@@ -37,35 +43,39 @@ than merging if `main` has drifted.
 
 ## Installing a preview
 
-Every run's summary lists a URL per package:
+Every build reports a URL per package:
 
 ```bash
 pnpm add https://pkg.pr.new/knd775/houdini/houdini@<sha>
 ```
 
-Install `houdini` and whichever plugin you use. The rest arrives as dependencies, because the
-preview's cross-package dependencies point at sibling previews instead of npm.
+Install `houdini` explicitly, alongside whichever plugin you use. Upstream's build drops the
+`houdini` dependency from `houdini-svelte` and `houdini-react` before publishing, on npm as well as
+here, so a plugin on its own won't pull it in.
 
-That redirect matters most for `houdini-core`, `houdini-react` and `houdini-svelte`, which each ship
-a compiled Go binary through `optionalDependencies`. The binary you get is the one built from the
-commit you asked for.
+Platform packages do come along automatically. `houdini-core`, `houdini-react` and `houdini-svelte`
+each ship a compiled Go binary through `optionalDependencies`, and the preview's entries point at
+sibling previews rather than npm, so the compiler you get is built from the commit you asked for.
 
-Those three are also stamped `X.Y.Z-preview-<sha>`. Their postinstall falls back to downloading
+Two details make that safe, and both exist because the failure they prevent is silent:
+
+Those three packages are stamped `X.Y.Z-preview-<sha>`. Their postinstall falls back to downloading
 `<name>-<platform>@<version>` from npm when the optional platform package is missing. At the released
 version, that fallback pairs upstream's published binary with this preview's JavaScript and says
 nothing about it. A version npm can't answer turns that silence into a 404.
 
+`PLATFORMS` in the workflow decides which platform packages get built into the preview, and the
+entries for every other platform are dropped from `optionalDependencies` rather than left pointing at
+a version npm has never seen. Add a platform there if you start installing on one, `wasm` included.
+
 ## Prerequisites
 
-The [pkg.pr.new GitHub App](https://github.com/apps/pkg-pr-new) has to be installed on this
-repository. Without it the publish step fails, though everything before it still runs.
+The [pkg.pr.new GitHub App](https://github.com/apps/pkg-pr-new) has to stay installed on this
+repository. Without it the publish step fails and everything before it still runs.
 
-`PLATFORMS` in the workflow decides which platform packages get published. Each one is a separate
-cross-compiled binary, so the list is short by default. npm and pnpm match a package's `os` and `cpu`
-fields, so nothing ever asks for a platform that isn't there. Add `wasm` for the WASI build.
-
-If pkg.pr.new rejects the payload for size, the fallback is to attach the same tarballs to a
-prerelease in this repo and rewrite the cross-package dependencies to those download URLs.
+If pkg.pr.new ever rejects the payload for size, the fallback is to attach the same tarballs to a
+prerelease in this repo and rewrite the cross-package dependencies to those download URLs. A build of
+two platforms was 97 MB.
 
 ## Contributing upstream
 
@@ -81,8 +91,14 @@ Push to `origin` and open the PR against `HoudiniGraphql/houdini`. Branching fro
 too while the rule above holds, but going through `upstream/main` doesn't depend on the mirror being
 current.
 
+With both remotes present, `gh` resolves to the parent repo, so fork-local commands need to say so:
+`gh run list --repo knd775/houdini`.
+
 ## Upstream workflows disabled in this fork
 
 Release, Trigger docs rebuild, Publish VS Code Extension and Cache Benchmarks are disabled through
 the Actions API, not by deleting their files, since editing them would put fork-local changes on
-`main`. That state lives in repository settings and survives syncing. CI Checks is still on.
+`main`. That state lives in repository settings and survives syncing.
+
+CI Checks is still on, which means each fast-forward of `main` also spends about six minutes of
+Actions minutes running upstream's suite here. Disable it the same way if that isn't worth it.

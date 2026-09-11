@@ -5,23 +5,36 @@ name: Preview release
 # stays identical to HoudiniGraphql/houdini: it always fast-forwards, and a
 # branch cut from it is clean enough to PR upstream.
 #
-# Pushing to this branch is the trigger. workflow_dispatch is declared below, but
-# GitHub only fires it for workflow files that exist on the repository's default
-# branch, which this deliberately is not. To run a build:
+# Four ways in. The comment, checkbox and button paths all depend on this branch
+# being the repository's default branch, because GitHub fires issue_comment,
+# issues and workflow_dispatch only for workflow files that live there.
 #
-#     git commit --allow-empty -m "chore: build preview" && git push origin preview
+#   tick the checkbox on the Preview builds issue
+#   comment /preview on any issue in this repo
+#   press Run workflow in the Actions tab
+#   git commit --allow-empty -m "chore: build preview" && git push origin preview
 on:
     push:
         branches: [preview]
     workflow_dispatch:
+    issue_comment:
+        types: [created]
+    issues:
+        types: [edited]
+
+# Two builds racing to publish the same sha would also fight over main's
+# fast-forward, so a newer request supersedes one already running.
+concurrency:
+    group: preview
+    cancel-in-progress: true
 
 env:
     UPSTREAM: HoudiniGraphql/houdini
 
     # Platform packages to publish, as <nodeOS>-<cpu>. Add `wasm` for the WASI
     # build. Each entry is a separate cross-compiled Go binary, so this list is
-    # kept to the platforms we install on. npm and pnpm match a package's os and
-    # cpu fields, so they never ask for the ones missing here.
+    # kept to the platforms we install on, and the rest are dropped from
+    # optionalDependencies rather than left pointing at versions npm can't serve.
     PLATFORMS: linux-x64 darwin-arm64
 
     # Packages whose publishable form is build/<name>, not the source directory.
@@ -35,17 +48,59 @@ env:
 jobs:
     preview:
         name: Publish preview packages
-        # Don't run in anyone else's fork of this fork.
-        if: github.repository == 'knd775/houdini'
+        # Anyone can comment on a public fork, so the comment and checkbox paths
+        # are owner-only. The repository check keeps this out of forks of the fork.
+        if: >-
+            github.repository == 'knd775/houdini' && (
+              github.event_name == 'push' ||
+              github.event_name == 'workflow_dispatch' ||
+              (github.event_name == 'issue_comment' &&
+                github.event.sender.login == github.repository_owner &&
+                startsWith(github.event.comment.body, '/preview')) ||
+              (github.event_name == 'issues' &&
+                github.event.sender.login == github.repository_owner &&
+                contains(github.event.issue.body, '- [x] Build a preview'))
+            )
         runs-on: ubuntu-22.04
         permissions:
             contents: write # fast-forwards main
+            issues: write # reacts, resets the checkbox, posts the install URLs
+        env:
+            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         steps:
+            - name: Note which issue to report back to
+              if: github.event_name == 'issue_comment' || github.event_name == 'issues'
+              run: echo "ISSUE=${{ github.event.issue.number }}" >> "$GITHUB_ENV"
+
+            - name: Acknowledge the request
+              if: env.ISSUE != ''
+              run: |
+                  if [ "$GITHUB_EVENT_NAME" = 'issue_comment' ]; then
+                      gh api --silent -X POST \
+                          "repos/$GITHUB_REPOSITORY/issues/comments/${{ github.event.comment.id }}/reactions" \
+                          -f content=eyes
+                  else
+                      # Clear the checkbox immediately. Ticking it again is then a
+                      # second build, and a failed run doesn't leave it stuck on.
+                      body=$(gh api "repos/$GITHUB_REPOSITORY/issues/$ISSUE" --jq .body |
+                          sed 's/- \[x\] Build a preview/- [ ] Build a preview/')
+                      gh api --silent -X PATCH "repos/$GITHUB_REPOSITORY/issues/$ISSUE" -f body="$body"
+                  fi
+
             - name: Check out main
               uses: actions/checkout@v4
               with:
                   ref: main
                   fetch-depth: 0
+
+            # Checked out second and into a subdirectory, because the step above
+            # owns the root. workflow_sha pins the tooling to the same commit as
+            # this workflow file, whichever event triggered it.
+            - name: Check out this branch's tooling
+              uses: actions/checkout@v4
+              with:
+                  ref: ${{ github.workflow_sha }}
+                  path: .preview
 
             - name: Fast-forward main to upstream
               run: |
@@ -126,13 +181,22 @@ jobs:
                   echo "TARGETS=${targets[*]}" >> "$GITHUB_ENV"
                   echo "PAYLOAD=$(du -ch "${targets[@]}" | tail -1 | cut -f1)" >> "$GITHUB_ENV"
 
+            - name: Resolve workspace specs and prune unbuilt platforms
+              run: node .preview/scripts/prepare-publish.mjs
+
             - name: Publish to pkg.pr.new
               # --no-compact: a compact URL is resolved through the npm package's
               # repository field, which points at upstream. Previews from this fork
               # have to be addressed as /knd775/houdini/<pkg>@<sha>.
-              # --comment=off: there's no PR here, and a preview build shouldn't
-              # post anything to the repository.
-              run: npx pkg-pr-new@0.0.88 publish --no-compact --comment=off --no-template --json preview.json $TARGETS
+              # --comment=off: there's no PR here, and the report back to the issue
+              # below is the comment we want.
+              # --json=<file>: the = form binds it as a path. `json` is a
+              # mixed-type arg, and a bare --json prints the metadata instead.
+              run: >-
+                  npx pkg-pr-new@0.0.88 publish
+                  --no-compact --comment=off --no-template --pnpm
+                  --json=preview.json
+                  $TARGETS
 
             - name: Summarize install URLs
               run: |
@@ -145,3 +209,23 @@ jobs:
                       echo '| --- | --- |'
                       jq -r '.packages[]? | "| `\(.name)` | `pnpm add \(.url)` |"' preview.json
                   } >> "$GITHUB_STEP_SUMMARY"
+
+            - name: Report back on the issue
+              if: always() && env.ISSUE != ''
+              run: |
+                  run_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+                  if [ -f preview.json ]; then
+                      {
+                          echo "Preview of \`$UPSTREAM@$SOURCE_SHORT\` ([run]($run_url)):"
+                          echo
+                          echo '```bash'
+                          jq -r '.packages[] | select(.name | test("-(linux|darwin|win32)-|-wasm$") | not) | "pnpm add \(.url)"' preview.json
+                          echo '```'
+                          echo
+                          echo "Platform packages come along with these. Install \`houdini\` too if you"
+                          echo "only listed a plugin: upstream's build drops that dependency."
+                      } > comment.md
+                  else
+                      echo "Preview build failed before publishing anything. [Run log]($run_url)" > comment.md
+                  fi
+                  gh issue comment "$ISSUE" --repo "$GITHUB_REPOSITORY" --body-file comment.md
