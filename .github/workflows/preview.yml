@@ -84,6 +84,7 @@ jobs:
                   COMMENT_BODY: ${{ github.event.comment.body }}
                   ISSUE_BODY: ${{ github.event.issue.body }}
                   ISSUE_NUMBER: ${{ github.event.issue.number }}
+                  COMMENT_ID: ${{ github.event.comment.id }}
               run: |
                   mode=preview
                   ref=
@@ -91,6 +92,7 @@ jobs:
                   case "$GITHUB_EVENT_NAME" in
                       issue_comment)
                           echo "ISSUE=$ISSUE_NUMBER" >> "$GITHUB_ENV"
+                          echo "COMMENT_ID=$COMMENT_ID" >> "$GITHUB_ENV"
                           command=$(printf '%s' "$COMMENT_BODY" | head -1 | tr -d '\r')
                           case "$command" in
                               /sync*) mode=sync ;;
@@ -129,9 +131,9 @@ jobs:
             - name: Acknowledge the request
               if: env.ISSUE != ''
               run: |
-                  if [ "$GITHUB_EVENT_NAME" = 'issue_comment' ]; then
+                  if [ -n "$COMMENT_ID" ]; then
                       gh api --silent -X POST \
-                          "repos/$GITHUB_REPOSITORY/issues/comments/${{ github.event.comment.id }}/reactions" \
+                          "repos/$GITHUB_REPOSITORY/issues/comments/$COMMENT_ID/reactions" \
                           -f content=eyes
                   else
                       # Clear the checkbox immediately. Ticking it again is then a
@@ -298,6 +300,8 @@ jobs:
               run: |
                   run_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
 
+                  outcome=rocket
+
                   if [ "$MODE" = 'sync' ]; then
                       if [ "${SYNCED:-0}" -gt 0 ]; then
                           echo "Fast-forwarded \`main\` to \`$SOURCE_SHORT\`, $SYNCED commits from upstream." > comment.md
@@ -307,6 +311,7 @@ jobs:
                           # The only way to get here is main having drifted, which
                           # --ff-only refuses to paper over.
                           echo "Sync failed. [Run log]($run_url)" > comment.md
+                          outcome='-1'
                       fi
                   elif [ -f preview.json ]; then
                       {
@@ -316,10 +321,23 @@ jobs:
                           jq -r '.packages[] | select(.name | test("-(linux|darwin|win32)-|-wasm$") | not) | "pnpm add \(.url)"' preview.json
                           echo '```'
                           echo
-                          echo "Platform packages come along with these. Install \`houdini\` too if you"
-                          echo "only listed a plugin: upstream's build drops that dependency."
+                          echo "\`houdini-svelte\` and \`houdini-react\` don't depend on \`houdini\`, so install"
+                          echo "it alongside them. Platform binaries come in automatically."
                       } > comment.md
                   else
                       echo "Preview build failed before publishing anything. [Run log]($run_url)" > comment.md
+                      outcome='-1'
                   fi
+
                   gh issue comment "$ISSUE" --repo "$GITHUB_REPOSITORY" --body-file comment.md
+
+                  # Swap the acknowledgement for the outcome, so a glance at the
+                  # request that started this says whether it finished.
+                  if [ -n "$COMMENT_ID" ]; then
+                      reactions="repos/$GITHUB_REPOSITORY/issues/comments/$COMMENT_ID/reactions"
+                      eyes=$(gh api "$reactions" --jq 'map(select(.content == "eyes")) | .[0].id // empty')
+                      if [ -n "$eyes" ]; then
+                          gh api --silent -X DELETE "$reactions/$eyes"
+                      fi
+                      gh api --silent -X POST "$reactions" -f content="$outcome"
+                  fi
