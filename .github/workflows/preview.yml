@@ -1,0 +1,147 @@
+name: Preview release
+
+# Fork-local. Everything that makes knd775/houdini differ from upstream lives on
+# this branch, which shares no history with main and is never merged, so main
+# stays identical to HoudiniGraphql/houdini: it always fast-forwards, and a
+# branch cut from it is clean enough to PR upstream.
+#
+# Pushing to this branch is the trigger. workflow_dispatch is declared below, but
+# GitHub only fires it for workflow files that exist on the repository's default
+# branch, which this deliberately is not. To run a build:
+#
+#     git commit --allow-empty -m "chore: build preview" && git push origin preview
+on:
+    push:
+        branches: [preview]
+    workflow_dispatch:
+
+env:
+    UPSTREAM: HoudiniGraphql/houdini
+
+    # Platform packages to publish, as <nodeOS>-<cpu>. Add `wasm` for the WASI
+    # build. Each entry is a separate cross-compiled Go binary, so this list is
+    # kept to the platforms we install on. npm and pnpm match a package's os and
+    # cpu fields, so they never ask for the ones missing here.
+    PLATFORMS: linux-x64 darwin-arm64
+
+    # Packages whose publishable form is build/<name>, not the source directory.
+    GO_PACKAGES: houdini-core houdini-react houdini-svelte
+
+    # Fast-forward main to upstream before building. pkg.pr.new keys a preview on
+    # a commit in this repository, so turning this off means previews are only
+    # addressable while main already has the commit being built.
+    SYNC_MAIN: true
+
+jobs:
+    preview:
+        name: Publish preview packages
+        # Don't run in anyone else's fork of this fork.
+        if: github.repository == 'knd775/houdini'
+        runs-on: ubuntu-22.04
+        permissions:
+            contents: write # fast-forwards main
+        steps:
+            - name: Check out main
+              uses: actions/checkout@v4
+              with:
+                  ref: main
+                  fetch-depth: 0
+
+            - name: Fast-forward main to upstream
+              run: |
+                  git remote add upstream "https://github.com/$UPSTREAM"
+                  git fetch --no-tags upstream main
+                  # --ff-only enforces the one rule this fork has. If main ever
+                  # picks up a commit of our own, fail here instead of quietly
+                  # writing a merge commit onto the mirror.
+                  git merge --ff-only upstream/main
+                  if [ "$SYNC_MAIN" = 'true' ]; then
+                      git push origin main
+                  fi
+                  echo "SOURCE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+                  echo "SOURCE_SHORT=$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 24
+            - uses: pnpm/action-setup@v4.1.0
+            - uses: actions/setup-go@v5
+              with:
+                  go-version-file: go.mod
+                  cache: true
+
+            - run: pnpm install --frozen-lockfile
+
+            - name: Stamp a preview version on the Go packages
+              # Each Go package's postinstall downloads <name>-<platform>@<version>
+              # from npm when its optional platform package is missing. Left at the
+              # released version, that fallback pairs upstream's published binary
+              # with this preview's JavaScript and says nothing about it. A version
+              # npm cannot answer turns that silence into a 404.
+              run: |
+                  for pkg in $GO_PACKAGES; do
+                      version=$(node -p "require('./packages/$pkg/package.json').version")
+                      # One hyphenated prerelease identifier, so a sha like 0040273
+                      # stays valid semver. Numeric identifiers can't lead with a 0.
+                      (cd "packages/$pkg" && npm pkg set "version=$version-preview-$SOURCE_SHORT")
+                  done
+
+            - run: pnpm run build
+
+            # The binaries are packed straight out of the build directory, so the
+            # executable bit has to survive. Upstream's CI does the same.
+            - run: find ./packages -path '*/bin/houdini-*' -type f -exec chmod +x {} +
+
+            - name: Collect publish targets
+              run: |
+                  targets=(
+                      ./packages/houdini
+                      ./packages/houdini-lsp
+                      ./packages/create-houdini
+                      ./packages/adapter-auto
+                      ./packages/adapter-cloudflare
+                      ./packages/adapter-node
+                      ./packages/adapter-static
+                      ./packages/sv-addon
+                  )
+                  # A Go package's platform packages have to go out in the same run
+                  # as the package itself. pkg.pr.new only rewrites a dependency
+                  # when whatever it points at is published alongside it, and that
+                  # rewrite is what moves optionalDependencies off npm and onto this
+                  # build's binaries.
+                  for pkg in $GO_PACKAGES; do
+                      targets+=("./packages/$pkg/build/$pkg")
+                      for platform in $PLATFORMS; do
+                          targets+=("./packages/$pkg/build/$pkg-$platform")
+                      done
+                  done
+
+                  for target in "${targets[@]}"; do
+                      if [ ! -f "$target/package.json" ]; then
+                          echo "::error::$target/package.json is missing. Did the build layout change?"
+                          exit 1
+                      fi
+                  done
+
+                  echo "TARGETS=${targets[*]}" >> "$GITHUB_ENV"
+                  echo "PAYLOAD=$(du -ch "${targets[@]}" | tail -1 | cut -f1)" >> "$GITHUB_ENV"
+
+            - name: Publish to pkg.pr.new
+              # --no-compact: a compact URL is resolved through the npm package's
+              # repository field, which points at upstream. Previews from this fork
+              # have to be addressed as /knd775/houdini/<pkg>@<sha>.
+              # --comment=off: there's no PR here, and a preview build shouldn't
+              # post anything to the repository.
+              run: npx pkg-pr-new@0.0.88 publish --no-compact --comment=off --no-template --json preview.json $TARGETS
+
+            - name: Summarize install URLs
+              run: |
+                  {
+                      echo "## Preview of \`$UPSTREAM@$SOURCE_SHORT\`"
+                      echo
+                      echo "Built from \`$SOURCE_SHA\`. Payload: $PAYLOAD."
+                      echo
+                      echo '| package | install |'
+                      echo '| --- | --- |'
+                      jq -r '.packages[]? | "| `\(.name)` | `pnpm add \(.url)` |"' preview.json
+                  } >> "$GITHUB_STEP_SUMMARY"
