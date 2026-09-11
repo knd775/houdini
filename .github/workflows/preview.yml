@@ -321,8 +321,7 @@ jobs:
                           jq -r '.packages[] | select(.name | test("-(linux|darwin|win32)-|-wasm$") | not) | "pnpm add \(.url)"' preview.json
                           echo '```'
                           echo
-                          echo "\`houdini-svelte\` and \`houdini-react\` don't depend on \`houdini\`, so install"
-                          echo "it alongside them. Platform binaries come in automatically."
+                          echo "Platform binaries are installed automatically."
                       } > comment.md
                   else
                       echo "Preview build failed before publishing anything. [Run log]($run_url)" > comment.md
