@@ -1,8 +1,8 @@
 name: Preview release
 
 # Fork-local. Everything that makes knd775/houdini differ from upstream lives on
-# this branch, which shares no history with main and is never merged, so main
-# stays identical to HoudiniGraphql/houdini: it always fast-forwards, and a
+# this branch. It shares no history with main and is never merged, so main stays
+# identical to HoudiniGraphql/houdini. Main therefore always fast-forwards, and a
 # branch cut from it is clean enough to PR upstream.
 #
 # Four ways in. The comment, checkbox and button paths all depend on this branch
@@ -269,6 +269,7 @@ jobs:
 
             - name: Publish to pkg.pr.new
               if: env.MODE != 'sync'
+              # Needs the pkg.pr.new GitHub App installed on this repository.
               # --no-compact: a compact URL is resolved through the npm package's
               # repository field, which points at upstream. Previews from this fork
               # have to be addressed as /knd775/houdini/<pkg>@<sha>.
@@ -330,8 +331,8 @@ jobs:
 
                   gh issue comment "$ISSUE" --repo "$GITHUB_REPOSITORY" --body-file comment.md
 
-                  # Swap the acknowledgement for the outcome, so a glance at the
-                  # request that started this says whether it finished.
+                  # Swap the acknowledgement for the outcome, so the request that
+                  # started a run also shows how it ended.
                   if [ -n "$COMMENT_ID" ]; then
                       reactions="repos/$GITHUB_REPOSITORY/issues/comments/$COMMENT_ID/reactions"
                       eyes=$(gh api "$reactions" --jq 'map(select(.content == "eyes")) | .[0].id // empty')

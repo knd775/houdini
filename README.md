@@ -1,7 +1,7 @@
 > **Fork of [HoudiniGraphql/houdini](https://github.com/HoudiniGraphql/houdini).** The default branch
-> holds a workflow that publishes installable preview packages from upstream's unreleased `main`, so an
-> app can pick up a fix before it lands on npm. See [PREVIEW.md](./PREVIEW.md) for how to run one. The
-> source itself lives on [`main`](../../tree/main), which tracks upstream exactly.
+> holds a workflow that publishes preview packages from upstream's unreleased `main`, so an app can
+> install a fix before it reaches npm. Start one from [Preview builds](../../issues/1). Houdini's
+> source is on [`main`](../../tree/main), which tracks upstream exactly.
 
 <div align="center">
   <picture>
