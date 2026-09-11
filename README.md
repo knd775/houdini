@@ -18,14 +18,20 @@ merged into it.
 
 Any of these works. The first two need nothing but a browser or the GitHub mobile app:
 
-- Tick the checkbox on the [Preview builds](../../issues) issue.
-- Comment `/preview` on any issue in this repo.
+- Tick a box on the [Preview builds](../../issues/1) issue.
+- Comment on any issue in this repo:
+  - `/preview` builds upstream's current `main`
+  - `/preview <sha>` builds one named commit and leaves `main` alone
+  - `/sync` fast-forwards `main` and stops there
 - Press **Run workflow** on the Preview release workflow in the Actions tab.
 - Push to this branch: `git commit --allow-empty -m "chore: build preview" && git push origin preview`
 
-The comment and checkbox paths are owner-only, since anyone can comment on a public repo. Both react
-to what you did and then post the install URLs back as a comment when the build finishes, so you
-never need to open the run.
+The comment and checkbox paths are owner-only, since anyone can comment on a public repo. Comment
+bodies reach the script through the environment rather than template interpolation, so `/preview`
+with a shell command in it is rejected as a bad sha instead of running.
+
+Every request reacts to what you did and reports back as a comment, so you never need to open the
+run. A sync takes about twenty seconds; a build takes about five minutes.
 
 ### Why this branch is the default branch
 
@@ -37,9 +43,16 @@ cost is that the repo homepage and a fresh `git clone` land here rather than on 
 Revert with `gh repo edit knd775/houdini --default-branch main`, which leaves only the push trigger
 working.
 
-Each build fast-forwards `main` to upstream first, so it doubles as a sync. That push is the only
-thing the workflow writes to this repository, and `git merge --ff-only` means it fails loudly rather
-than merging if `main` has drifted.
+### Syncing main
+
+`/sync` and the sync checkbox exist because changing the default branch took the **Sync fork** button
+away: GitHub only offers it for the default branch, and that's this one now.
+
+A full build fast-forwards `main` first anyway, so it doubles as a sync. Building a named commit
+doesn't, since that's a one-off look at old code rather than a statement about where `main` should be.
+
+That fast-forward is the only thing the workflow writes to this repository, and `git merge --ff-only`
+means it fails loudly rather than merging if `main` has somehow drifted.
 
 ## Installing a preview
 

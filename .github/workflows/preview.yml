@@ -9,10 +9,14 @@ name: Preview release
 # being the repository's default branch, because GitHub fires issue_comment,
 # issues and workflow_dispatch only for workflow files that live there.
 #
-#   tick the checkbox on the Preview builds issue
-#   comment /preview on any issue in this repo
+#   tick a checkbox on the Preview builds issue
+#   comment /preview, /preview <sha> or /sync on any issue in this repo
 #   press Run workflow in the Actions tab
 #   git commit --allow-empty -m "chore: build preview" && git push origin preview
+#
+# /sync and the sync checkbox fast-forward main and stop there, which is the
+# replacement for the Sync fork button. GitHub only offers that button on the
+# default branch, and the default branch is this one now.
 on:
     push:
         branches: [preview]
@@ -23,10 +27,13 @@ on:
         types: [edited]
 
 # Two builds racing to publish the same sha would also fight over main's
-# fast-forward, so a newer request supersedes one already running.
+# fast-forward, so a newer build supersedes one already running. A sync is quick
+# and harmless, so it queues behind a build instead of killing it.
 concurrency:
     group: preview
-    cancel-in-progress: true
+    cancel-in-progress: >-
+        ${{ !startsWith(github.event.comment.body, '/sync') &&
+            !contains(github.event.issue.body, '- [x] Sync main with upstream') }}
 
 env:
     UPSTREAM: HoudiniGraphql/houdini
@@ -56,10 +63,12 @@ jobs:
               github.event_name == 'workflow_dispatch' ||
               (github.event_name == 'issue_comment' &&
                 github.event.sender.login == github.repository_owner &&
-                startsWith(github.event.comment.body, '/preview')) ||
+                (startsWith(github.event.comment.body, '/preview') ||
+                 startsWith(github.event.comment.body, '/sync'))) ||
               (github.event_name == 'issues' &&
                 github.event.sender.login == github.repository_owner &&
-                contains(github.event.issue.body, '- [x] Build a preview'))
+                (contains(github.event.issue.body, '- [x] Build a preview') ||
+                 contains(github.event.issue.body, '- [x] Sync main with upstream')))
             )
         runs-on: ubuntu-22.04
         permissions:
@@ -68,9 +77,54 @@ jobs:
         env:
             GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         steps:
-            - name: Note which issue to report back to
-              if: github.event_name == 'issue_comment' || github.event_name == 'issues'
-              run: echo "ISSUE=${{ github.event.issue.number }}" >> "$GITHUB_ENV"
+            - name: Work out what was asked for
+              # Bodies arrive through env rather than ${{ }} so that a comment
+              # can't inject shell, owner-only trigger or not.
+              env:
+                  COMMENT_BODY: ${{ github.event.comment.body }}
+                  ISSUE_BODY: ${{ github.event.issue.body }}
+                  ISSUE_NUMBER: ${{ github.event.issue.number }}
+              run: |
+                  mode=preview
+                  ref=
+
+                  case "$GITHUB_EVENT_NAME" in
+                      issue_comment)
+                          echo "ISSUE=$ISSUE_NUMBER" >> "$GITHUB_ENV"
+                          command=$(printf '%s' "$COMMENT_BODY" | head -1 | tr -d '\r')
+                          case "$command" in
+                              /sync*) mode=sync ;;
+                              # anything after /preview is a commit to build
+                              /preview*) ref=$(printf '%s' "$command" | awk '{print $2}') ;;
+                          esac
+                          ;;
+                      issues)
+                          echo "ISSUE=$ISSUE_NUMBER" >> "$GITHUB_ENV"
+                          case "$ISSUE_BODY" in
+                              *'- [x] Build a preview'*) mode=preview ;;
+                              *) mode=sync ;;
+                          esac
+                          ;;
+                  esac
+
+                  # Validate before it reaches git, and fail rather than
+                  # silently building main when a typo was meant as a sha.
+                  if [ -n "$ref" ]; then
+                      case "$ref" in
+                          *[!0-9a-fA-F]*)
+                              echo "::error::\"$ref\" is not a commit sha"
+                              exit 1
+                              ;;
+                      esac
+                      if [ "${#ref}" -lt 7 ] || [ "${#ref}" -gt 40 ]; then
+                          echo "::error::\"$ref\" is not a commit sha"
+                          exit 1
+                      fi
+                  fi
+
+                  echo "MODE=$mode" >> "$GITHUB_ENV"
+                  echo "REF=$ref" >> "$GITHUB_ENV"
+                  echo "Mode: $mode. Commit: ${ref:-upstream main}."
 
             - name: Acknowledge the request
               if: env.ISSUE != ''
@@ -83,7 +137,7 @@ jobs:
                       # Clear the checkbox immediately. Ticking it again is then a
                       # second build, and a failed run doesn't leave it stuck on.
                       body=$(gh api "repos/$GITHUB_REPOSITORY/issues/$ISSUE" --jq .body |
-                          sed 's/- \[x\] Build a preview/- [ ] Build a preview/')
+                          sed 's/^- \[x\] /- [ ] /')
                       gh api --silent -X PATCH "repos/$GITHUB_REPOSITORY/issues/$ISSUE" -f body="$body"
                   fi
 
@@ -102,32 +156,55 @@ jobs:
                   ref: ${{ github.workflow_sha }}
                   path: .preview
 
-            - name: Fast-forward main to upstream
+            - name: Resolve the commit to build
               run: |
                   git remote add upstream "https://github.com/$UPSTREAM"
-                  git fetch --no-tags upstream main
-                  # --ff-only enforces the one rule this fork has. If main ever
-                  # picks up a commit of our own, fail here instead of quietly
-                  # writing a merge commit onto the mirror.
-                  git merge --ff-only upstream/main
-                  if [ "$SYNC_MAIN" = 'true' ]; then
-                      git push origin main
+
+                  if [ -n "$REF" ]; then
+                      # Building a named commit is a one-off, so leave main alone.
+                      # Most shas are already here from main's history; a fetch
+                      # covers the rest, and GitHub refuses shas it doesn't have.
+                      git fetch --no-tags upstream main || true
+                      git fetch --no-tags upstream "$REF" 2>/dev/null || true
+                      if ! git cat-file -e "$REF^{commit}" 2>/dev/null; then
+                          echo "::error::$REF isn't a commit in this repository or upstream"
+                          exit 1
+                      fi
+                      git checkout --detach "$REF"
+                      echo "SYNCED=0" >> "$GITHUB_ENV"
+                  else
+                      was=$(git rev-parse HEAD)
+                      git fetch --no-tags upstream main
+                      # --ff-only enforces the one rule this fork has. If main ever
+                      # picks up a commit of our own, fail here instead of quietly
+                      # writing a merge commit onto the mirror.
+                      git merge --ff-only upstream/main
+                      if [ "$SYNC_MAIN" = 'true' ]; then
+                          git push origin main
+                      fi
+                      echo "SYNCED=$(git rev-list --count "$was"..HEAD)" >> "$GITHUB_ENV"
                   fi
+
                   echo "SOURCE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
                   echo "SOURCE_SHORT=$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
 
             - uses: actions/setup-node@v4
+              if: env.MODE != 'sync'
               with:
                   node-version: 24
             - uses: pnpm/action-setup@v4.1.0
+              if: env.MODE != 'sync'
             - uses: actions/setup-go@v5
+              if: env.MODE != 'sync'
               with:
                   go-version-file: go.mod
                   cache: true
 
             - run: pnpm install --frozen-lockfile
+              if: env.MODE != 'sync'
 
             - name: Stamp a preview version on the Go packages
+              if: env.MODE != 'sync'
               # Each Go package's postinstall downloads <name>-<platform>@<version>
               # from npm when its optional platform package is missing. Left at the
               # released version, that fallback pairs upstream's published binary
@@ -142,12 +219,15 @@ jobs:
                   done
 
             - run: pnpm run build
+              if: env.MODE != 'sync'
 
             # The binaries are packed straight out of the build directory, so the
             # executable bit has to survive. Upstream's CI does the same.
             - run: find ./packages -path '*/bin/houdini-*' -type f -exec chmod +x {} +
+              if: env.MODE != 'sync'
 
             - name: Collect publish targets
+              if: env.MODE != 'sync'
               run: |
                   targets=(
                       ./packages/houdini
@@ -182,9 +262,11 @@ jobs:
                   echo "PAYLOAD=$(du -ch "${targets[@]}" | tail -1 | cut -f1)" >> "$GITHUB_ENV"
 
             - name: Resolve workspace specs and prune unbuilt platforms
+              if: env.MODE != 'sync'
               run: node .preview/scripts/prepare-publish.mjs
 
             - name: Publish to pkg.pr.new
+              if: env.MODE != 'sync'
               # --no-compact: a compact URL is resolved through the npm package's
               # repository field, which points at upstream. Previews from this fork
               # have to be addressed as /knd775/houdini/<pkg>@<sha>.
@@ -199,6 +281,7 @@ jobs:
                   $TARGETS
 
             - name: Summarize install URLs
+              if: env.MODE != 'sync'
               run: |
                   {
                       echo "## Preview of \`$UPSTREAM@$SOURCE_SHORT\`"
@@ -214,7 +297,18 @@ jobs:
               if: always() && env.ISSUE != ''
               run: |
                   run_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
-                  if [ -f preview.json ]; then
+
+                  if [ "$MODE" = 'sync' ]; then
+                      if [ "${SYNCED:-0}" -gt 0 ]; then
+                          echo "Fast-forwarded \`main\` to \`$SOURCE_SHORT\`, $SYNCED commits from upstream." > comment.md
+                      elif [ -n "$SOURCE_SHORT" ]; then
+                          echo "\`main\` is already at \`$SOURCE_SHORT\`. Nothing to sync." > comment.md
+                      else
+                          # The only way to get here is main having drifted, which
+                          # --ff-only refuses to paper over.
+                          echo "Sync failed. [Run log]($run_url)" > comment.md
+                      fi
+                  elif [ -f preview.json ]; then
                       {
                           echo "Preview of \`$UPSTREAM@$SOURCE_SHORT\` ([run]($run_url)):"
                           echo
