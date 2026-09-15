@@ -190,6 +190,16 @@ jobs:
                   echo "SOURCE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
                   echo "SOURCE_SHORT=$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
 
+                  # A named commit can come from one of our own branches as easily
+                  # as from upstream, so name the repository that actually has it.
+                  # Anything reachable from upstream's main is upstream's work,
+                  # including old commits; everything else is ours.
+                  if git merge-base --is-ancestor HEAD upstream/main 2>/dev/null; then
+                      echo "SOURCE_REPO=$UPSTREAM" >> "$GITHUB_ENV"
+                  else
+                      echo "SOURCE_REPO=$GITHUB_REPOSITORY" >> "$GITHUB_ENV"
+                  fi
+
             - uses: actions/setup-node@v4
               if: env.MODE != 'sync'
               with:
@@ -287,7 +297,7 @@ jobs:
               if: env.MODE != 'sync'
               run: |
                   {
-                      echo "## Preview of \`$UPSTREAM@$SOURCE_SHORT\`"
+                      echo "## Preview of \`$SOURCE_REPO@$SOURCE_SHORT\`"
                       echo
                       echo "Built from \`$SOURCE_SHA\`. Payload: $PAYLOAD."
                       echo
@@ -316,7 +326,7 @@ jobs:
                       fi
                   elif [ -f preview.json ]; then
                       {
-                          echo "Preview of \`$UPSTREAM@$SOURCE_SHORT\` ([run]($run_url)):"
+                          echo "Preview of \`$SOURCE_REPO@$SOURCE_SHORT\` ([run]($run_url)):"
                           echo
                           echo '```bash'
                           jq -r '.packages[] | select(.name | test("-(linux|darwin|win32)-|-wasm$") | not) | "pnpm add \(.url)"' preview.json
