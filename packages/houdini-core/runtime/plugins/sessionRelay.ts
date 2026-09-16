@@ -14,6 +14,7 @@ import { ArtifactKind } from 'houdini/runtime/types'
 // isn't tied to forms. The no-JS form path never reaches here (the server writes the cookie
 // directly and marks its internal request so no token is minted).
 export const sessionRelay = (): ClientPlugin => () => ({
+	fieldUpdates: true,
 	async end(ctx, { value, resolve }) {
 		const artifact = ctx.artifact as typeof ctx.artifact & {
 			sessionPath?: string

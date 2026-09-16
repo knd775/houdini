@@ -7,6 +7,14 @@ declare module 'houdini' {
 
 export type HoudiniSvelteConfig = {
 	/**
+	 * Generate stores with experimental field-level reactivity through Query.data.
+	 * Changes Query.variables and plain fragment.data to reactive values. Regenerate
+	 * after changing this option. Existing store APIs remain the default.
+	 * @default false
+	 */
+	experimentalFieldReactivity?: boolean
+
+	/**
 	 * A relative path from your houdini.config.js to the file that exports your client as its default value
 	 * @default `./src/client.ts`
 	 */

@@ -1,0 +1,7 @@
+{
+	"extends": "./tsconfig.json",
+	"files": ["legacy-types.ts"],
+	"compilerOptions": {
+		"moduleSuffixes": [""]
+	}
+}

@@ -1,10 +1,11 @@
 import type { QueryStore } from './stores/index.js'
 
 export * from './adapter.js'
-export * from './stores/index.js'
 export * from './fragments.js'
-export * from './types.js'
+export type { ReactiveValue } from './reactivity/snapshot.js'
 export * from './session.js'
+export * from './stores/index.js'
+export * from './types.js'
 
 type LoadResult = Promise<{ [key: string]: QueryStore<any, any> }>
 type LoadAllInput = LoadResult | Record<string, LoadResult>

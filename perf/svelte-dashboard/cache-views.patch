@@ -1,0 +1,1038 @@
+diff --git a/packages/houdini-svelte/runtime/reactivity/state.svelte.ts b/packages/houdini-svelte/runtime/reactivity/state.svelte.ts
+--- a/packages/houdini-svelte/runtime/reactivity/state.svelte.ts
++++ b/packages/houdini-svelte/runtime/reactivity/state.svelte.ts
+@@ -4,6 +4,7 @@
+ import { createSubscriber, SvelteMap } from 'svelte/reactivity'
+ import type { Readable } from 'svelte/store'
+ import { getCurrentConfig } from '$houdini/runtime/config'
++import { CacheView } from './cache.js'
+ import { FieldIndex } from './fields.js'
+ import { project, reconcile } from './projection.svelte.js'
+ import { capture, type ReactiveValue, type ResultKey } from './snapshot.js'
+@@ -42,6 +43,8 @@
+ 			preventExtensions: reject,
+ 		}
+ 	)
++	#cacheView: CacheView | undefined
++	#active = false
+ 	#snapshot: any
+ 	#last: T | undefined
+ 	#fields: FieldIndex | undefined
+@@ -59,6 +62,8 @@
+ 			return `${value.__typename}:${computeID(config, value.__typename, value)}`
+ 		}
+ 		this.#track = createSubscriber(() => {
++			this.#active = true
++			this.#cacheView?.activate()
+ 			let initial = true
+ 			let active = true
+ 			let starting = true
+@@ -77,11 +82,15 @@
+ 			})
+ 			starting = false
+ 			if (failed) {
++				this.#active = false
++				this.#cacheView?.deactivate()
+ 				active = false
+ 				stop()
+ 				throw failure
+ 			}
+ 			return () => {
++				this.#active = false
++				this.#cacheView?.deactivate()
+ 				active = false
+ 				stop()
+ 			}
+@@ -99,7 +108,27 @@
+ 	#update(next: T, allowFields: boolean, emitted = false) {
+ 		if (next === this.#last && !emitted) return
+ 		untrack(() => {
+-			const update = allowFields ? getCacheUpdate(next) : undefined
++			const bound = getCacheUpdate(next)
++			if (bound?.view) {
++				if (!this.#cacheView?.matches(bound)) {
++					this.#cacheView?.deactivate()
++					this.#cacheView = new CacheView(bound.cache, bound.view, this.#active)
++				}
++				this.#values.set('data', this.#cacheView.update(bound))
++				const captured: Record<string, unknown> = {}
++				for (const field of Object.keys(next))
++					if (field !== 'data') captured[field] = capture((next as any)[field])
++				this.#publish(captured, undefined, true)
++				this.#snapshot = captured
++				this.#fields = undefined
++				this.#last = next
++				return
++			}
++			if (this.#cacheView) {
++				this.#cacheView.deactivate()
++				this.#cacheView = undefined
++			}
++			const update = allowFields ? bound : undefined
+ 			if (update && this.#fields?.apply(update, this.#key)) {
+ 				// The data tree and its private snapshot have already been patched.
+ 				// Comparing metadata reuses that snapshot by reference, so it never
+@@ -125,9 +154,14 @@
+ 		})
+ 	}
+ 
+-	#publish(next: Record<string, unknown>, visit?: (current: any, snapshot: any) => void) {
++	#publish(
++		next: Record<string, unknown>,
++		visit?: (current: any, snapshot: any) => void,
++		keepData = false
++	) {
+ 		for (const field of this.#values.keys()) {
+-			if (!owns.call(next, field)) this.#values.delete(field)
++			if (!(keepData && field === 'data') && !owns.call(next, field))
++				this.#values.delete(field)
+ 		}
+ 		for (const field of Object.keys(next)) {
+ 			const value = this.#values.has(field)
+diff --git a/packages/houdini-svelte/runtime/reactivity/cache.ts b/packages/houdini-svelte/runtime/reactivity/cache.ts
+new file mode 100644
+--- /dev/null
++++ b/packages/houdini-svelte/runtime/reactivity/cache.ts
+@@ -0,0 +1,347 @@
++import type { Cache } from 'houdini/runtime/cache'
++import {
++	getRecordIdentity,
++	getRecordSelection,
++	setRecordIdentity,
++} from 'houdini/runtime/cache/identity'
++import { evaluateKey } from 'houdini/runtime/cache/stuff'
++import type { CacheUpdate, CacheViewReference } from 'houdini/runtime/cache/updates'
++import { deepEquals } from 'houdini/runtime/deepEquals'
++import type { SubscriptionSelection } from 'houdini/runtime/types'
++import { untrack } from 'svelte'
++import { SvelteMap } from 'svelte/reactivity'
++import { project, reconcile } from './projection.svelte.js'
++import { cell, type Cell } from './cell.svelte.js'
++import { capture, isContainer, type ResultKey } from './snapshot.js'
++
++type Field = NonNullable<SubscriptionSelection['fields']>[string]
++const key: ResultKey = () => undefined
++const owns = Object.prototype.hasOwnProperty
++const registries = new WeakMap<Cache, CacheSignals>()
++const nodes = new WeakMap<object, RecordView>()
++const descriptors = new Map<string, PropertyDescriptorMap>()
++const reject = () => {
++	throw new TypeError(
++		'Reactive results are readonly. Use a mutation or cache.write() to update data.'
++	)
++}
++
++class Scalar {
++	refs = 0
++	raw: unknown
++	snapshot: unknown
++	value: unknown
++	readonly cell: Cell
++	constructor(
++		readonly signals: CacheSignals,
++		readonly record: string,
++		readonly fieldKey: string,
++		readonly field: Field,
++		readonly variables: {} | null | undefined,
++		seed: unknown,
++		seeded: boolean
++	) {
++		this.raw =
++			seeded &&
++			(seed === null || typeof seed !== 'object') &&
++			!signals.cache._internal_unstable.config.scalars?.[field.type]?.unmarshal
++				? seed
++				: signals.cache._internal_unstable.storage.get(record, fieldKey).value
++		this.snapshot = capture(seeded ? seed : this.read())
++		this.value = project(this.snapshot)
++		this.cell = cell(this.value)
++	}
++	read() {
++		const result = this.signals.cache.read({
++			parent: this.record,
++			variables: this.variables,
++			selection: { fields: { value: { ...this.field, visible: true } } },
++		})
++		return result.data?.value ?? null
++	}
++	update() {
++		const raw = this.signals.cache._internal_unstable.storage.get(
++			this.record,
++			this.fieldKey
++		).value
++		if (Object.is(raw, this.raw)) return
++		this.raw = raw
++		const snapshot = capture(this.read())
++		this.value = reconcile(this.value, this.snapshot, snapshot, key)
++		this.snapshot = snapshot
++		this.cell.value = this.value
++	}
++}
++
++// One signal per observed normalized scalar, shared across selections and query
++// instances. The registry contains only cells retained by active result owners.
++class CacheSignals {
++	readonly cells = new Map<string, Map<string, Scalar>>()
++	epoch = -1
++	constructor(readonly cache: Cache) {}
++	acquire(
++		owner: CacheView,
++		record: string,
++		fieldKey: string,
++		field: Field,
++		variables: {} | null | undefined,
++		seed: unknown,
++		seeded: boolean
++	) {
++		let fields = this.cells.get(record)
++		if (!fields) this.cells.set(record, (fields = new Map()))
++		let scalar = fields.get(fieldKey)
++		if (!scalar) {
++			scalar = new Scalar(this, record, fieldKey, field, variables, seed, seeded)
++			fields.set(fieldKey, scalar)
++		}
++		if (!owner.retained.has(scalar)) {
++			owner.retained.add(scalar)
++			scalar.refs++
++		}
++		return scalar
++	}
++	release(scalar: Scalar) {
++		if (--scalar.refs) return
++		const fields = this.cells.get(scalar.record)!
++		fields.delete(scalar.fieldKey)
++		if (!fields.size) this.cells.delete(scalar.record)
++	}
++	update(update: CacheUpdate) {
++		const epoch = this.cache.getEpoch()
++		if (this.epoch === epoch) return
++		this.epoch = epoch
++		if (update.fields) {
++			for (const { record, key } of update.fields) this.cells.get(record)?.get(key)?.update()
++		} else {
++			for (const fields of this.cells.values())
++				for (const scalar of fields.values()) scalar.update()
++		}
++	}
++}
++
++type Child = { snapshot: any; value: any }
++class RecordView {
++	readonly value: any
++	readonly children = new Map<string, Child>()
++	readonly scalars = new Map<string, Scalar>()
++	generation: number
++	record: NonNullable<ReturnType<typeof getRecordSelection>>
++	constructor(
++		readonly owner: CacheView,
++		public snapshot: any
++	) {
++		this.generation = owner.generation
++		this.record = getRecordSelection(snapshot)!
++		const names = Object.keys(snapshot)
++		const shape = JSON.stringify(names)
++		let shapeDescriptors = descriptors.get(shape)
++		if (!shapeDescriptors) {
++			shapeDescriptors = Object.create(null) as PropertyDescriptorMap
++			for (const name of names)
++				shapeDescriptors[name] = {
++					enumerable: true,
++					get() {
++						return nodes.get(this)!.read(name)
++					},
++					set: reject,
++				}
++			if (descriptors.size >= 128) descriptors.clear()
++			descriptors.set(shape, shapeDescriptors)
++		}
++		this.value = Object.freeze(Object.create(Object.prototype, shapeDescriptors))
++		nodes.set(this.value, this)
++		const record = getRecordSelection(snapshot)!
++		setRecordIdentity(
++			this.value,
++			record.id,
++			record.selection,
++			record.variables,
++			record.hasNullBubble
++		)
++	}
++	read(name: string): unknown {
++		if (this.generation !== this.owner.generation) {
++			this.scalars.clear()
++			this.generation = this.owner.generation
++		}
++		const cached = this.scalars.get(name)
++		if (cached && this.owner.active) return cached.cell.value
++		const linked = this.children.get(name)
++		if (linked) return this.owner.children.get(linked)
++		const record = this.record
++		const field = record.selection?.fields?.[name]
++		if (field && !field.selection) {
++			if (!this.owner.active)
++				return this.owner.readInactive(record.id, field, record.variables)
++			let scalar = this.scalars.get(name)
++			if (!scalar || !this.owner.retained.has(scalar)) {
++				scalar = untrack(() =>
++					this.owner.signals.acquire(
++						this.owner,
++						record.id,
++						evaluateKey(field.keyRaw, record.variables),
++						field,
++						record.variables,
++						this.snapshot[name],
++						this.owner.seedEpoch === this.owner.cache.getEpoch()
++					)
++				)
++				this.scalars.set(name, scalar)
++			}
++			return scalar.cell.value
++		}
++		let child = this.children.get(name)
++		if (!child) {
++			child = untrack(() => {
++				const snapshot = this.snapshot[name]
++				const child = { snapshot, value: this.owner.wrap(snapshot) }
++				this.owner.children.set(child, child.value)
++				return child
++			})
++			this.children.set(name, child)
++		}
++		return this.owner.children.get(child)
++	}
++	update(snapshot: any) {
++		this.snapshot = snapshot
++		this.record = getRecordSelection(snapshot)!
++		for (const [name, child] of this.children) {
++			const value = this.owner.reconcile(child.value, child.snapshot, snapshot[name])
++			child.snapshot = snapshot[name]
++			child.value = value
++			this.owner.children.set(child, value)
++		}
++	}
++}
++
++/** A selected cache view. It builds only the records and fields actually read. */
++export class CacheView {
++	readonly signals: CacheSignals
++	readonly retained = new Set<Scalar>()
++	readonly children = new SvelteMap<Child, unknown>()
++	private snapshot: any
++	private value: any
++	seedEpoch: number
++	generation = 0
++	active: boolean
++	constructor(
++		readonly cache: Cache,
++		readonly reference: CacheViewReference,
++		active: boolean
++	) {
++		this.active = active
++		let signals = registries.get(cache)
++		if (!signals) registries.set(cache, (signals = new CacheSignals(cache)))
++		this.signals = signals
++		this.seedEpoch = reference.epoch
++		this.snapshot = reference.snapshot()
++		this.value = this.wrap(this.snapshot)
++	}
++	matches(update: CacheUpdate) {
++		const reference = update.view!
++		return (
++			this.cache === update.cache &&
++			this.reference.selection === reference.selection &&
++			this.reference.parent === reference.parent &&
++			this.reference.ignoreMasking === reference.ignoreMasking &&
++			deepEquals(this.reference.variables, reference.variables)
++		)
++	}
++	update(update: CacheUpdate) {
++		this.signals.update(update)
++		if (!update.scalarOnly) {
++			const snapshot = update.view!.snapshot()
++			this.seedEpoch = update.view!.epoch
++			this.value = this.reconcile(this.value, this.snapshot, snapshot)
++			this.snapshot = snapshot
++		}
++		return this.value
++	}
++	get current() {
++		return this.value
++	}
++	activate() {
++		this.active = true
++	}
++	deactivate() {
++		this.generation++
++		this.active = false
++		for (const scalar of this.retained) this.signals.release(scalar)
++		this.retained.clear()
++	}
++	readInactive(record: string, field: Field, variables: {} | null | undefined) {
++		return project(
++			capture(
++				this.cache.read({
++					parent: record,
++					variables,
++					selection: { fields: { value: { ...field, visible: true } } },
++				}).data?.value ?? null
++			)
++		)
++	}
++	wrap(snapshot: any): any {
++		if (!isContainer(snapshot)) return capture(snapshot)
++		if (Array.isArray(snapshot))
++			return this.array(snapshot, (name) => this.wrap((snapshot as any)[name]))
++		if (getRecordSelection(snapshot)?.selection) return new RecordView(this, snapshot).value
++		return project(capture(snapshot))
++	}
++	private array(snapshot: any[], read: (name: string) => unknown) {
++		const result: any = new Array(snapshot.length)
++		for (const name of Object.keys(snapshot)) {
++			if (name === '__proto__')
++				Object.defineProperty(result, name, { value: read(name), enumerable: true })
++			else result[name] = read(name)
++		}
++		return Object.freeze(result)
++	}
++	reconcile(current: any, previous: any, next: any): any {
++		if (Object.is(previous, next)) return current
++		if (
++			!isContainer(previous) ||
++			!isContainer(next) ||
++			!isContainer(current) ||
++			Array.isArray(previous) !== Array.isArray(next)
++		)
++			return this.wrap(next)
++		if (Array.isArray(next) && Array.isArray(previous)) {
++			const byKey = new Map<string, number[]>()
++			previous.forEach((item, index) => {
++				const id = item && typeof item === 'object' ? getRecordIdentity(item) : undefined
++				if (id !== undefined) {
++					const indices = byKey.get(id) ?? []
++					indices.push(index)
++					byKey.set(id, indices)
++				}
++			})
++			let changed =
++				next.length !== previous.length ||
++				Object.keys(next).length !== Object.keys(previous).length
++			const result = this.array(next, (name) => {
++				const item = (next as any)[name]
++				const id = item && typeof item === 'object' ? getRecordIdentity(item) : undefined
++				const index =
++					/^(0|[1-9]\d*)$/.test(name) && id !== undefined ? byKey.get(id)?.shift() : name
++				const value =
++					index !== undefined && owns.call(previous, index)
++						? this.reconcile((current as any)[index], (previous as any)[index], item)
++						: this.wrap(item)
++				if (!owns.call(previous, name) || (current as any)[name] !== value) changed = true
++				return value
++			})
++			return changed ? result : current
++		}
++		const node = nodes.get(current)
++		if (!node) return reconcile(current, previous, next, key)
++		if (
++			getRecordIdentity(previous) !== getRecordIdentity(next) ||
++			Object.keys(previous).length !== Object.keys(next).length ||
++			Object.keys(next).some((name) => !owns.call(previous, name))
++		)
++			return this.wrap(next)
++		node.update(next)
++		return current
++	}
++}
+diff --git a/packages/houdini-svelte/runtime/reactivity/cell.svelte.ts b/packages/houdini-svelte/runtime/reactivity/cell.svelte.ts
+new file mode 100644
+--- /dev/null
++++ b/packages/houdini-svelte/runtime/reactivity/cell.svelte.ts
+@@ -0,0 +1,15 @@
++export class Cell {
++	value: unknown
++	constructor(value: unknown) {
++		this.value = $state.raw(value)
++	}
++}
++export function cell(value: unknown): Cell {
++	let result!: Cell
++	// Cell lifetime belongs to the cache view, not the derived that first reads it.
++	const stop = $effect.root(() => {
++		result = new Cell(value)
++	})
++	stop()
++	return result
++}
+diff --git a/packages/houdini/src/runtime/cache/index.ts b/packages/houdini/src/runtime/cache/index.ts
+--- a/packages/houdini/src/runtime/cache/index.ts
++++ b/packages/houdini/src/runtime/cache/index.ts
+@@ -95,7 +95,8 @@
+ 
+ 		this.#notifySubscribers(
+ 			subscribers.concat(notifySubscribers),
+-			notifySubscribers.length ? undefined : notifications.changes()
++			notifySubscribers.length ? undefined : notifications.changes(),
++			notifySubscribers.length ? undefined : notifications.structuralChanges()
+ 		)
+ 
+ 		// return the id to the caller so they can resolve the layer if it was optimistic
+@@ -318,6 +319,9 @@
+ 		// we need to iterate over every field/link in the layer, look at the displayed value
+ 		// and see if the layer is the target
+ 		const allFields: DisplaySummary[] = []
++		const customScalars = Object.values(this._internal_unstable.config.scalars ?? {}).some(
++			(scalar) => scalar.unmarshal
++		)
+ 		for (const target of [layer.fields, layer.links]) {
+ 			for (const [id, fields] of Object.entries(target)) {
+ 				allFields.push(
+@@ -325,6 +329,11 @@
+ 						id,
+ 						field,
+ 						value,
++						scalarOnly:
++							target === layer.fields &&
++							value != null &&
++							field !== '__typename' &&
++							!customScalars,
+ 					}))
+ 				)
+ 			}
+@@ -372,6 +381,7 @@
+ 		// now we have to look at the display fields and compare their value with the current
+ 		// if the value changed then we need to notify the subscribers
+ 		const changes: ChangedField[] = []
++		const structural: ChangedField[] = []
+ 		for (const display of displayFields) {
+ 			const { field, id } = display
+ 
+@@ -384,13 +394,18 @@
+ 			// if the value changed then we need to notify the subscribers
+ 			if (notify) {
+ 				changes.push({ record: id, key: field })
++				if (
++					!display.scalarOnly ||
++					this._internal_unstable.storage.get(id, field).value == null
++				)
++					structural.push({ record: id, key: field })
+ 				toNotify.push(
+ 					...this._internal_unstable.subscriptions.get(id, field).map((sub) => sub[0])
+ 				)
+ 			}
+ 		}
+ 
+-		this.#notifySubscribers(toNotify, changes)
++		this.#notifySubscribers(toNotify, changes, structural)
+ 	}
+ 
+ 	// reset the whole cache
+@@ -420,14 +435,19 @@
+ 		return this._internal_unstable.epoch
+ 	}
+ 
+-	#notifySubscribers(subs: SubscriptionSpec[], fields?: readonly ChangedField[]) {
++	#notifySubscribers(
++		subs: SubscriptionSpec[],
++		fields?: readonly ChangedField[],
++		structural?: readonly ChangedField[]
++	) {
++		// Inactive lazy views must also notice writes made with no subscribers.
++		this._internal_unstable.epoch++
+ 		// if there's no one to notify, its a no-op
+ 		if (subs.length === 0) {
+ 			return
+ 		}
+ 		// advance the epoch before stamping fragment references so every reference
+ 		// produced during this flush carries the new generation number
+-		this._internal_unstable.epoch++
+ 		// the same spec will likely need to be updated multiple times, create the unique list by using the set
+ 		// function's identity
+ 		const notified = new Set<SubscriptionSpec['onMessage']>()
+@@ -435,6 +455,14 @@
+ 			// if we haven't added the set yet
+ 			if (!notified.has(spec.onMessage)) {
+ 				notified.add(spec.onMessage)
++				const scalarOnly =
++					structural !== undefined &&
++					structural.every(
++						({ record, key }) =>
++							!this._internal_unstable.subscriptions
++								.get(record, key)
++								.some(([target]) => target.onMessage === spec.onMessage)
++					)
+ 				const variables = spec.variables?.() || {}
+ 				let read = false
+ 				let data: GraphQLObject | null = null
+@@ -454,7 +482,7 @@
+ 				// trigger the update
+ 				spec.onMessage({
+ 					kind: 'update',
+-					...(spec.fieldUpdates ? { fields } : {}),
++					...(spec.fieldUpdates ? { fields, scalarOnly } : {}),
+ 					get data() {
+ 						return selection()
+ 					},
+@@ -662,7 +690,15 @@
+ 				if (displayLayer && (valueChanged || forceNotify)) {
+ 					// we need to add the fields' subscribers to the set of callbacks
+ 					// we need to invoke
+-					if (toNotify instanceof WriteNotifications) toNotify.record(parent, key)
++					if (toNotify instanceof WriteNotifications)
++						toNotify.record(
++							parent,
++							key,
++							newValue != null &&
++								previousValue != null &&
++								key !== '__typename' &&
++								!this.config.scalars?.[linkedType]?.unmarshal
++						)
+ 					for (const [sub] of currentSubscribers) toNotify.add(sub)
+ 				}
+ 
+@@ -1875,7 +1911,12 @@
+ 	}
+ }
+ 
+-type DisplaySummary = { id: string; field: string; value?: any }
++type DisplaySummary = {
++	scalarOnly?: boolean
++	id: string
++	field: string
++	value?: any
++}
+ 
+ export function fragmentReference({
+ 	component,
+diff --git a/packages/houdini/src/runtime/cache/updates.ts b/packages/houdini/src/runtime/cache/updates.ts
+--- a/packages/houdini/src/runtime/cache/updates.ts
++++ b/packages/houdini/src/runtime/cache/updates.ts
+@@ -1,4 +1,11 @@
+-import type { CacheMessage, QueryResult, SubscriptionSpec } from '../types.js'
++import type {
++	CacheMessage,
++	GraphQLObject,
++	QueryResult,
++	SubscriptionSelection,
++	SubscriptionSpec,
++} from '../types.js'
++import { getRecordSelection, setRecordIdentity } from './identity.js'
+ import type { Cache } from './index.js'
+ 
+ export type ChangedField = { readonly record: string; readonly key: string }
+@@ -8,8 +15,14 @@
+ // reduce a write to a set of document subscribers.
+ export class WriteNotifications extends Set<SubscriptionSpec> {
+ 	complete = true
++	readonly structural = new Map<string, Set<string>>()
+ 	readonly fields = new Map<string, Set<string>>()
+-	record(record: string, key: string) {
++	record(record: string, key: string, scalarOnly = false) {
++		if (!scalarOnly) {
++			let keys = this.structural.get(record)
++			if (!keys) this.structural.set(record, (keys = new Set()))
++			keys.add(key)
++		}
+ 		let keys = this.fields.get(record)
+ 		if (!keys) {
+ 			keys = new Set()
+@@ -23,12 +36,32 @@
+ 			[...keys].map((key) => ({ record, key }))
+ 		)
+ 	}
++	structuralChanges(): ChangedField[] | undefined {
++		if (!this.complete) return undefined
++		return [...this.structural].flatMap(([record, keys]) =>
++			[...keys].map((key) => ({ record, key }))
++		)
++	}
+ }
+ 
+ export type CacheUpdate = {
+ 	cache: Cache
+ 	fields: readonly ChangedField[] | undefined
++	scalarOnly?: boolean
++	view?: CacheViewReference
+ }
++
++export type CacheViewReference = {
++	epoch: number
++	selection: SubscriptionSelection
++	parent?: string
++	variables?: {} | null
++	ignoreMasking?: boolean
++	/** An owned selected snapshot. Ordinary consumers cannot mutate this tree. */
++	snapshot: () => GraphQLObject | null
++}
++
++export type CacheViewSelection = Omit<CacheViewReference, 'snapshot' | 'epoch'>
+ 
+ const updates = new WeakMap<object, CacheUpdate>()
+ 
+@@ -47,14 +80,23 @@
+ export function cacheResult(
+ 	cache: Cache,
+ 	message: Extract<CacheMessage, { kind: 'update' }>,
+-	metadata: Omit<QueryResult, 'data'>
++	metadata: Omit<QueryResult, 'data'>,
++	reference?: CacheViewSelection
+ ): QueryResult {
+ 	let overridden = false
+ 	let data: QueryResult['data'] = null
++	let exposed = false
++	let claimed = false
++	let owned: GraphQLObject | null = null
+ 	const result = {
+ 		...metadata,
+ 		get data() {
+-			return overridden ? data : message.data
++			if (overridden) return data
++			if (!exposed) {
++				data = claimed ? copySnapshot(owned) : message.data
++				exposed = true
++			}
++			return data
+ 		},
+ 		set data(value: QueryResult['data']) {
+ 			overridden = true
+@@ -62,6 +104,66 @@
+ 			updates.delete(result)
+ 		},
+ 	}
+-	updates.set(result, { cache, fields: message.fields })
++	updates.set(result, {
++		cache,
++		fields: message.fields,
++		scalarOnly: message.scalarOnly,
++		view: reference && {
++			...reference,
++			epoch: cache.getEpoch(),
++			snapshot() {
++				if (!claimed) {
++					// A normal subscriber may have modified its snapshot. Read from the
++					// cache when crossing from that public tree into an owned live view.
++					owned = exposed ? cache.read(reference).data : message.data
++					claimed = true
++				}
++				return owned
++			},
++		},
++	})
+ 	return result
+ }
++
++export function cacheViewResult(
++	cache: Cache,
++	reference: CacheViewSelection,
++	value: QueryResult,
++	overrides?: Partial<QueryResult>
++): QueryResult {
++	const metadata: Record<string, any> = {}
++	for (const field of Object.keys(value))
++		if (field !== 'data') metadata[field] = (value as any)[field]
++	for (const field of Object.keys(overrides ?? {}))
++		if (field !== 'data') metadata[field] = (overrides as any)[field]
++	return cacheResult(
++		cache,
++		{ kind: 'update', data: overrides && 'data' in overrides ? overrides.data! : value.data },
++		metadata as Omit<QueryResult, 'data'>,
++		reference
++	)
++}
++
++// Copy only at the mixed live-view/snapshot boundary. A store-only consumer gets
++// the original selected snapshot; a live-view-only consumer never copies it.
++function copySnapshot<T>(value: T, seen = new Map<object, any>()): T {
++	if (value === null || typeof value !== 'object') return value
++	if (value instanceof Date && Object.getPrototypeOf(value) === Date.prototype)
++		return new Date(value.getTime()) as T
++	const prototype = Object.getPrototypeOf(value)
++	if (!Array.isArray(value) && prototype !== Object.prototype && prototype !== null) return value
++	if (seen.has(value)) return seen.get(value)
++	const copy: any = Array.isArray(value) ? new Array(value.length) : {}
++	seen.set(value, copy)
++	for (const name of Object.keys(value))
++		Object.defineProperty(copy, name, {
++			value: copySnapshot((value as any)[name], seen),
++			enumerable: true,
++			configurable: true,
++			writable: true,
++		})
++	const record = getRecordSelection(value)
++	if (record)
++		setRecordIdentity(copy, record.id, record.selection, record.variables, record.hasNullBubble)
++	return copy
++}
+diff --git a/packages/houdini/src/runtime/types.ts b/packages/houdini/src/runtime/types.ts
+--- a/packages/houdini/src/runtime/types.ts
++++ b/packages/houdini/src/runtime/types.ts
+@@ -322,6 +322,7 @@
+ 			data: _Data
+ 			// Undefined means the whole selection must be refreshed, e.g. cache.reset().
+ 			fields?: readonly { readonly record: string; readonly key: string }[]
++			scalarOnly?: boolean
+ 	  }
+ 	| {
+ 			kind: 'refetch'
+diff --git a/packages/houdini-core/runtime/plugins/cache.ts b/packages/houdini-core/runtime/plugins/cache.ts
+--- a/packages/houdini-core/runtime/plugins/cache.ts
++++ b/packages/houdini-core/runtime/plugins/cache.ts
+@@ -1,4 +1,5 @@
+ import { Cache } from 'houdini/runtime/cache'
++import { cacheViewResult } from 'houdini/runtime/cache/updates'
+ import type { ClientPlugin } from 'houdini/runtime/documentStore'
+ import { ArtifactKind, CachePolicy, DataSource, type GraphQLObject } from 'houdini/runtime/types'
+ 
+@@ -46,8 +47,17 @@
+ 	}): ClientPlugin =>
+ 	() => {
+ 		return {
++			fieldUpdates: true,
+ 			beforeNetwork(ctx, { initialValue, next, resolve, marshalVariables }) {
+ 				const { policy, artifact } = ctx
++				const result = (value: any, allowed = true) =>
++					ctx.documentStore.fieldUpdates && allowed
++						? cacheViewResult(
++								localCache,
++								{ selection: artifact.selection, variables: marshalVariables(ctx) },
++								value
++							)
++						: value
+ 				let useCache = false
+ 				// enforce cache policies for queries
+ 				if (
+@@ -84,30 +94,39 @@
+ 
+ 						// if the policy is cacheOnly and we got this far, we need to return null (no network request will be sent)
+ 						if (policy === CachePolicy.CacheOnly) {
+-							return resolve(ctx, {
+-								fetching: false,
+-								variables: ctx.variables ?? null,
+-								data: allowed ? value.data : initialValue.data,
+-								errors: null,
+-								source: DataSource.Cache,
+-								partial: allowed ? value.partial : false,
+-								stale: value.stale,
+-							})
++							return resolve(
++								ctx,
++								result(
++									{
++										fetching: false,
++										variables: ctx.variables ?? null,
++										data: allowed ? value.data : initialValue.data,
++										errors: null,
++										source: DataSource.Cache,
++										partial: allowed ? value.partial : false,
++										stale: value.stale,
++									},
++									allowed
++								)
++							)
+ 						}
+ 
+ 						// if we have data, use that unless it's partial data and we don't allow that
+ 						useCache = !!(value.data !== null && allowed)
+ 
+ 						if (useCache) {
+-							resolve(ctx, {
+-								fetching: false,
+-								variables: ctx.variables ?? null,
+-								data: value.data,
+-								errors: null,
+-								source: DataSource.Cache,
+-								partial: value.partial,
+-								stale: value.stale,
+-							})
++							resolve(
++								ctx,
++								result({
++									fetching: false,
++									variables: ctx.variables ?? null,
++									data: value.data,
++									errors: null,
++									source: DataSource.Cache,
++									partial: value.partial,
++									stale: value.stale,
++								})
++							)
+ 						}
+ 
+ 						// if we used the cache data and there's no followup necessary, we're done
+@@ -233,6 +252,16 @@
+ 							ignoreMasking: serverSide,
+ 						}).data,
+ 					}
++					if (ctx.documentStore.fieldUpdates)
++						value = cacheViewResult(
++							targetCache,
++							{
++								selection: ctx.artifact.selection,
++								variables: marshalVariables(ctx),
++								ignoreMasking: serverSide,
++							},
++							value
++						)
+ 				}
+ 
+ 				// we're done. don't change the result value
+diff --git a/packages/houdini-core/runtime/plugins/query.ts b/packages/houdini-core/runtime/plugins/query.ts
+--- a/packages/houdini-core/runtime/plugins/query.ts
++++ b/packages/houdini-core/runtime/plugins/query.ts
+@@ -1,6 +1,6 @@
+ import type { RuntimeScalarPayload } from 'houdini'
+ import type { Cache } from 'houdini/runtime/cache'
+-import { cacheResult } from 'houdini/runtime/cache/updates'
++import { cacheResult, cacheViewResult } from 'houdini/runtime/cache/updates'
+ import { ArtifactKind, CachePolicy, DataSource, type SubscriptionSpec } from 'houdini/runtime/types'
+ 
+ import { documentPlugin } from './utils/index.js'
+@@ -89,14 +89,19 @@
+ 
+ 							resolve(
+ 								ctx,
+-								cacheResult(cache, message, {
+-									errors: null,
+-									fetching: false,
+-									partial: false,
+-									stale: false,
+-									source: DataSource.Cache,
+-									variables: ctx.variables ?? {},
+-								})
++								cacheResult(
++									cache,
++									message,
++									{
++										errors: null,
++										fetching: false,
++										partial: false,
++										stale: false,
++										source: DataSource.Cache,
++										variables: ctx.variables ?? {},
++									},
++									{ selection: ctx.artifact.selection, variables }
++								)
+ 							)
+ 						},
+ 					}
+@@ -109,13 +114,20 @@
+ 						ctx.policy !== CachePolicy.NoCache
+ 					) {
+ 						const cached = cache.read({ selection: ctx.artifact.selection, variables })
+-						return resolve(ctx, {
+-							...value,
+-							data: cached.data,
+-							partial: cached.partial,
+-							stale: cached.stale,
+-							source: DataSource.Cache,
+-						})
++						return resolve(
++							ctx,
++							cacheViewResult(
++								cache,
++								{ selection: ctx.artifact.selection, variables },
++								value,
++								{
++									data: cached.data,
++									partial: cached.partial,
++									stale: cached.stale,
++									source: DataSource.Cache,
++								}
++							)
++						)
+ 					}
+ 				}
+ 
+diff --git a/packages/houdini-core/runtime/plugins/fragment.ts b/packages/houdini-core/runtime/plugins/fragment.ts
+--- a/packages/houdini-core/runtime/plugins/fragment.ts
++++ b/packages/houdini-core/runtime/plugins/fragment.ts
+@@ -1,6 +1,6 @@
+ import { deepEquals } from 'houdini/runtime'
+ import type { Cache } from 'houdini/runtime/cache'
+-import { cacheResult } from 'houdini/runtime/cache/updates'
++import { cacheResult, cacheViewResult } from 'houdini/runtime/cache/updates'
+ import { ArtifactKind, DataSource, type SubscriptionSpec } from 'houdini/runtime/types'
+ 
+ import { documentPlugin } from './utils/index.js'
+@@ -61,14 +61,23 @@
+ 
+ 							resolve(
+ 								ctx,
+-								cacheResult(cache, message, {
+-									errors: null,
+-									fetching: false,
+-									partial: false,
+-									stale: false,
+-									source: DataSource.Cache,
+-									variables,
+-								})
++								cacheResult(
++									cache,
++									message,
++									{
++										errors: null,
++										fetching: false,
++										partial: false,
++										stale: false,
++										source: DataSource.Cache,
++										variables,
++									},
++									{
++										selection: ctx.artifact.selection,
++										parent: ctx.stuff.parentID,
++										variables,
++									}
++								)
+ 							)
+ 						},
+ 					}
+@@ -78,15 +87,26 @@
+ 
+ 					lastReference = currentReference
+ 					if (ctx.setup && ctx.documentStore.fieldUpdates) {
+-						return resolve(ctx, {
+-							...initialValue,
+-							data: cache.read({
+-								parent: ctx.stuff.parentID,
+-								selection: ctx.artifact.selection,
+-								variables,
+-							}).data,
+-							source: DataSource.Cache,
+-						})
++						return resolve(
++							ctx,
++							cacheViewResult(
++								cache,
++								{
++									selection: ctx.artifact.selection,
++									parent: ctx.stuff.parentID,
++									variables,
++								},
++								initialValue,
++								{
++									data: cache.read({
++										parent: ctx.stuff.parentID,
++										selection: ctx.artifact.selection,
++										variables,
++									}).data,
++									source: DataSource.Cache,
++								}
++							)
++						)
+ 					}
+ 				}
+ 
+diff --git a/packages/houdini-svelte/runtime/stores/query.ts b/packages/houdini-svelte/runtime/stores/query.ts
+--- a/packages/houdini-svelte/runtime/stores/query.ts
++++ b/packages/houdini-svelte/runtime/stores/query.ts
+@@ -185,10 +185,9 @@
+ 			await request
+ 		}
+ 
+-		// Preserve fetch's snapshot semantics without a temporary subscription.
+-		const result = this.observer.state
+-		void result.data
+-		return result
++		// The observer already owns this result. Avoid an imperative subscription
++		// that would materialize data even when the caller only awaits completion.
++		return this.observer.state
+ 	}
+ }
+ 

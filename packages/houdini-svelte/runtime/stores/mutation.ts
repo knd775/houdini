@@ -7,7 +7,7 @@ import type {
 } from 'houdini/runtime'
 
 import { initClient } from '../client.js'
-import { BaseStore } from './base.js'
+import { BaseStore } from './mode.js'
 import { fetchParams } from './query.js'
 
 export class MutationStore<

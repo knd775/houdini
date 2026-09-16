@@ -5,22 +5,20 @@ import type {
 	GraphQLObject,
 } from 'houdini/runtime'
 import { CompiledSubscriptionKind } from 'houdini/runtime'
-import { derived, writable, type Subscriber, type Writable } from 'svelte/store'
+import { derived, type Subscriber } from 'svelte/store'
 
 import { initClient } from '../client.js'
 import { getSession } from '../session.js'
-import { BaseStore } from './base.js'
+import { SubscriptionStoreBase } from './mode.js'
 
 export class SubscriptionStore<
 	_Data extends GraphQLObject,
 	_Input extends GraphQLVariables | null | undefined,
-> extends BaseStore<_Data, _Input, SubscriptionArtifact> {
+> extends SubscriptionStoreBase<_Data, _Input> {
 	kind = CompiledSubscriptionKind
-	fetchingStore: Writable<boolean>
 
 	constructor({ artifact }: { artifact: SubscriptionArtifact }) {
 		super({ artifact })
-		this.fetchingStore = writable(false)
 	}
 
 	async listen(variables?: _Input, args?: { metadata: App.Metadata }) {

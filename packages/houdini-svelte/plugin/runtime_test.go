@@ -2,6 +2,7 @@ package plugin_test
 
 import (
 	"context"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -11,6 +12,45 @@ import (
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
 )
+
+func TestRuntime_FieldReactivityMode(t *testing.T) {
+	for _, enabled := range []bool{false, true} {
+		name := "legacy by default"
+		if enabled {
+			name = "experimental opt-in"
+		}
+		t.Run(name, func(t *testing.T) {
+			tests.RunTable(t, tests.Table[config.PluginConfig, *plugin.HoudiniSvelte]{
+				Schema: `type Query { hello: String }`,
+				Plugin: tests.Plugin[config.PluginConfig]{
+					Name:   "houdini-svelte",
+					Config: config.PluginConfig{ExperimentalFieldReactivity: enabled},
+				},
+				Tests: []tests.Test[config.PluginConfig]{{Name: "selects a typed runtime module"}},
+				PerformTest: func(t *testing.T, p *plugin.HoudiniSvelte, _ tests.Test[config.PluginConfig]) {
+					source, err := os.ReadFile("../runtime/stores/mode.ts")
+					require.NoError(t, err)
+					generated, err := p.TransformRuntime(context.Background(), filepath.Join("stores", "mode.ts"), string(source))
+					require.NoError(t, err)
+					if enabled {
+						require.Contains(t, generated, "export * from '../reactivity/stores.js'")
+						require.NotContains(t, generated, "legacy.js")
+					} else {
+						require.Contains(t, generated, "export * from './legacy.js'")
+						require.NotContains(t, generated, "reactivity/stores.js")
+					}
+					// Mode changes regenerate this module from the same source. Shared
+					// store implementations and custom base-class imports stay intact.
+					shared, err := os.ReadFile("../runtime/stores/query.ts")
+					require.NoError(t, err)
+					generated, err = p.TransformRuntime(context.Background(), filepath.Join("stores", "query.ts"), string(shared))
+					require.NoError(t, err)
+					require.Contains(t, generated, string(shared))
+				},
+			})
+		})
+	}
+}
 
 func TestRuntime_graphqlTag(t *testing.T) {
 	tests.RunTable(t, tests.Table[config.PluginConfig, *plugin.HoudiniSvelte]{

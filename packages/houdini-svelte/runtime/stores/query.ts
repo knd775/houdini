@@ -1,19 +1,19 @@
-import type { HoudiniClient } from '$houdini/runtime/client'
-import { getCurrentConfig } from '$houdini/runtime/config'
 import type { LoadEvent } from '@sveltejs/kit'
-import type { HoudiniSvelteConfig } from 'houdini-svelte'
-import type { FetchContext } from 'houdini/runtime'
-import * as log from 'houdini/runtime'
 import type {
 	CachePolicies,
-	GraphQLVariables,
+	FetchContext,
 	GraphQLObject,
+	GraphQLVariables,
 	MutationArtifact,
 	QueryArtifact,
 	QueryResult,
 } from 'houdini/runtime'
+import * as log from 'houdini/runtime'
 import { ArtifactKind, CachePolicy, CompiledQueryKind } from 'houdini/runtime'
+import type { HoudiniSvelteConfig } from 'houdini-svelte'
 import { get } from 'svelte/store'
+import type { HoudiniClient } from '$houdini/runtime/client'
+import { getCurrentConfig } from '$houdini/runtime/config'
 
 import { clientStarted, isBrowser } from '../adapter.js'
 import { initClient } from '../client.js'
@@ -24,7 +24,7 @@ import type {
 	QueryStoreFetchParams,
 	RequestEventFetchParams,
 } from '../types.js'
-import { BaseStore } from './base.js'
+import { QueryStoreBase } from './mode.js'
 
 export class QueryStore<
 	_Data extends GraphQLObject,
@@ -32,10 +32,7 @@ export class QueryStore<
 	// generated stores narrow this to their document's artifact type so a store
 	// can be matched back to its result/input types (e.g. by cache.read/write)
 	_Artifact extends QueryArtifact = QueryArtifact,
-> extends BaseStore<_Data, _Input, _Artifact> {
-	// whether the store requires variables for input
-	variables: boolean
-
+> extends QueryStoreBase<_Data, _Input, _Artifact> {
 	// identify it as a query store
 	kind = CompiledQueryKind
 
@@ -48,10 +45,10 @@ export class QueryStore<
 	constructor({ artifact, storeName, variables }: StoreConfig<_Data, _Input, _Artifact>) {
 		super({
 			artifact,
+			variables,
 		})
 
 		this.storeName = storeName
-		this.variables = variables
 	}
 
 	/**
@@ -185,8 +182,10 @@ This will result in duplicate queries. If you are trying to ensure there is alwa
 			await request
 		}
 
-		// the store will have been updated already since we waited for the response
-		return get(this.observer)
+		// Preserve fetch's snapshot semantics without a temporary subscription.
+		const result = this.observer.state
+		void result.data
+		return result
 	}
 }
 

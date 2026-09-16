@@ -35,3 +35,4 @@ mise.toml
 # Benchmark outputs — only benchmark.json (the full baseline) is committed
 perf/benchmark.*.json
 perf/benchmark.quick.json
+perf/svelte-*/results*.json

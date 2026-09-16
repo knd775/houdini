@@ -1,5 +1,6 @@
 import type { Fragment, FragmentArtifact, GraphQLObject } from 'houdini/runtime'
 import type { Readable } from 'svelte/store'
+import { fragmentResult, type FragmentData } from './stores/mode.js'
 
 import type { FragmentStore } from './stores/index.js'
 import type {
@@ -21,17 +22,17 @@ type AnyFragmentStoreFor<_Data extends GraphQLObject> =
 export function fragment<_Data extends GraphQLObject, _Fragment extends Fragment<_Data>>(
 	ref: ReadonlyArray<_Fragment>,
 	fragment: FragmentStore<_Data, {}>
-): Readable<Array<Exclude<_Data, undefined>>> & {
-	data: Readable<ReadonlyArray<_Fragment>>
-	artifact: FragmentArtifact
-}
+): Readable<Array<Exclude<_Data, undefined>>> &
+	FragmentData<Array<Exclude<_Data, undefined>>, ReadonlyArray<_Fragment>> & {
+		artifact: FragmentArtifact
+	}
 export function fragment<_Data extends GraphQLObject, _Fragment extends Fragment<_Data>>(
 	ref: ReadonlyArray<_Fragment> | null | undefined,
 	fragment: FragmentStore<_Data, {}>
-): Readable<Array<Exclude<_Data, undefined>>> & {
-	data: Readable<ReadonlyArray<_Fragment>>
-	artifact: FragmentArtifact
-}
+): Readable<Array<Exclude<_Data, undefined>>> &
+	FragmentData<Array<Exclude<_Data, undefined>>, ReadonlyArray<_Fragment>> & {
+		artifact: FragmentArtifact
+	}
 
 // function overloads meant to only return a nullable value
 // if the reference type was nullable.
@@ -41,17 +42,17 @@ export function fragment<_Data extends GraphQLObject, _Fragment extends Fragment
 export function fragment<_Data extends GraphQLObject, _Fragment extends Fragment<_Data>>(
 	ref: _Fragment,
 	fragment: FragmentStore<_Data, {}>
-): Readable<Exclude<_Data, undefined>> & {
-	data: Readable<_Fragment>
-	artifact: FragmentArtifact
-}
+): Readable<Exclude<_Data, undefined>> &
+	FragmentData<Exclude<_Data, undefined>, _Fragment> & {
+		artifact: FragmentArtifact
+	}
 export function fragment<_Data extends GraphQLObject, _Fragment extends Fragment<_Data>>(
 	ref: _Fragment | null | undefined,
 	fragment: FragmentStore<_Data, {}>
-): Readable<Exclude<_Data, undefined> | null> & {
-	data: Readable<_Fragment | null>
-	artifact: FragmentArtifact
-}
+): Readable<Exclude<_Data, undefined> | null> &
+	FragmentData<Exclude<_Data, undefined> | null, _Fragment | null> & {
+		artifact: FragmentArtifact
+	}
 export function fragment<_Data extends GraphQLObject>(
 	ref: Fragment<_Data> | ReadonlyArray<Fragment<_Data>> | null | undefined,
 	store: FragmentStore<_Data, {}>
@@ -67,11 +68,7 @@ export function fragment<_Data extends GraphQLObject>(
 	// Fragment<_Data> structurally satisfies the { [fragmentKey]: _ReferenceType } branch at runtime.
 	const fragmentStore = store.get(ref)
 
-	return {
-		...fragmentStore,
-		artifact: store.artifact,
-		data: { subscribe: fragmentStore.subscribe },
-	}
+	return fragmentResult(fragmentStore, store.artifact)
 }
 
 export function paginatedFragment<_Data extends GraphQLObject, _Fragment extends Fragment<_Data>>(

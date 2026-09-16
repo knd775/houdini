@@ -9,6 +9,15 @@ import {
 } from '../../../lib/utils/testsHelper'
 
 test.describe('Svelte 5 runes SSR page', () => {
+	test.describe('without JavaScript', () => {
+		test.use({ javaScriptEnabled: false })
+
+		test('renders query data on the server', async ({ page }) => {
+			await page.goto(routes.Svelte5_Runes_Simple_SSR)
+			await expect_to_be(page, 'Bruce Willis')
+		})
+	})
+
 	test('User name is filled in correctly', async ({ page }) => {
 		await goto(page, routes.Svelte5_Runes_Simple_SSR)
 

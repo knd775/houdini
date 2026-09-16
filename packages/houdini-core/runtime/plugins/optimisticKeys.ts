@@ -3,8 +3,8 @@ import type { Cache } from 'houdini/runtime/cache'
 import type { ClientPlugin } from 'houdini/runtime/documentStore'
 import type {
 	GraphQLObject,
-	NestedList,
 	GraphQLValue,
+	NestedList,
 	SubscriptionSelection,
 } from 'houdini/runtime/types'
 import { ArtifactKind } from 'houdini/runtime/types'
@@ -44,6 +44,7 @@ export const optimisticKeys =
 	): ClientPlugin =>
 	() => {
 		return {
+			fieldUpdates: true,
 			async start(ctx, { next }) {
 				// the optimistic response gets passed in the context's stuff bag
 				const optimisticResponse = ctx.stuff.optimisticResponse

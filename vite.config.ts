@@ -1,8 +1,13 @@
 /// <reference types="vitest" />
 import path from 'path'
 import { defineConfig } from 'vite'
+import { createRequire } from 'node:module'
+
+const requireSvelte = createRequire(new URL('./packages/houdini-svelte/package.json', import.meta.url))
+const { svelte } = await import(requireSvelte.resolve('@sveltejs/vite-plugin-svelte'))
 
 export default defineConfig({
+	plugins: [svelte({ configFile: false, prebundleSvelteLibraries: false })],
 	resolve: {
 		alias: {
 			$houdini: path.resolve('./packages/houdini/src'),
@@ -19,6 +24,7 @@ export default defineConfig({
 			'./packages/houdini-react/runtime/**/*.test.{ts,js}',
 			'./packages/houdini-react/package/**/*.test.{ts,js}',
 			'./packages/houdini-svelte/package/**/*.test.{ts,js}',
+			'./packages/houdini-svelte/runtime/**/*.test.{ts,js}',
 			'./packages/houdini-core/runtime/**/*.test.{ts,js}',
 			'./site/**/*.test.{ts,js}',
 		],

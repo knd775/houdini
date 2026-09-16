@@ -1,16 +1,17 @@
 import type { LoadEvent, RequestEvent } from '@sveltejs/kit'
 import type {
-	FetchQueryResult,
 	CompiledFragmentKind,
-	QueryResult,
-	GraphQLObject,
 	CursorHandlers,
+	FetchParams,
+	FetchQueryResult,
+	GraphQLObject,
+	HoudiniFetchContext,
 	OffsetHandlers,
 	PageInfo,
-	HoudiniFetchContext,
-	FetchParams,
+	QueryResult,
 } from 'houdini/runtime'
 import type { Readable } from 'svelte/store'
+import type { FragmentState } from './stores/mode.js'
 
 export type QueryInputs<_Data> = FetchQueryResult<_Data> & { variables: { [key: string]: any } }
 
@@ -23,10 +24,11 @@ export type KitLoadResponse = {
 	maxage?: number
 }
 
-export type FragmentStoreInstance<_Data, _Input> = Readable<_Data> & {
-	variables: _Input
-	kind: typeof CompiledFragmentKind
-}
+export type FragmentStoreInstance<_Data, _Input> = Readable<_Data> &
+	FragmentState<_Data> & {
+		variables: _Input
+		kind: typeof CompiledFragmentKind
+	}
 
 type Reshape<_Data, _Input> = Omit<QueryResult<_Data, _Input>, 'data'> & { data: _Data }
 

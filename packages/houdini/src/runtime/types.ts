@@ -313,6 +313,8 @@ export type SubscriptionSelection = Readonly<{
 	}
 }>
 
+export type ChangedField = { readonly record: string; readonly key: string }
+
 // the cache communicates with subscribers using tagged messages so that
 // it can push more than just new data (for example, asking the document
 // to refetch itself)
@@ -320,6 +322,8 @@ export type CacheMessage<_Data = any> =
 	| {
 			kind: 'update'
 			data: _Data
+			// Undefined means the whole selection must be refreshed, e.g. cache.reset().
+			fields?: readonly ChangedField[]
 	  }
 	| {
 			kind: 'refetch'
@@ -333,6 +337,8 @@ export type SubscriptionSpec = Readonly<{
 	kind?: ArtifactKinds
 	selection: SubscriptionSelection
 	onMessage: (message: CacheMessage) => void
+	// Internal consumers can process fields synchronously without materializing data.
+	fieldUpdates?: boolean
 	parentID?: string
 	variables?: () => any
 }>

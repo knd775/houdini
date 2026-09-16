@@ -1,9 +1,9 @@
 import type { ArtifactKinds } from 'houdini/runtime'
 import type {
-	ClientPlugin,
-	ClientPluginExitPhase,
-	ClientPluginEnterPhase,
 	ClientHooks,
+	ClientPlugin,
+	ClientPluginEnterPhase,
+	ClientPluginExitPhase,
 } from 'houdini/runtime/documentStore'
 
 export const documentPlugin = (kind: ArtifactKinds, source: () => ClientHooks): ClientPlugin => {
@@ -40,6 +40,8 @@ export const documentPlugin = (kind: ArtifactKinds, source: () => ClientHooks): 
 
 		// return the modified hooks
 		return {
+			// These wrappers synchronously pass through cache updates for other kinds.
+			fieldUpdates: true,
 			start: enterWrapper(sourceHandlers.start),
 			network: enterWrapper(sourceHandlers.network),
 			beforeNetwork: enterWrapper(sourceHandlers.beforeNetwork),

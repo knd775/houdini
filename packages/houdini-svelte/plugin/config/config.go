@@ -28,6 +28,8 @@ type PluginConfig struct {
 	CustomStores PluginConfigStorePaths `json:"customStores"`
 	// Static removes the session infrastructure from the application
 	Static bool `json:"static"`
+	// ExperimentalFieldReactivity selects the direct-field Svelte runtime at generation time.
+	ExperimentalFieldReactivity bool `json:"experimentalFieldReactivity"`
 }
 
 type PluginConfigStorePaths struct {

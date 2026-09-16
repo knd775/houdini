@@ -1,6 +1,7 @@
 import type { RuntimeScalarPayload } from 'houdini'
 import type { Cache } from 'houdini/runtime/cache'
-import { type SubscriptionSpec, ArtifactKind, CachePolicy, DataSource } from 'houdini/runtime/types'
+import { cacheResult } from 'houdini/runtime/cache/updates'
+import { ArtifactKind, CachePolicy, DataSource, type SubscriptionSpec } from 'houdini/runtime/types'
 
 import { documentPlugin } from './utils/index.js'
 
@@ -19,7 +20,7 @@ export const query = (cache: Cache) =>
 
 		// the function to call when a query is sent
 		return {
-			start(ctx, { next }) {
+			start(ctx, { next, marshalVariables, variablesChanged }) {
 				const runtimeScalarPayload: RuntimeScalarPayload = {
 					session: ctx.session,
 				}
@@ -45,7 +46,33 @@ export const query = (cache: Cache) =>
 					),
 					...ctx.variables,
 				}
-				next(ctx)
+				// Refresh at the end of setup so custom input hooks have run and
+				// custom result hooks receive the refreshed data exactly once.
+				next(
+					ctx,
+					ctx.setup && ctx.documentStore.fieldUpdates
+						? (ctx, value) => {
+								if (
+									!variablesChanged(ctx) ||
+									ctx.cacheParams?.disableSubscriptions ||
+									ctx.policy === CachePolicy.NoCache
+								)
+									return value
+								const cached = cache.read({
+									fieldUpdates: true,
+									selection: ctx.artifact.selection,
+									variables: marshalVariables(ctx),
+								})
+								return {
+									...value,
+									data: cached.data,
+									partial: cached.partial,
+									stale: cached.stale,
+									source: DataSource.Cache,
+								}
+							}
+						: undefined
+				)
 			},
 
 			// patch subscriptions on the way out so that we don't get a cache update
@@ -71,6 +98,7 @@ export const query = (cache: Cache) =>
 					subscriptionSpec = {
 						rootType: ctx.artifact.rootType,
 						kind: ctx.artifact.kind,
+						fieldUpdates: ctx.documentStore.fieldUpdates,
 						selection: ctx.artifact.selection,
 						variables: () => variables,
 						onMessage: (message) => {
@@ -85,15 +113,17 @@ export const query = (cache: Cache) =>
 								return
 							}
 
-							resolve(ctx, {
-								data: message.data,
-								errors: null,
-								fetching: false,
-								partial: false,
-								stale: false,
-								source: DataSource.Cache,
-								variables: ctx.variables ?? {},
-							})
+							resolve(
+								ctx,
+								cacheResult(cache, message, {
+									errors: null,
+									fetching: false,
+									partial: false,
+									stale: false,
+									source: DataSource.Cache,
+									variables: ctx.variables ?? {},
+								})
+							)
 						},
 					}
 

@@ -5,8 +5,8 @@ import { deepEquals } from '../deepEquals.js'
 import { flatten } from '../flatten.js'
 import { computeKey } from '../key.js'
 import { getFieldsForType } from '../selection.js'
-import { PendingValue } from '../types.js'
 import type {
+	ChangedField,
 	GraphQLObject,
 	GraphQLValue,
 	ListFilter,
@@ -18,8 +18,9 @@ import type {
 	ValueMap,
 	ValueNode,
 } from '../types.js'
-import { ArtifactKind, fragmentKey } from '../types.js'
+import { ArtifactKind, fragmentKey, PendingValue } from '../types.js'
 import { GarbageCollector } from './gc.js'
+import { markNullBubble, setRecordMetadata } from './identity.js'
 import type { ListCollection } from './lists.js'
 import { ListManager, opaqueListID } from './lists.js'
 import { StaleManager } from './staleManager.js'
@@ -27,8 +28,11 @@ import type { Layer, LayerID } from './storage.js'
 import { InMemoryStorage } from './storage.js'
 import { evaluateKey, rootID } from './stuff.js'
 import { filterValue, InMemorySubscriptions } from './subscription.js'
+import { WriteNotifications } from './updates.js'
 
 export class Cache {
+	// Writes only collect field changes while a field-aware subscriber needs them.
+	#fieldSubscribers = new Map<SubscriptionSpec['onMessage'], number>()
 	// the internal implementation for a lot of the cache's methods are moved into
 	// a second class to avoid users from relying on unstable APIs. typescript's private
 	// label accomplishes this but would not prevent someone using vanilla js
@@ -84,10 +88,22 @@ export class Cache {
 			: this._internal_unstable.storage.topLayer
 
 		// write any values that we run into and get a set of subscribers to notify
-		const toNotify = this._internal_unstable.writeSelection({ ...args, layer })
+		const notifications = this.#fieldSubscribers.size
+			? new WriteNotifications()
+			: new Set<SubscriptionSpec>()
+		const toNotify = this._internal_unstable.writeSelection({
+			...args,
+			layer,
+			toNotify: notifications,
+		})
 		const subscribers = [...toNotify]
 
-		this.#notifySubscribers(subscribers.concat(notifySubscribers))
+		this.#notifySubscribers(
+			subscribers.concat(notifySubscribers),
+			!notifySubscribers.length && notifications instanceof WriteNotifications
+				? notifications.changes()
+				: undefined
+		)
 
 		// return the id to the caller so they can resolve the layer if it was optimistic
 		return subscribers
@@ -114,6 +130,12 @@ export class Cache {
 		if (this._internal_unstable.disabled) {
 			return
 		}
+		if (spec.fieldUpdates) {
+			this.#fieldSubscribers.set(
+				spec.onMessage,
+				(this.#fieldSubscribers.get(spec.onMessage) ?? 0) + 1
+			)
+		}
 
 		// add the subscribers to every field in the specification
 		return this._internal_unstable.subscriptions.add({
@@ -126,6 +148,11 @@ export class Cache {
 
 	// stop listening to a particular subscription
 	unsubscribe(spec: SubscriptionSpec, variables: {} = {}) {
+		if (spec.fieldUpdates) {
+			const count = this.#fieldSubscribers.get(spec.onMessage) ?? 0
+			if (count > 1) this.#fieldSubscribers.set(spec.onMessage, count - 1)
+			else this.#fieldSubscribers.delete(spec.onMessage)
+		}
 		return this._internal_unstable.subscriptions.remove(
 			spec.parentID || rootID,
 			spec.selection,
@@ -362,6 +389,7 @@ export class Cache {
 
 		// now we have to look at the display fields and compare their value with the current
 		// if the value changed then we need to notify the subscribers
+		const changes: ChangedField[] = []
 		for (const display of displayFields) {
 			const { field, id } = display
 
@@ -373,17 +401,19 @@ export class Cache {
 
 			// if the value changed then we need to notify the subscribers
 			if (notify) {
+				if (this.#fieldSubscribers.size) changes.push({ record: id, key: field })
 				toNotify.push(
 					...this._internal_unstable.subscriptions.get(id, field).map((sub) => sub[0])
 				)
 			}
 		}
 
-		this.#notifySubscribers(toNotify)
+		this.#notifySubscribers(toNotify, changes)
 	}
 
 	// reset the whole cache
 	reset() {
+		this.#fieldSubscribers.clear()
 		// Reset Subscriptions
 		const subSpecs = this._internal_unstable.subscriptions.reset()
 
@@ -409,7 +439,7 @@ export class Cache {
 		return this._internal_unstable.epoch
 	}
 
-	#notifySubscribers(subs: SubscriptionSpec[]) {
+	#notifySubscribers(subs: SubscriptionSpec[], fields?: readonly ChangedField[]) {
 		// if there's no one to notify, its a no-op
 		if (subs.length === 0) {
 			return
@@ -424,15 +454,33 @@ export class Cache {
 			// if we haven't added the set yet
 			if (!notified.has(spec.onMessage)) {
 				notified.add(spec.onMessage)
+				const variables = spec.variables?.() || {}
+				let read = false
+				let data: GraphQLObject | null = null
+				const selection = () => {
+					if (!read) {
+						data = this._internal_unstable.getSelection({
+							fieldUpdates: spec.fieldUpdates,
+							parent: spec.parentID || rootID,
+							selection: spec.selection,
+							variables,
+							ignoreMasking: false,
+						}).data
+						read = true
+					}
+					return data
+				}
+				if (!spec.fieldUpdates) {
+					spec.onMessage({ kind: 'update', data: selection() })
+					continue
+				}
 				// trigger the update
 				spec.onMessage({
 					kind: 'update',
-					data: this._internal_unstable.getSelection({
-						parent: spec.parentID || rootID,
-						selection: spec.selection,
-						variables: spec.variables?.() || {},
-						ignoreMasking: false,
-					}).data,
+					fields,
+					get data() {
+						return selection()
+					},
 				})
 			}
 		}
@@ -637,6 +685,7 @@ class CacheInternal {
 				if (displayLayer && (valueChanged || forceNotify)) {
 					// we need to add the fields' subscribers to the set of callbacks
 					// we need to invoke
+					if (toNotify instanceof WriteNotifications) toNotify.record(parent, key)
 					for (const [sub] of currentSubscribers) toNotify.add(sub)
 				}
 
@@ -662,6 +711,7 @@ class CacheInternal {
 				layer.writeLink(parent, key, null)
 
 				// add the list of subscribers for this field
+				if (toNotify instanceof WriteNotifications) toNotify.record(parent, key)
 				for (const [sub] of currentSubscribers) toNotify.add(sub)
 			}
 			// the field could point to a linked object
@@ -720,6 +770,7 @@ class CacheInternal {
 						})
 					}
 
+					if (toNotify instanceof WriteNotifications) toNotify.record(parent, key)
 					for (const [sub] of currentSubscribers) toNotify.add(sub)
 				}
 
@@ -922,6 +973,7 @@ class CacheInternal {
 
 				// we need to look at the last time we saw each subscriber to check if they need to be added to the spec
 				if (contentChanged || forceNotify) {
+					if (toNotify instanceof WriteNotifications) toNotify.record(parent, key)
 					for (const [sub] of currentSubscribers) toNotify.add(sub)
 				}
 
@@ -1145,6 +1197,7 @@ class CacheInternal {
 							toNotify.add(sub)
 						}
 
+						if (toNotify instanceof WriteNotifications) toNotify.complete = false
 						this.cache.delete(targetID, layer)
 					}
 				}
@@ -1173,6 +1226,7 @@ class CacheInternal {
 		ignoreMasking,
 		fullCheck = false,
 		loading: generateLoading,
+		fieldUpdates = false,
 	}: {
 		selection: SubscriptionSelection
 		parent?: string
@@ -1183,6 +1237,8 @@ class CacheInternal {
 		// if this is true then we are ignoring masking and checking the full select
 		// data. we will still return the masked value if we have it.
 		fullCheck?: boolean
+		/** Internal: attach selected record metadata for field-aware consumers. */
+		fieldUpdates?: boolean
 	}): {
 		data: GraphQLObject | null
 		partial: boolean
@@ -1231,6 +1287,8 @@ class CacheInternal {
 		const typename = this.storage.getTypename(parent)
 		// collect all of the fields that we need to write
 		const targetSelection = getFieldsForType(selection, typename, !!generateLoading)
+		if (fieldUpdates)
+			setRecordMetadata(target, { id: parent, fields: targetSelection, variables })
 
 		// look at every field in the parentFields
 		for (const [
@@ -1390,6 +1448,7 @@ class CacheInternal {
 			else if (Array.isArray(value)) {
 				// the linked list could be a deeply nested thing, we need to call getData for each record
 				const listValue = this.hydrateNestedList({
+					fieldUpdates,
 					fields: fieldSelection,
 					variables,
 					linkedList: value as NestedList,
@@ -1402,6 +1461,8 @@ class CacheInternal {
 
 				// save the hydrated list
 				fieldTarget[attributeName] = listValue.data
+				if (fieldUpdates && listValue.hasNullBubble && fieldTarget === target)
+					markNullBubble(target)
 
 				// the linked value could have partial results
 				if (listValue.partial) {
@@ -1425,6 +1486,7 @@ class CacheInternal {
 			else {
 				// look up the related object fields
 				const objectFields = this.getSelection({
+					fieldUpdates,
 					parent: value as string,
 					selection: fieldSelection,
 					variables,
@@ -1435,6 +1497,8 @@ class CacheInternal {
 				})
 				// save the object value
 				fieldTarget[attributeName] = objectFields.data
+				if (fieldUpdates && objectFields.data === null && fieldTarget === target)
+					markNullBubble(target)
 
 				// the linked value could have partial results
 				if (objectFields.partial) {
@@ -1539,6 +1603,7 @@ class CacheInternal {
 		fullCheck,
 		loading,
 		nullable,
+		fieldUpdates,
 	}: {
 		fields: SubscriptionSelection
 		nullable: boolean
@@ -1548,12 +1613,14 @@ class CacheInternal {
 		ignoreMasking: boolean
 		fullCheck?: boolean
 		loading?: boolean
+		fieldUpdates?: boolean
 	}): {
 		data: NestedList<GraphQLValue>
 		partial: boolean
 		stale: boolean
 		hasData: boolean
 		cascadeNull: boolean
+		hasNullBubble: boolean
 	} {
 		// the linked list could be a deeply nested thing, we need to call getData for each record
 		// we can't mutate the lists because that would change the id references in the listLinks map
@@ -1563,11 +1630,13 @@ class CacheInternal {
 		let stale = false
 		let hasValues = false
 		let cascadeNull = false
+		let hasNullBubble = false
 
 		for (const entry of linkedList) {
 			// if the entry is an array, keep going
 			if (Array.isArray(entry)) {
 				const nestedValue = this.hydrateNestedList({
+					fieldUpdates,
 					fields,
 					nullable,
 					variables,
@@ -1578,6 +1647,7 @@ class CacheInternal {
 					loading,
 				})
 				result.push(nestedValue.data)
+				if (nestedValue.hasNullBubble) hasNullBubble = true
 				if (nestedValue.partial) {
 					partialData = true
 				}
@@ -1601,6 +1671,7 @@ class CacheInternal {
 				stale: local_stale,
 				hasData,
 			} = this.getSelection({
+				fieldUpdates,
 				parent: entry,
 				selection: fields,
 				variables,
@@ -1611,6 +1682,7 @@ class CacheInternal {
 			})
 
 			// if the value is null and we don't allow that we need to cascade
+			if (fieldUpdates && data === null) hasNullBubble = true
 			if (data === null && !nullable) {
 				cascadeNull = true
 			}
@@ -1636,6 +1708,7 @@ class CacheInternal {
 			stale,
 			hasData: hasValues,
 			cascadeNull,
+			hasNullBubble,
 		}
 	}
 

@@ -1,18 +1,17 @@
+import type {
+	FragmentArtifact,
+	GraphQLObject,
+	GraphQLVariables,
+	HoudiniFetchContext,
+} from 'houdini/runtime'
+import { CompiledFragmentKind, fragmentKey, marshalInputs } from 'houdini/runtime'
+import { derived, readable } from 'svelte/store'
 import cache from '$houdini/runtime/cache'
 import { getCurrentConfig } from '$houdini/runtime/config'
-import { marshalInputs } from 'houdini/runtime'
-import type {
-	GraphQLObject,
-	FragmentArtifact,
-	HoudiniFetchContext,
-	GraphQLVariables,
-} from 'houdini/runtime'
-import { CompiledFragmentKind, fragmentKey } from 'houdini/runtime'
-import { derived, readable } from 'svelte/store'
 
 import { isBrowser } from '../adapter.js'
 import type { FragmentStoreInstance } from '../types.js'
-import { BaseStore } from './base.js'
+import { BaseStore, fieldUpdates, withFragmentData, withFragmentList } from './mode.js'
 
 // a fragment store exists in multiple places in a given application so we
 // can't just return a store directly, the user has to load the version of the
@@ -77,23 +76,28 @@ export class FragmentStore<
 		// derived() requires at least one input store; short-circuit the empty case
 		if (references.length === 0) {
 			const empty = readable<_Data[]>([])
-			return {
-				initialValue: [],
-				variables: {} as _Input,
-				kind: CompiledFragmentKind,
-				subscribe: empty.subscribe,
-			}
+			return withFragmentList(
+				{
+					initialValue: [],
+					variables: {} as _Input,
+					kind: CompiledFragmentKind,
+					subscribe: empty.subscribe,
+				},
+				[]
+			)
 		}
 
 		const instances = references.map((reference) => this.#getOne(reference))
 		const combined = derived(instances, ($values) => $values as _Data[])
-
-		return {
-			initialValue: instances.map((instance) => instance.initialValue) as _Data[],
-			variables: instances[0].variables,
-			kind: CompiledFragmentKind,
-			subscribe: combined.subscribe,
-		}
+		return withFragmentList(
+			{
+				initialValue: instances.map((instance) => instance.initialValue) as _Data[],
+				variables: instances[0].variables,
+				kind: CompiledFragmentKind,
+				subscribe: combined.subscribe,
+			},
+			instances
+		) as FragmentStoreInstance<_Data[] | null, _Input> & { initialValue: _Data[] | null }
 	}
 
 	#getOne(
@@ -126,6 +130,7 @@ Please ensure that you have passed a record that has ${this.artifact.name} mixed
 		// loading the value from cache
 		if (loading || (initialValue && parent && isBrowser)) {
 			data = cache.read({
+				fieldUpdates,
 				selection: this.artifact.selection,
 				parent,
 				variables,
@@ -142,16 +147,19 @@ Please ensure that you have passed a record that has ${this.artifact.name} mixed
 			store.observer.send({ variables, setup: true, stuff: { parentID: parent } })
 		}
 
-		return {
-			initialValue: data,
-			variables: marshalInputs({
-				artifact: this.artifact,
-				input: variables,
-				config: getCurrentConfig(),
-				rootType: this.artifact.rootType,
-			}) as _Input,
-			kind: CompiledFragmentKind,
-			subscribe: derived([store], ([$store]) => $store.data).subscribe,
-		}
+		return withFragmentData(
+			{
+				initialValue: data,
+				variables: marshalInputs({
+					artifact: this.artifact,
+					input: variables,
+					config: getCurrentConfig(),
+					rootType: this.artifact.rootType,
+				}) as _Input,
+				kind: CompiledFragmentKind,
+				subscribe: derived([store], ([$store]) => $store.data).subscribe,
+			},
+			store
+		)
 	}
 }

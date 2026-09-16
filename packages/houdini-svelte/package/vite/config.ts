@@ -9,6 +9,7 @@ export function plugin_config(config: Config): Required<HoudiniSvelteConfig> {
 		defaultRouteBlocking: false,
 		static: false,
 		forceRunesMode: false,
+		experimentalFieldReactivity: false,
 		framework: 'kit',
 		...cfg,
 		customStores: {

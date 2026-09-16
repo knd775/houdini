@@ -1,6 +1,7 @@
 import { deepEquals } from 'houdini/runtime'
 import type { Cache } from 'houdini/runtime/cache'
-import { type SubscriptionSpec, ArtifactKind, DataSource } from 'houdini/runtime/types'
+import { cacheResult } from 'houdini/runtime/cache/updates'
+import { ArtifactKind, DataSource, type SubscriptionSpec } from 'houdini/runtime/types'
 
 import { documentPlugin } from './utils/index.js'
 
@@ -16,7 +17,7 @@ export const fragment = (cache: Cache) =>
 
 		return {
 			// establish the cache subscription
-			start(ctx, { next, resolve, variablesChanged, marshalVariables }) {
+			start(ctx, { next, resolve, variablesChanged, marshalVariables, initialValue }) {
 				// if there's no parent id, there's nothing to do
 				if (!ctx.stuff.parentID) {
 					return next(ctx)
@@ -46,6 +47,7 @@ export const fragment = (cache: Cache) =>
 					subscriptionSpec = {
 						rootType: ctx.artifact.rootType,
 						kind: ctx.artifact.kind,
+						fieldUpdates: ctx.documentStore.fieldUpdates,
 						selection: ctx.artifact.selection,
 						variables: () => variables,
 						parentID: ctx.stuff.parentID,
@@ -57,15 +59,17 @@ export const fragment = (cache: Cache) =>
 								return
 							}
 
-							resolve(ctx, {
-								data: message.data,
-								errors: null,
-								fetching: false,
-								partial: false,
-								stale: false,
-								source: DataSource.Cache,
-								variables,
-							})
+							resolve(
+								ctx,
+								cacheResult(cache, message, {
+									errors: null,
+									fetching: false,
+									partial: false,
+									stale: false,
+									source: DataSource.Cache,
+									variables: ctx.variables ?? {},
+								})
+							)
 						},
 					}
 
@@ -73,6 +77,21 @@ export const fragment = (cache: Cache) =>
 					cache.subscribe(subscriptionSpec, variables)
 
 					lastReference = currentReference
+					if (ctx.setup && ctx.documentStore.fieldUpdates) {
+						return resolve(ctx, {
+							...initialValue,
+							// Setup and later cache updates must retain application inputs,
+							// not marshaled scalar values that would be marshaled again.
+							variables: ctx.variables ?? {},
+							data: cache.read({
+								fieldUpdates: true,
+								parent: ctx.stuff.parentID,
+								selection: ctx.artifact.selection,
+								variables,
+							}).data,
+							source: DataSource.Cache,
+						})
+					}
 				}
 
 				// we're done

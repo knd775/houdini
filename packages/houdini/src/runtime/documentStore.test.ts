@@ -1,13 +1,55 @@
 import { sleep } from 'houdini'
-import { test, expect, vi, beforeEach } from 'vitest'
-
-import { createPluginHooks, HoudiniClient } from './index.js'
+import { beforeEach, expect, test, vi } from 'vitest'
 import type { GraphQLObject } from '../lib/types.js'
 import { ArtifactKind } from '../lib/types.js'
-import { setMockConfig, getCurrentConfig } from './config.js'
+import { Cache } from './cache/index.js'
+import { cacheResult, getCacheUpdate } from './cache/updates.js'
+import { getCurrentConfig, setMockConfig } from './config.js'
 import type { ClientPlugin } from './documentStore.js'
 import { DocumentStore } from './documentStore.js'
+import { createPluginHooks, HoudiniClient } from './index.js'
 import { DataSource } from './types.js'
+
+test('custom hooks receive materialized results and can transform field updates', async () => {
+	const read = vi.fn(() => ({ hello: 'Original' }))
+	const result = cacheResult(
+		new Cache({ disabled: false }),
+		{
+			kind: 'update',
+			fields: [{ record: '_ROOT_', key: 'hello' }],
+			get data() {
+				return read()
+			},
+		},
+		{
+			fetching: false,
+			errors: null,
+			partial: false,
+			stale: false,
+			source: null,
+			variables: null,
+		}
+	)
+	const hook = vi.fn()
+	const store = createStore([
+		() => ({
+			end(ctx, { value, resolve }) {
+				hook()
+				expect(read).toHaveBeenCalledOnce()
+				expect(getCacheUpdate(value)).toBeUndefined()
+				value.data = { hello: 'Transformed' }
+				resolve(ctx, value)
+			},
+		}),
+		() => ({
+			network(ctx, { resolve }) {
+				resolve(ctx, result)
+			},
+		}),
+	])
+	expect((await store.send()).data).toEqual({ hello: 'Transformed' })
+	expect(hook).toHaveBeenCalledOnce()
+})
 
 beforeEach(() => {
 	setMockConfig({

@@ -1,18 +1,18 @@
 import type { ConfigFile } from 'houdini'
-
-import type { HoudiniClient } from './index.js'
 import type { Layer } from './cache/storage.js'
+import { getCacheUpdate, materializeCacheResult } from './cache/updates.js'
 import { deepEquals } from './deepEquals.js'
+import type { HoudiniClient } from './index.js'
 import { marshalInputs } from './scalars.js'
 import { Writable } from './store.js'
 import type {
-	DocumentArtifact,
-	QueryResult,
-	GraphQLObject,
-	QueryArtifact,
-	SubscriptionSpec,
 	CachePolicies,
+	DocumentArtifact,
+	GraphQLObject,
 	GraphQLVariables,
+	QueryArtifact,
+	QueryResult,
+	SubscriptionSpec,
 } from './types.js'
 import { ArtifactKind, DedupeMatchMode } from './types.js'
 
@@ -34,6 +34,21 @@ export class DocumentStore<
 	_Data extends GraphQLObject,
 	_Input extends GraphQLVariables | undefined,
 > extends Writable<QueryResult<_Data, _Input>> {
+	readonly fieldUpdates: boolean
+
+	// Imperative subscribers receive a snapshot at notification time, including
+	// when they retain the result and inspect its data after another write.
+	subscribe(...[run, invalidate]: Parameters<Writable<QueryResult<_Data, _Input>>['subscribe']>) {
+		return super.subscribe((value) => {
+			void value.data
+			run(value)
+		}, invalidate)
+	}
+
+	/** Internal channel for consumers that apply cache fields synchronously. */
+	subscribeUpdates(...args: Parameters<Writable<QueryResult<_Data, _Input>>['subscribe']>) {
+		return super.subscribe(...args)
+	}
 	readonly artifact: DocumentArtifact
 	#client: HoudiniClient | null
 	#proxies: Record<
@@ -79,6 +94,7 @@ export class DocumentStore<
 		fetching,
 		proxies = {},
 		config,
+		fieldUpdates = false,
 	}: {
 		artifact: DocumentArtifact
 		plugins?: ClientHooks[]
@@ -98,6 +114,7 @@ export class DocumentStore<
 			}) => Promise<any>
 		>
 		config: ConfigFile
+		fieldUpdates?: boolean
 	}) {
 		// if fetching is set, respect the value
 		// if fetching is not set, we should default fetching on queries and not on the rest.
@@ -128,6 +145,7 @@ export class DocumentStore<
 		this.#configFile = config
 		this.#plugins = plugins ?? []
 		this.#proxies = proxies
+		this.fieldUpdates = fieldUpdates
 	}
 
 	// used by the client to send a new set of variables to the pipeline
@@ -180,18 +198,26 @@ export class DocumentStore<
 
 		// start off with the initial context
 		let context = new ClientPluginContextWrapper({
+			setup,
 			abortController,
 			config: this.#configFile,
 			documentStore: this,
 			name: this.artifact.name,
 			text: this.artifact.raw,
 			hash: this.artifact.hash,
-			policy: policy ?? (this.artifact as QueryArtifact).policy,
+			policy:
+				policy ??
+				(setup ? this.#lastContext?.policy : undefined) ??
+				(this.artifact as QueryArtifact).policy,
 			variables: null,
 			metadata,
 			session,
 			fetch: fetch ?? this.getFetch(() => session),
 			stuff: {
+				// A fragment can resume after its last reactive reader disappeared.
+				...(setup && this.fieldUpdates
+					? { parentID: this.#lastContext?.stuff.parentID }
+					: {}),
 				inputs: {
 					changed: false,
 					init: false,
@@ -353,7 +379,7 @@ export class DocumentStore<
 				variablesChanged,
 				marshalVariables,
 				updateState: this.update.bind(this),
-				next: (newContext) => {
+				next: (newContext, setupState) => {
 					// the next index depends on the direction we're going now
 					const nextIndex = ['forward', 'error'].includes(direction)
 						? // if we're going forward, add one
@@ -371,6 +397,7 @@ export class DocumentStore<
 					// move on
 					this.#step('forward', {
 						...ctx,
+						setupState: setupState ?? ctx.setupState,
 						index: nextIndex,
 						currentStep: nextStep,
 						context: ctx.context.apply(newContext, variablesRefChanged(newContext)),
@@ -430,6 +457,11 @@ export class DocumentStore<
 				}
 
 				// invoke the target with the correct handlers
+				// Custom hooks can transform or retain results. Audited core hooks
+				// may pass lazy updates through without reading a full snapshot.
+				if (value && getCacheUpdate(value) && !this.#plugins[index].fieldUpdates) {
+					materializeCacheResult(value)
+				}
 				// @ts-expect-error
 				const result = target(draft, handlers)
 
@@ -457,6 +489,7 @@ export class DocumentStore<
 		if (direction === 'forward') {
 			// if we triggering a setup cycle phase
 			if (ctx.setup) {
+				const initialState = ctx.initialState ?? this.state
 				this.#step(
 					'backwards',
 					{
@@ -464,7 +497,7 @@ export class DocumentStore<
 						currentStep: 0,
 						index: this.#plugins.length,
 					},
-					ctx.initialState ?? this.state
+					ctx.setupState?.(ctx.context.draft(), initialState) ?? initialState
 				)
 				return
 			}
@@ -678,7 +711,8 @@ type IteratorState = {
 	context: ClientPluginContextWrapper
 	index: number
 	setup: boolean
-	initialState?: unknown
+	initialState?: QueryResult
+	setupState?: SetupState
 	currentStep: number
 	silenceEcho: boolean
 	promise: {
@@ -692,6 +726,8 @@ type IteratorState = {
 export type ClientPlugin = () => ClientHooks | null | (ClientHooks | ClientPlugin | null)[]
 
 export type ClientHooks = {
+	/** Internal: this hook does not retain lazy cache results. */
+	fieldUpdates?: boolean
 	start?: ClientPluginEnterPhase
 	beforeNetwork?: ClientPluginEnterPhase
 	network?: ClientPluginEnterPhase
@@ -704,6 +740,8 @@ export type ClientHooks = {
 export type Fetch = typeof globalThis.fetch
 
 export type ClientPluginContext = {
+	/** Internal observer initialization, without a network request. */
+	setup?: boolean
 	config: ConfigFile
 	name: string
 	text: string
@@ -747,7 +785,7 @@ export type ClientPluginEnterHandlers = {
 	/** A reference to the houdini client to access any configuration values */
 	client: HoudiniClient
 	/** Move onto the next step using the provided context.  */
-	next(ctx: ClientPluginContext): void
+	next(ctx: ClientPluginContext, setupState?: SetupState): void
 	/** Terminate the current chain  */
 	resolve(ctx: ClientPluginContext, data: QueryResult): void
 
@@ -759,6 +797,9 @@ export type ClientPluginEnterHandlers = {
 	/** Returns the marshaled variables for the operation */
 	marshalVariables: typeof marshalVariables
 }
+
+/** Internal: refresh setup data after input hooks and before result hooks. */
+type SetupState = (ctx: ClientPluginContext, initialValue: QueryResult) => QueryResult
 
 /** Exit handlers are the same as enter handlers but don't need to resolve with a specific value */
 export type ClientPluginExitHandlers = Omit<ClientPluginEnterHandlers, 'resolve'> & {

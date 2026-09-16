@@ -5,12 +5,96 @@ import { beforeEach, expect, test, vi } from 'vitest'
 import { testConfigFile } from 'houdini/test'
 
 import { setMockConfig } from '../config'
+import { HoudiniClient } from '../client.js'
 import { query } from './query.js'
 import { createStore, fakeFetch } from './test.js'
 
 const config = testConfigFile()
 beforeEach(async () => {
 	setMockConfig(config)
+})
+
+test('resuming a query refreshes data before custom result hooks', async () => {
+	const cache = new Cache({ disabled: false })
+	const selection = {
+		fields: { name: { type: 'String', keyRaw: 'name(locale: $locale)', visible: true } },
+	}
+	cache.write({ selection, variables: { locale: 'en' }, data: { name: 'Before' } })
+	const transformed: unknown[] = []
+	const client = new HoudiniClient({
+		cache,
+		plugins: [
+			() => ({
+				start(ctx, { next }) {
+					ctx.variables = { ...ctx.variables, locale: 'en' }
+					next(ctx)
+				},
+				end(ctx, { value, resolve }) {
+					transformed.push(value.data)
+					resolve(ctx, { ...value, data: { name: `${value.data?.name}!` } })
+				},
+			}),
+			fakeFetch({ data: { name: 'Before' } }),
+		],
+	})
+	const store = client.observe({
+		fieldUpdates: true,
+		artifact: {
+			kind: 'HoudiniQuery',
+			name: 'Transformed',
+			hash: '',
+			raw: '',
+			rootType: 'Query',
+			pluginData: {},
+			stripVariables: [],
+			selection,
+			input: { fields: { locale: 'String' }, types: {}, defaults: {} },
+		},
+	})
+	let stop = store.subscribe(() => {})
+	await store.send({ variables: {}, policy: CachePolicy.NetworkOnly })
+	expect(store.state.data).toEqual({ name: 'Before!' })
+	stop()
+	cache.write({ selection, variables: { locale: 'en' }, data: { name: 'While away' } })
+	transformed.length = 0
+	stop = store.subscribe(() => {})
+	await store.send({ setup: true, variables: store.state.variables })
+	expect(transformed).toEqual([{ name: 'While away' }])
+	expect(store.state.data).toEqual({ name: 'While away!' })
+	stop()
+})
+
+test('resuming a NoCache query retains its uncached result', async () => {
+	const cache = new Cache({ disabled: false })
+	const selection = { fields: { name: { type: 'String', keyRaw: 'name', visible: true } } }
+	cache.write({ selection, data: { name: 'Cached' } })
+	const client = new HoudiniClient({
+		cache,
+		plugins: [fakeFetch({ data: { name: 'Uncached' } })],
+	})
+	const store = client.observe({
+		fieldUpdates: true,
+		artifact: {
+			kind: 'HoudiniQuery',
+			name: 'Uncached',
+			hash: '',
+			raw: '',
+			rootType: 'Query',
+			pluginData: {},
+			stripVariables: [],
+			selection,
+		},
+	})
+	let stop = store.subscribe(() => {})
+	await store.send({ variables: {}, policy: CachePolicy.NoCache })
+	expect(store.state.data).toEqual({ name: 'Uncached' })
+	stop()
+	const read = vi.spyOn(cache, 'read')
+	stop = store.subscribe(() => {})
+	await store.send({ setup: true, variables: store.state.variables })
+	expect(store.state.data).toEqual({ name: 'Uncached' })
+	expect(read).not.toHaveBeenCalled()
+	stop()
 })
 
 test('refetch triggered by cache.refresh uses the most recent session, not the subscription-time session', async () => {

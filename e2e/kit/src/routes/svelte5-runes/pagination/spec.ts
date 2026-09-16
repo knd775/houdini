@@ -5,7 +5,6 @@ import {
 	expect_1_gql,
 	expect_to_be,
 	goto,
-	stringify,
 } from '../../../lib/utils/testsHelper'
 import test from '@playwright/test'
 
@@ -21,7 +20,7 @@ test.describe('Svelte 5 runes forward simple paginated query', () => {
 	})
 
 	test('page info tracks connection state', async ({ page }) => {
-		await goto(page, routes.Pagination_query_forward_cursor)
+		await goto(page, routes.Svelte5_Runes_Pagination)
 
 		const data = [
 			'Bruce Willis, Samuel Jackson, Morgan Freeman, Tom Hanks',

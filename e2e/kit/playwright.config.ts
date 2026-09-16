@@ -7,8 +7,10 @@ if (process.env.CI) {
 
 export default defineConfig({
 	testMatch: 'spec.ts',
+	tsconfig: './tsconfig.json',
 	use: {
 		headless: true,
+		launchOptions: { executablePath: process.env.CHROMIUM_EXECUTABLE },
 		trace: 'on-first-retry',
 		screenshot: 'only-on-failure',
 		timezoneId: 'UTC',

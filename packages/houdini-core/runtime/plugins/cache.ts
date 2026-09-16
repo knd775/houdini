@@ -67,6 +67,7 @@ export const cachePolicy =
 					if (policyAllowsCache) {
 						// look up the current value in the cache
 						const value = localCache.read({
+							fieldUpdates: ctx.documentStore.fieldUpdates,
 							selection: artifact.selection,
 							variables: marshalVariables(ctx),
 							fullCheck: true,
@@ -142,6 +143,7 @@ export const cachePolicy =
 						artifact.enableLoadingState
 					) {
 						fetchingState = localCache.read({
+							fieldUpdates: ctx.documentStore.fieldUpdates,
 							selection: artifact.selection,
 							variables: marshalVariables(ctx),
 							loading: true,
@@ -228,6 +230,7 @@ export const cachePolicy =
 					value = {
 						...value,
 						data: targetCache.read({
+							fieldUpdates: ctx.documentStore.fieldUpdates,
 							selection: ctx.artifact.selection,
 							variables: marshalVariables(ctx),
 							ignoreMasking: serverSide,

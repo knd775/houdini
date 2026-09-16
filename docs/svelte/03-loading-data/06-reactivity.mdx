@@ -1,0 +1,127 @@
+---
+title: Field-level reactivity
+description: Read query and fragment data directly with Svelte 5 reactivity.
+---
+
+Field-level reactivity is experimental and disabled by default. Enable it in
+`houdini.config.js`, then regenerate Houdini's output and restart your dev server:
+
+```js
+plugins: {
+  'houdini-svelte': {
+    experimentalFieldReactivity: true
+  }
+}
+```
+
+The option selects the runtime and its TypeScript types during generation.
+With it enabled, query stores expose reactive fields directly. Updating one
+user's name updates the consumers of that name without rerunning calculations
+for every user in the query. The examples below use experimental mode.
+
+```svelte
+<script lang="ts">
+  import type { PageData } from './$types'
+
+  let { data }: { data: PageData } = $props()
+  const users = $derived(data.UsersTable)
+</script>
+
+{#if users.fetching}
+  <p>Loading…</p>
+{/if}
+
+<table>
+  <tbody>
+    {#each users.data?.users ?? [] as user (user.id)}
+      <tr><td>{user.name}</td><td>{user.email}</td></tr>
+    {/each}
+  </tbody>
+</table>
+```
+
+`users` is the generated store itself. Keep calling `users.fetch()` and, for
+paginated queries, `users.loadNextPage()` on that object. It also exposes
+`errors`, `variables`, `partial`, `stale`, `source`, and `extensions`. Cursor
+queries expose `pageInfo`.
+
+The `$derived` above follows replacement stores when route data changes. A
+fixed store can be read directly without a derived value. Svelte automatically
+owns the subscription while reactive consumers read the fields and releases it
+when those consumers disappear. SSR reads the current data without subscribing.
+
+## Plain fragments
+
+Plain fragment instances expose their selected fields through `data`:
+
+```svelte
+<script lang="ts">
+  import { fragment, graphql, type UserRowFields } from '$houdini'
+
+  let { user }: { user: UserRowFields } = $props()
+  const row = $derived(fragment(user, graphql(`
+    fragment UserRowFields on User {
+      name
+      email
+    }
+  `)))
+</script>
+
+<tr><td>{row.data.name}</td><td>{row.data.email}</td></tr>
+```
+
+Row fragments still limit the scope of cache subscriptions. Field reactivity
+also works when a query selects an entire table directly.
+
+## Reading and changing values
+
+Read properties in templates, `$derived`, or `$effect` to track them:
+
+```ts
+const name = $derived(users.data?.users[0]?.name)
+```
+
+Reading only an object reference tracks its replacement. Read the nested fields
+that your calculation depends on. A one-time assignment outside reactive code
+captures a value at that moment.
+
+Scalar updates preserve enclosing object and array references. Changes to array
+membership or ordering replace the array while retaining surviving keyed record
+objects. Adding or removing selected object keys replaces that object. Read lists
+through a reactive expression if your code needs to follow those replacements.
+
+Objects and arrays are readonly in TypeScript and reject direct writes at
+runtime. Update them through mutations or cache APIs. Standard Dates are copied
+and compared by timestamp. Custom scalar class instances remain atomic values;
+replace them through the cache rather than mutating them through the view.
+Cyclic results are unsupported.
+
+## Existing store code
+
+`$Query.data`, `get(Query)`, and `Query.subscribe()` still work. They use Svelte's
+store protocol, which invalidates readers of the whole store value. Use
+`Query.data` for field-level dependencies. Imperative subscription callbacks
+receive complete snapshots, even when they retain a result for later inspection.
+
+With the option disabled, existing APIs keep their meanings. In experimental
+mode, the previous boolean `Query.variables` becomes `Query.requiresVariables`.
+`Query.variables` contains the current input values. A plain fragment's `data`
+is now its reactive payload; subscribe to the fragment instance itself when you
+need a store subscription.
+
+You can use `$Query.data` and `Query.data` together in an enabled project. A legacy
+subscriber still requires complete snapshots, so compare separate page runs when
+measuring the cost of the two update paths. To turn the experiment off, switch
+direct reads back to store subscriptions, disable the option, and regenerate.
+
+## Update cost
+
+Scalar updates use an index of selected cache records. Changing one name does not
+reconstruct or compare the whole query. Aliases, configured record keys, masked
+IDs, custom scalar conversion, and optimistic scalar rollback use this path.
+
+Relationship changes, null propagation, and resets still read the complete
+selection. Initial reads build the field index. Imperative subscribers and
+custom client hooks can also require full snapshots. Those costs are separate
+from the field update path; timings for a scalar update do not establish the
+cost of inserting a page or replacing a whole query result.

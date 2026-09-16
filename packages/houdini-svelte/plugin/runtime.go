@@ -45,7 +45,13 @@ func (p *HoudiniSvelte) transformRuntimeContent(
 		return "", err
 	}
 
-	switch fp {
+	switch filepath.ToSlash(fp) {
+	case "stores/mode.ts":
+		if pluginConfig.ExperimentalFieldReactivity {
+			return "export * from '../reactivity/stores.js'\n", nil
+		}
+		return content, nil
+
 	case "adapter.ts":
 		// the current content is the svelte adapter
 		if pluginConfig.Framework == config.PluginFrameworkSvelte {

@@ -4,11 +4,11 @@ import type { Cache } from './cache/index.js'
 import { resolveApiEndpoint } from './config.js'
 import type { ClientHooks, ClientPlugin } from './documentStore.js'
 import { DocumentStore } from './documentStore.js'
-import type { DocumentArtifact, GraphQLVariables, GraphQLObject, NestedList } from './types.js'
+import type { DocumentArtifact, GraphQLObject, GraphQLVariables, NestedList } from './types.js'
 
+export type { ClientPlugin, SendParams } from './documentStore.js'
 // export the plugin constructors
 export { DocumentStore } from './documentStore.js'
-export type { ClientPlugin, SendParams } from './documentStore.js'
 
 export type HoudiniClientConstructorArgs = {
 	config: () => ConfigFile
@@ -28,6 +28,8 @@ export type ObserveParams<
 	initialValue?: _Data | null
 	initialVariables?: _Input
 	fetching?: boolean
+	/** Internal: accept lazy cache field updates. */
+	fieldUpdates?: boolean
 }
 
 export class HoudiniClient {

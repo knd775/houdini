@@ -27,6 +27,7 @@ export const throwOnError =
 			}[kind]
 
 		return {
+			fieldUpdates: true,
 			async end(ctx, { value, resolve }) {
 				// if we are supposed to throw and there are errors
 				if (value.errors && value.errors.length > 0 && throwOnKind(ctx.artifact.kind)) {

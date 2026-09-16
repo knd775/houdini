@@ -1,0 +1,12 @@
+{
+	"extends": "../../../tsconfig.json",
+	"include": [],
+	"files": ["types.ts", "../runtime/reactivity/state.svelte.ts", "../runtime/reactivity/snapshot.ts"],
+	"compilerOptions": {
+		"strict": true,
+		"noEmit": true,
+		"emitDeclarationOnly": false,
+		"types": ["svelte"],
+		"moduleSuffixes": [".test.experimental", ""]
+	}
+}

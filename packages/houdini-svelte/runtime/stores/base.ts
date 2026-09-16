@@ -1,13 +1,12 @@
-import { getCurrentConfig } from '$houdini/runtime'
 import type {
-	GraphQLObject,
 	DocumentArtifact,
-	QueryResult,
+	GraphQLObject,
 	GraphQLVariables,
+	QueryResult,
 } from 'houdini/runtime'
 import { DocumentStore, type ObserveParams } from 'houdini/runtime/client'
-import { get } from 'svelte/store'
 import type { Readable } from 'svelte/store'
+import { getCurrentConfig } from '$houdini/runtime'
 
 import { isBrowser } from '../adapter.js'
 import { getClient, initClient } from '../client.js'
@@ -31,6 +30,18 @@ export class BaseStore<
 	// the user subscribes to and one that we actually get results from.
 	#store: DocumentStore<_Data, _Input>
 	#unsubscribe: (() => void) | null = null
+	#setupGeneration = 0
+	protected fieldUpdates = false
+
+	protected get state() {
+		return this.#store.state
+	}
+
+	protected subscribeFields(
+		...args: Parameters<Readable<QueryResult<_Data, _Input>>['subscribe']>
+	) {
+		return this.#subscribe(true, ...args)
+	}
 
 	constructor(params: ObserveParams<_Data, _Artifact, _Input> & { initialize?: boolean }) {
 		// if we weren't given an initialization state, set it to true
@@ -57,13 +68,25 @@ export class BaseStore<
 			return this.#observer
 		}
 
-		this.#observer = getClient().observe<_Data, _Input>(this.#params)!
+		this.#observer = getClient().observe<_Data, _Input>({
+			...this.#params,
+			fieldUpdates: this.fieldUpdates,
+		})!
 
 		return this.#observer
 	}
 
 	subscribe(...args: Parameters<Readable<QueryResult<_Data, _Input>>['subscribe']>) {
-		const bubbleUp = this.#store.subscribe(...args)
+		return this.#subscribe(false, ...args)
+	}
+
+	#subscribe(
+		fields: boolean,
+		...args: Parameters<Readable<QueryResult<_Data, _Input>>['subscribe']>
+	) {
+		const bubbleUp = fields
+			? this.#store.subscribeUpdates(...args)
+			: this.#store.subscribe(...args)
 
 		// make sure that the store is always listening to the cache (on the browser)
 		if (isBrowser && (this.#subscriberCount === 0 || !this.#unsubscribe)) {
@@ -72,28 +95,30 @@ export class BaseStore<
 		}
 
 		// we have a new subscriber
-		this.#subscriberCount = (this.#subscriberCount ?? 0) + 1
+		this.#subscriberCount++
 
 		// Handle unsubscribe
+		let active = true
 		return () => {
+			if (!active) return
+			active = false
+			// Each listener owns its local callback, even while others remain.
+			bubbleUp()
 			// we lost a subscriber
 			this.#subscriberCount--
 
-			// don't clear the store state on the server (breaks SSR)
-			// or when there is still an active subscriber
+			// Release the observer after its last reader leaves. Keep the local
+			// result for imperative reads and for the next subscription.
 			if (this.#subscriberCount <= 0) {
+				this.#setupGeneration++
 				// unsubscribe from the actual document store
 				this.#unsubscribe?.()
 				this.#unsubscribe = null
-
-				// unsubscribe from the local store
-				bubbleUp()
 			}
 		}
 	}
 
-	// in order to clear the store's value when unmounting, we need to track how many concurrent subscribers
-	// we have. when this number is 0, we need to clear the store
+	// All local subscriptions share one document observer.
 	#subscriberCount = 0
 
 	//
@@ -104,6 +129,7 @@ export class BaseStore<
 	// ugly comment for future us. If we modify this block, we have to
 	// make sure that this scenario works: https://github.com/HoudiniGraphql/houdini/pull/871#issuecomment-1416808842
 	setup(init: boolean = true) {
+		const generation = this.#setupGeneration
 		// if we have to initialize the client, do so
 		let initPromise: Promise<any> = Promise.resolve()
 		try {
@@ -113,12 +139,14 @@ export class BaseStore<
 		}
 
 		initPromise.then(() => {
+			// The last subscriber may have left while the client was loading.
+			if (generation !== this.#setupGeneration) return
 			// if we've already setup, don't do anything
 			if (this.#unsubscribe) {
 				return
 			}
 
-			this.#unsubscribe = this.observer.subscribe((value) => {
+			this.#unsubscribe = this.observer.subscribeUpdates((value) => {
 				this.#store.set(value)
 			})
 
@@ -126,7 +154,7 @@ export class BaseStore<
 			if (init && this.#params.initialize) {
 				return this.observer.send({
 					setup: true,
-					variables: get(this.observer).variables,
+					variables: this.observer.state.variables,
 				})
 			}
 		})

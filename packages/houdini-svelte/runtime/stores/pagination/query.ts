@@ -1,16 +1,15 @@
-import { extractPageInfo } from 'houdini/runtime'
-import { cursorHandlers, offsetHandlers } from 'houdini/runtime'
 import type {
-	GraphQLObject,
-	QueryArtifact,
-	QueryResult,
 	CursorHandlers,
+	GraphQLObject,
+	GraphQLVariables,
 	OffsetHandlers,
 	PageInfo,
-	GraphQLVariables,
+	QueryArtifact,
+	QueryResult,
 } from 'houdini/runtime'
-import { get, derived } from 'svelte/store'
+import { cursorHandlers, extractPageInfo, offsetHandlers } from 'houdini/runtime'
 import type { Subscriber } from 'svelte/store'
+import { derived, get } from 'svelte/store'
 
 import { getClient, initClient } from '../../client.js'
 import { getSession } from '../../session.js'
@@ -21,6 +20,7 @@ import type {
 	RequestEventFetchParams,
 } from '../../types.js'
 import { QueryStore } from '../query.js'
+import { readData } from '../mode.js'
 
 export type CursorStoreResult<
 	_Data extends GraphQLObject,
@@ -35,6 +35,9 @@ export class QueryStoreCursor<
 > extends QueryStore<_Data, _Input, _Artifact> {
 	// all paginated stores need to have a flag to distinguish from other query stores
 	paginated = true
+	get pageInfo() {
+		return extractPageInfo(readData(this), this.artifact.refetch!.path)
+	}
 
 	#_handlers: CursorHandlers<_Data, _Input> | null = null
 	async #handlers(): Promise<CursorHandlers<_Data, _Input>> {
