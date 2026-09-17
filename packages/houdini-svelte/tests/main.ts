@@ -2,6 +2,7 @@ import { flushSync, hydrate, mount, unmount } from 'svelte'
 import { cacheSource, initial, row, selection, Source } from './fixtures.js'
 import Harness from './Harness.svelte'
 import FragmentHarness from './FragmentHarness.svelte'
+import StateHarness from './StateHarness.svelte'
 import { QueryStore, FragmentStore, SubscriptionStore, fragment } from '../runtime/index.js'
 import { initClient } from '../runtime/client.js'
 import clientCache from './clientCache.js'
@@ -27,6 +28,11 @@ function reset() {
 }
 
 window.testing = {
+	async state(source: any) {
+		if (component) await unmount(component)
+		component = mount(StateHarness, { target, props: { source } })
+		flushSync()
+	},
 	async remount(next: any, isFragment = false) {
 		if (component) await unmount(component)
 		component = mount(isFragment ? FragmentHarness : Harness, {
@@ -70,7 +76,7 @@ window.testing = {
 		reset()
 		return query
 	},
-	async fragment(size?: number) {
+	async fragment(size?: number, reference?: any) {
 		if (component) await unmount(component)
 		const fragmentSelection =
 			size === undefined
@@ -104,9 +110,9 @@ window.testing = {
 			},
 		})
 		const source = fragment(
-			{
+			reference === undefined ? {
 				' $fragments': { values: { UserFields: { parent: 'User:t__a', variables } } },
-			} as any,
+			} : reference,
 			store
 		)
 		component = mount(FragmentHarness, { target, props: { source, publish, counts } })

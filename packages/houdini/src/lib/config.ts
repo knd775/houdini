@@ -11,6 +11,13 @@ import type { CachePolicies, PaginateModes } from './types.js'
 // the values we can take in from the config file
 export type ConfigFile = {
 	/**
+	 * Enable experimental Svelte field reactivity and readonly query/fragment result
+	 * arrays. Regenerate after changing this option. Existing store APIs remain the default.
+	 * @default false
+	 */
+	experimentalFieldReactivity?: boolean
+
+	/**
 	 * A glob pointing to all files that houdini should consider. Note, this must include .js files
 	 * for inline queries to work
 	 * @default `src/** /*.{svelte,graphql,gql,ts,js}`

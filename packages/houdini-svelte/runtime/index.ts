@@ -2,6 +2,7 @@ import type { QueryStore } from './stores/index.js'
 
 export * from './adapter.js'
 export * from './fragments.js'
+export { mutable } from './mutable.js'
 export type { ReactiveValue } from './reactivity/snapshot.js'
 export * from './session.js'
 export * from './stores/index.js'

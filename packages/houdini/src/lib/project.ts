@@ -28,6 +28,7 @@ export const default_config: ConfigFile = {
 	defaultKeys: ['id'],
 	defaultPaginateMode: 'Infinite',
 	defaultFragmentMasking: 'enable',
+	experimentalFieldReactivity: false,
 	defaultCachePolicy: 'CacheOrNetwork',
 }
 

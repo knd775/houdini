@@ -308,20 +308,28 @@ export type PaginatedFragment = {
 };
 
 export type PaginatedFragment$data = {
-	readonly friendsByCursor: {
-		readonly edges: ({
-			readonly node: {
-				readonly id: string;
-			} | null;
-			readonly cursor: string;
-		})[];
-		readonly pageInfo: {
-			readonly hasNextPage: boolean;
-			readonly hasPreviousPage: boolean;
-			readonly startCursor: string | null;
-			readonly endCursor: string | null;
-		};
-	} | null;
+	readonly friendsByCursor: PaginatedFragment$data$friendsByCursor | null;
+};
+
+export type PaginatedFragment$data$friendsByCursor$edges$node = {
+	readonly id: string;
+};
+
+export type PaginatedFragment$data$friendsByCursor$edges = {
+	readonly node: PaginatedFragment$data$friendsByCursor$edges$node | null;
+	readonly cursor: string;
+};
+
+export type PaginatedFragment$data$friendsByCursor$pageInfo = {
+	readonly hasNextPage: boolean;
+	readonly hasPreviousPage: boolean;
+	readonly startCursor: string | null;
+	readonly endCursor: string | null;
+};
+
+export type PaginatedFragment$data$friendsByCursor = {
+	readonly edges: (PaginatedFragment$data$friendsByCursor$edges)[];
+	readonly pageInfo: PaginatedFragment$data$friendsByCursor$pageInfo;
 };
 
 export type PaginatedFragment$artifact = typeof artifact
@@ -529,20 +537,28 @@ export type PaginatedFragment = {
 };
 
 export type PaginatedFragment$data = {
-	readonly friendsByCursor: {
-		readonly edges: ({
-			readonly node: {
-				readonly id: string;
-			} | null;
-			readonly cursor: string;
-		})[];
-		readonly pageInfo: {
-			readonly hasNextPage: boolean;
-			readonly hasPreviousPage: boolean;
-			readonly startCursor: string | null;
-			readonly endCursor: string | null;
-		};
-	} | null;
+	readonly friendsByCursor: PaginatedFragment$data$friendsByCursor | null;
+};
+
+export type PaginatedFragment$data$friendsByCursor$edges$node = {
+	readonly id: string;
+};
+
+export type PaginatedFragment$data$friendsByCursor$edges = {
+	readonly node: PaginatedFragment$data$friendsByCursor$edges$node | null;
+	readonly cursor: string;
+};
+
+export type PaginatedFragment$data$friendsByCursor$pageInfo = {
+	readonly hasNextPage: boolean;
+	readonly hasPreviousPage: boolean;
+	readonly startCursor: string | null;
+	readonly endCursor: string | null;
+};
+
+export type PaginatedFragment$data$friendsByCursor = {
+	readonly edges: (PaginatedFragment$data$friendsByCursor$edges)[];
+	readonly pageInfo: PaginatedFragment$data$friendsByCursor$pageInfo;
 };
 
 export type PaginatedFragment$artifact = typeof artifact
@@ -652,9 +668,11 @@ export type PaginatedFragment = {
 };
 
 export type PaginatedFragment$data = {
-	readonly friendsByOffset: ({
-		readonly id: string;
-	})[];
+	readonly friendsByOffset: (PaginatedFragment$data$friendsByOffset)[];
+};
+
+export type PaginatedFragment$data$friendsByOffset = {
+	readonly id: string;
 };
 
 export type PaginatedFragment$artifact = typeof artifact
@@ -966,28 +984,44 @@ export type ScalarPagination = {
 };
 
 export type ScalarPagination$result = {
-	readonly user: {
-		readonly friendsByCursorScalar: {
-			readonly edges: ({
-				readonly node: {
-					readonly friendsByCursor: {
-						readonly edges: ({
-							readonly node: {
-								readonly id: string;
-							} | null;
-						})[];
-					} | null;
-				} | null;
-				readonly cursor: string;
-			})[];
-			readonly pageInfo: {
-				readonly hasNextPage: boolean;
-				readonly hasPreviousPage: boolean;
-				readonly startCursor: string | null;
-				readonly endCursor: string | null;
-			};
-		};
-	};
+	readonly user: ScalarPagination$result$user;
+};
+
+export type ScalarPagination$result$user$friendsByCursorScalar$edges$node$friendsByCursor$edges$node = {
+	readonly id: string;
+};
+
+export type ScalarPagination$result$user$friendsByCursorScalar$edges$node$friendsByCursor$edges = {
+	readonly node: ScalarPagination$result$user$friendsByCursorScalar$edges$node$friendsByCursor$edges$node | null;
+};
+
+export type ScalarPagination$result$user$friendsByCursorScalar$edges$node$friendsByCursor = {
+	readonly edges: (ScalarPagination$result$user$friendsByCursorScalar$edges$node$friendsByCursor$edges)[];
+};
+
+export type ScalarPagination$result$user$friendsByCursorScalar$edges$node = {
+	readonly friendsByCursor: ScalarPagination$result$user$friendsByCursorScalar$edges$node$friendsByCursor | null;
+};
+
+export type ScalarPagination$result$user$friendsByCursorScalar$edges = {
+	readonly node: ScalarPagination$result$user$friendsByCursorScalar$edges$node | null;
+	readonly cursor: string;
+};
+
+export type ScalarPagination$result$user$friendsByCursorScalar$pageInfo = {
+	readonly hasNextPage: boolean;
+	readonly hasPreviousPage: boolean;
+	readonly startCursor: string | null;
+	readonly endCursor: string | null;
+};
+
+export type ScalarPagination$result$user$friendsByCursorScalar = {
+	readonly edges: (ScalarPagination$result$user$friendsByCursorScalar$edges)[];
+	readonly pageInfo: ScalarPagination$result$user$friendsByCursorScalar$pageInfo;
+};
+
+export type ScalarPagination$result$user = {
+	readonly friendsByCursorScalar: ScalarPagination$result$user$friendsByCursorScalar;
 };
 
 export type ScalarPagination$input = {
@@ -1451,39 +1485,65 @@ export type PaginatedFragment = {
 };
 
 export type PaginatedFragment$data = {
-	readonly friendsByCursor: {
-		readonly edges: ({
-			readonly node: {
-				readonly friendsByCursor: {
-					readonly edges: ({
-						readonly node: {
-							readonly id: string;
-						} | null;
-					})[];
-				} | null;
-			} | null;
-			readonly cursor: string;
-		})[];
-		readonly pageInfo: {
-			readonly hasNextPage: boolean;
-			readonly hasPreviousPage: boolean;
-			readonly startCursor: string | null;
-			readonly endCursor: string | null;
-		};
-	} | null;
-	readonly friends: {
-		readonly edges: ({
-			readonly node: {
-				readonly friendsByCursor: {
-					readonly edges: ({
-						readonly node: {
-							readonly id: string;
-						} | null;
-					})[];
-				} | null;
-			} | null;
-		})[];
-	} | null;
+	readonly friendsByCursor: PaginatedFragment$data$friendsByCursor | null;
+	readonly friends: PaginatedFragment$data$friends | null;
+};
+
+export type PaginatedFragment$data$friendsByCursor$edges$node$friendsByCursor$edges$node = {
+	readonly id: string;
+};
+
+export type PaginatedFragment$data$friendsByCursor$edges$node$friendsByCursor$edges = {
+	readonly node: PaginatedFragment$data$friendsByCursor$edges$node$friendsByCursor$edges$node | null;
+};
+
+export type PaginatedFragment$data$friendsByCursor$edges$node$friendsByCursor = {
+	readonly edges: (PaginatedFragment$data$friendsByCursor$edges$node$friendsByCursor$edges)[];
+};
+
+export type PaginatedFragment$data$friendsByCursor$edges$node = {
+	readonly friendsByCursor: PaginatedFragment$data$friendsByCursor$edges$node$friendsByCursor | null;
+};
+
+export type PaginatedFragment$data$friendsByCursor$edges = {
+	readonly node: PaginatedFragment$data$friendsByCursor$edges$node | null;
+	readonly cursor: string;
+};
+
+export type PaginatedFragment$data$friendsByCursor$pageInfo = {
+	readonly hasNextPage: boolean;
+	readonly hasPreviousPage: boolean;
+	readonly startCursor: string | null;
+	readonly endCursor: string | null;
+};
+
+export type PaginatedFragment$data$friendsByCursor = {
+	readonly edges: (PaginatedFragment$data$friendsByCursor$edges)[];
+	readonly pageInfo: PaginatedFragment$data$friendsByCursor$pageInfo;
+};
+
+export type PaginatedFragment$data$friends$edges$node$friendsByCursor$edges$node = {
+	readonly id: string;
+};
+
+export type PaginatedFragment$data$friends$edges$node$friendsByCursor$edges = {
+	readonly node: PaginatedFragment$data$friends$edges$node$friendsByCursor$edges$node | null;
+};
+
+export type PaginatedFragment$data$friends$edges$node$friendsByCursor = {
+	readonly edges: (PaginatedFragment$data$friends$edges$node$friendsByCursor$edges)[];
+};
+
+export type PaginatedFragment$data$friends$edges$node = {
+	readonly friendsByCursor: PaginatedFragment$data$friends$edges$node$friendsByCursor | null;
+};
+
+export type PaginatedFragment$data$friends$edges = {
+	readonly node: PaginatedFragment$data$friends$edges$node | null;
+};
+
+export type PaginatedFragment$data$friends = {
+	readonly edges: (PaginatedFragment$data$friends$edges)[];
 };
 
 export type PaginatedFragment$artifact = typeof artifact
@@ -1747,24 +1807,34 @@ export type TestQuery = {
 };
 
 export type TestQuery$result = {
-	readonly entitiesByCursor: {
-		readonly edges: ({
-			readonly node: {} & (({
-				readonly firstName: string;
-				readonly __typename: "User";
-			}) | ({
-				readonly " $fragments"?: {};
-				readonly __typename: "non-exhaustive; don't match this";
-			})) | null;
-			readonly cursor: string;
-		})[];
-		readonly pageInfo: {
-			readonly hasNextPage: boolean;
-			readonly hasPreviousPage: boolean;
-			readonly startCursor: string | null;
-			readonly endCursor: string | null;
-		};
-	};
+	readonly entitiesByCursor: TestQuery$result$entitiesByCursor;
+};
+
+export type TestQuery$result$entitiesByCursor$edges$node$$on$User = ({
+	readonly firstName: string;
+	readonly __typename: "User";
+});
+
+export type TestQuery$result$entitiesByCursor$edges$node = {} & (TestQuery$result$entitiesByCursor$edges$node$$on$User | ({
+	readonly " $fragments"?: {};
+	readonly __typename: "non-exhaustive; don't match this";
+}));
+
+export type TestQuery$result$entitiesByCursor$edges = {
+	readonly node: TestQuery$result$entitiesByCursor$edges$node | null;
+	readonly cursor: string;
+};
+
+export type TestQuery$result$entitiesByCursor$pageInfo = {
+	readonly hasNextPage: boolean;
+	readonly hasPreviousPage: boolean;
+	readonly startCursor: string | null;
+	readonly endCursor: string | null;
+};
+
+export type TestQuery$result$entitiesByCursor = {
+	readonly edges: (TestQuery$result$entitiesByCursor$edges)[];
+	readonly pageInfo: TestQuery$result$entitiesByCursor$pageInfo;
 };
 
 export type TestQuery$input = {
@@ -2047,23 +2117,33 @@ export type Info = {
 };
 
 export type Info$result = {
-	readonly species: {
-		readonly id: number;
-		readonly moves: {
-			readonly edges: ({
-				readonly node: {
-					readonly id: number;
-				} | null;
-				readonly cursor: string;
-			})[];
-			readonly pageInfo: {
-				readonly hasNextPage: boolean;
-				readonly hasPreviousPage: boolean;
-				readonly startCursor: string | null;
-				readonly endCursor: string | null;
-			};
-		};
-	} | null;
+	readonly species: Info$result$species | null;
+};
+
+export type Info$result$species$moves$edges$node = {
+	readonly id: number;
+};
+
+export type Info$result$species$moves$edges = {
+	readonly node: Info$result$species$moves$edges$node | null;
+	readonly cursor: string;
+};
+
+export type Info$result$species$moves$pageInfo = {
+	readonly hasNextPage: boolean;
+	readonly hasPreviousPage: boolean;
+	readonly startCursor: string | null;
+	readonly endCursor: string | null;
+};
+
+export type Info$result$species$moves = {
+	readonly edges: (Info$result$species$moves$edges)[];
+	readonly pageInfo: Info$result$species$moves$pageInfo;
+};
+
+export type Info$result$species = {
+	readonly id: number;
+	readonly moves: Info$result$species$moves;
 };
 
 export type Info$input = {

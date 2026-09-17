@@ -205,23 +205,31 @@ export type Search = {
 };
 
 export type Search$result = {
-	readonly search: ({} & (({
-		readonly id: string;
-		readonly title: string;
-		readonly author: string;
-		readonly wordCount: number;
-		readonly __typename: "Article";
-	}) | ({
-		readonly id: string;
-		readonly title: string;
-		readonly __typename: "Podcast";
-	}) | ({
-		readonly id: string;
-		readonly title: string;
-		readonly durationSeconds: number;
-		readonly __typename: "Video";
-	})))[];
+	readonly search: (Search$result$search)[];
 };
+
+export type Search$result$search$$on$Article = ({
+	readonly id: string;
+	readonly title: string;
+	readonly author: string;
+	readonly wordCount: number;
+	readonly __typename: "Article";
+});
+
+export type Search$result$search$$on$Podcast = ({
+	readonly id: string;
+	readonly title: string;
+	readonly __typename: "Podcast";
+});
+
+export type Search$result$search$$on$Video = ({
+	readonly id: string;
+	readonly title: string;
+	readonly durationSeconds: number;
+	readonly __typename: "Video";
+});
+
+export type Search$result$search = {} & (Search$result$search$$on$Article | Search$result$search$$on$Podcast | Search$result$search$$on$Video);
 
 export type Search$input = null | undefined;
 

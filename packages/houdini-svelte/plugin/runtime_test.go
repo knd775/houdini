@@ -8,6 +8,7 @@ import (
 
 	"code.houdinigraphql.com/packages/houdini-svelte/plugin"
 	"code.houdinigraphql.com/packages/houdini-svelte/plugin/config"
+	"code.houdinigraphql.com/plugins"
 	"code.houdinigraphql.com/plugins/tests"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
@@ -22,11 +23,14 @@ func TestRuntime_FieldReactivityMode(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			tests.RunTable(t, tests.Table[config.PluginConfig, *plugin.HoudiniSvelte]{
 				Schema: `type Query { hello: String }`,
-				Plugin: tests.Plugin[config.PluginConfig]{
-					Name:   "houdini-svelte",
-					Config: config.PluginConfig{ExperimentalFieldReactivity: enabled},
-				},
-				Tests: []tests.Test[config.PluginConfig]{{Name: "selects a typed runtime module"}},
+				Plugin: tests.Plugin[config.PluginConfig]{Name: "houdini-svelte"},
+				Tests: []tests.Test[config.PluginConfig]{{
+					Name: "selects a typed runtime module",
+					Pass: true,
+					ProjectConfig: func(config *plugins.ProjectConfig) {
+						config.ExperimentalFieldReactivity = enabled
+					},
+				}},
 				PerformTest: func(t *testing.T, p *plugin.HoudiniSvelte, _ tests.Test[config.PluginConfig]) {
 					source, err := os.ReadFile("../runtime/stores/mode.ts")
 					require.NoError(t, err)

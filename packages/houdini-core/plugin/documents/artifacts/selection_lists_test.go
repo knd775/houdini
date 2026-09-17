@@ -129,24 +129,23 @@ func TestListArtifacts(t *testing.T) {
           }`,
 				},
 				Extra: map[string]any{
-					"TestQuery": tests.Dedent(`
-              const artifact = {
-                  "name": "TestQuery",
-                  "kind": "HoudiniQuery",
-                  "hash": "dc502dd533f31553a3c311a7aaa782d82f81d7f7a8816d5095f96584a7600004",
+					"TestQuery": tests.Dedent(`const artifact = {
+    "name": "TestQuery",
+    "kind": "HoudiniQuery",
+    "hash": "dc502dd533f31553a3c311a7aaa782d82f81d7f7a8816d5095f96584a7600004",
 
-                  "refetch": {
-                      "path": ["users"],
-                      "method": "offset",
-                      "pageSize": 0,
-                      "embedded": false,
-                      "targetType": "Query",
-                      "paginated": false,
-                      "direction": "forward",
-                      "mode": "Infinite"
-                  },
+    "refetch": {
+        "path": ["users"],
+        "method": "offset",
+        "pageSize": 0,
+        "embedded": false,
+        "targetType": "Query",
+        "paginated": false,
+        "direction": "forward",
+        "mode": "Infinite"
+    },
 
-                  "raw": ` + "`" + `query TestQuery($value: String!) {
+    "raw": ` + "`" + `query TestQuery($value: String!) {
     users(boolValue: true, floatValue: 1.2, intValue: 1, stringValue: $value) {
         firstName
         __typename
@@ -155,122 +154,122 @@ func TestListArtifacts(t *testing.T) {
 }
 ` + "`" + `,
 
-                  "rootType": "Query",
-                  "stripVariables": [] as Array<string>,
+    "rootType": "Query",
+    "stripVariables": [] as Array<string>,
 
-                  "selection": {
-                      "fields": {
-                          "users": {
-                              "type": "User",
-                              "keyRaw": "users(boolValue: true, floatValue: 1.2, intValue: 1, stringValue: $value)",
+    "selection": {
+        "fields": {
+            "users": {
+                "type": "User",
+                "keyRaw": "users(boolValue: true, floatValue: 1.2, intValue: 1, stringValue: $value)",
 
-                              "directives": [{
-                                  "name": "list",
-                                  "arguments": {
-                                      "name": {
-                                          "kind": "StringValue",
-                                          "value": "All_Users"
-                                      }
-                                  }
-                              }],
+                "directives": [{
+                    "name": "list",
+                    "arguments": {
+                        "name": {
+                            "kind": "StringValue",
+                            "value": "All_Users"
+                        }
+                    }
+                }],
 
-                              "list": {
-                                  "name": "All_Users",
-                                  "connection": false,
-                                  "type": "User"
-                              },
+                "list": {
+                    "name": "All_Users",
+                    "connection": false,
+                    "type": "User"
+                },
 
-                              "selection": {
-                                  "fields": {
-                                      "__typename": {
-                                          "type": "String",
-                                          "keyRaw": "__typename",
-                                      },
+                "selection": {
+                    "fields": {
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
+                        },
 
-                                      "firstName": {
-                                          "type": "String",
-                                          "keyRaw": "firstName",
-                                          "visible": true,
-                                      },
+                        "firstName": {
+                            "type": "String",
+                            "keyRaw": "firstName",
+                            "visible": true,
+                        },
 
-                                      "id": {
-                                          "type": "ID",
-                                          "keyRaw": "id",
-                                      },
-                                  },
-                              },
+                        "id": {
+                            "type": "ID",
+                            "keyRaw": "id",
+                        },
+                    },
+                },
 
-                              "filters": {
-                                  "boolValue": {
-                                      "kind": "Boolean",
-                                      "value": true
-                                  },
-                                  "floatValue": {
-                                      "kind": "Float",
-                                      "value": 1.2
-                                  },
-                                  "intValue": {
-                                      "kind": "Int",
-                                      "value": 1
-                                  },
-                                  "stringValue": {
-                                      "kind": "Variable",
-                                      "value": "value"
-                                  },
-                              },
-                              "visible": true,
-                          },
-                      },
-                  },
+                "filters": {
+                    "boolValue": {
+                        "kind": "Boolean",
+                        "value": true
+                    },
+                    "floatValue": {
+                        "kind": "Float",
+                        "value": 1.2
+                    },
+                    "intValue": {
+                        "kind": "Int",
+                        "value": 1
+                    },
+                    "stringValue": {
+                        "kind": "Variable",
+                        "value": "value"
+                    },
+                },
+                "visible": true,
+            },
+        },
+    },
 
-                  "pluginData": {},
+    "pluginData": {},
 
-                  "input": {
-                      "fields": {
-                          "value": "String",
-                      },
+    "input": {
+        "fields": {
+            "value": "String",
+        },
 
-                      "types": {},
+        "types": {},
 
-                      "defaults": {},
+        "defaults": {},
 
-                      "runtimeScalars": {},
-                  },
+        "runtimeScalars": {},
+    },
 
-                  "policy": "CacheOrNetwork",
-                  "partial": false
-              } as const
+    "policy": "CacheOrNetwork",
+    "partial": false
+} as const
 
-              export default artifact
+export default artifact
 
-              export type TestQuery = {
-              	readonly "input": TestQuery$input;
-              	readonly "result": TestQuery$result | undefined;
-              };
+export type TestQuery = {
+	readonly "input": TestQuery$input;
+	readonly "result": TestQuery$result | undefined;
+};
 
-              export type TestQuery$result = {
-              	readonly users: ({
-              		readonly firstName: string;
-              	})[];
-              };
+export type TestQuery$result = {
+	readonly users: (TestQuery$result$users)[];
+};
 
-              export type TestQuery$input = {
-              	value: string;
-              };
+export type TestQuery$result$users = {
+	readonly firstName: string;
+};
 
-              export type TestQuery$unmasked = {
-              	readonly users: ({
-              		readonly __typename: "User";
-              		readonly firstName: string;
-              		readonly id: string;
-              	})[];
-              };
+export type TestQuery$input = {
+	value: string;
+};
 
-              export type TestQuery$artifact = typeof artifact
+export type TestQuery$unmasked = {
+	readonly users: ({
+		readonly __typename: "User";
+		readonly firstName: string;
+		readonly id: string;
+	})[];
+};
 
-              "HoudiniHash=dc502dd533f31553a3c311a7aaa782d82f81d7f7a8816d5095f96584a7600004"
+export type TestQuery$artifact = typeof artifact
 
-          `),
+"HoudiniHash=dc502dd533f31553a3c311a7aaa782d82f81d7f7a8816d5095f96584a7600004"`),
 				},
 			},
 			{
@@ -465,20 +464,28 @@ export type TestQuery = {
 };
 
 export type TestQuery$result = {
-	readonly usersByCursor: {
-		readonly edges: ({
-			readonly node: {
-				readonly firstName: string;
-			} | null;
-			readonly cursor: string;
-		})[];
-		readonly pageInfo: {
-			readonly hasNextPage: boolean;
-			readonly hasPreviousPage: boolean;
-			readonly startCursor: string | null;
-			readonly endCursor: string | null;
-		};
-	};
+	readonly usersByCursor: TestQuery$result$usersByCursor;
+};
+
+export type TestQuery$result$usersByCursor$edges$node = {
+	readonly firstName: string;
+};
+
+export type TestQuery$result$usersByCursor$edges = {
+	readonly node: TestQuery$result$usersByCursor$edges$node | null;
+	readonly cursor: string;
+};
+
+export type TestQuery$result$usersByCursor$pageInfo = {
+	readonly hasNextPage: boolean;
+	readonly hasPreviousPage: boolean;
+	readonly startCursor: string | null;
+	readonly endCursor: string | null;
+};
+
+export type TestQuery$result$usersByCursor = {
+	readonly edges: (TestQuery$result$usersByCursor$edges)[];
+	readonly pageInfo: TestQuery$result$usersByCursor$pageInfo;
 };
 
 export type TestQuery$input = null | undefined;
@@ -747,20 +754,28 @@ export type TestQuery = {
 };
 
 export type TestQuery$result = {
-	readonly usersByCursor: {
-		readonly edges: ({
-			readonly node: {
-				readonly firstName: string;
-			} | null;
-			readonly cursor: string;
-		})[];
-		readonly pageInfo: {
-			readonly hasNextPage: boolean;
-			readonly hasPreviousPage: boolean;
-			readonly startCursor: string | null;
-			readonly endCursor: string | null;
-		};
-	};
+	readonly usersByCursor: TestQuery$result$usersByCursor;
+};
+
+export type TestQuery$result$usersByCursor$edges$node = {
+	readonly firstName: string;
+};
+
+export type TestQuery$result$usersByCursor$edges = {
+	readonly node: TestQuery$result$usersByCursor$edges$node | null;
+	readonly cursor: string;
+};
+
+export type TestQuery$result$usersByCursor$pageInfo = {
+	readonly hasNextPage: boolean;
+	readonly hasPreviousPage: boolean;
+	readonly startCursor: string | null;
+	readonly endCursor: string | null;
+};
+
+export type TestQuery$result$usersByCursor = {
+	readonly edges: (TestQuery$result$usersByCursor$edges)[];
+	readonly pageInfo: TestQuery$result$usersByCursor$pageInfo;
 };
 
 export type TestQuery$input = {
@@ -1033,20 +1048,28 @@ export type TestQuery = {
 };
 
 export type TestQuery$result = {
-	readonly usersByCursor: {
-		readonly edges: ({
-			readonly node: {
-				readonly firstName: string;
-			} | null;
-			readonly cursor: string;
-		})[];
-		readonly pageInfo: {
-			readonly hasNextPage: boolean;
-			readonly hasPreviousPage: boolean;
-			readonly startCursor: string | null;
-			readonly endCursor: string | null;
-		};
-	};
+	readonly usersByCursor: TestQuery$result$usersByCursor;
+};
+
+export type TestQuery$result$usersByCursor$edges$node = {
+	readonly firstName: string;
+};
+
+export type TestQuery$result$usersByCursor$edges = {
+	readonly node: TestQuery$result$usersByCursor$edges$node | null;
+	readonly cursor: string;
+};
+
+export type TestQuery$result$usersByCursor$pageInfo = {
+	readonly hasNextPage: boolean;
+	readonly hasPreviousPage: boolean;
+	readonly startCursor: string | null;
+	readonly endCursor: string | null;
+};
+
+export type TestQuery$result$usersByCursor = {
+	readonly edges: (TestQuery$result$usersByCursor$edges)[];
+	readonly pageInfo: TestQuery$result$usersByCursor$pageInfo;
 };
 
 export type TestQuery$input = {
@@ -1369,17 +1392,21 @@ export type AnimalQuery = {
 };
 
 export type AnimalQuery$result = {
-	readonly animals: {
-		readonly pageInfo: {
-			readonly hasPreviousPage: boolean;
-			readonly hasNextPage: boolean;
-			readonly startCursor: string | null;
-			readonly endCursor: string | null;
-		};
-		readonly " $fragments": {
-			MonkeyList: {};
-		};
-	} | null;
+	readonly animals: AnimalQuery$result$animals | null;
+};
+
+export type AnimalQuery$result$animals$pageInfo = {
+	readonly hasPreviousPage: boolean;
+	readonly hasNextPage: boolean;
+	readonly startCursor: string | null;
+	readonly endCursor: string | null;
+};
+
+export type AnimalQuery$result$animals = {
+	readonly pageInfo: AnimalQuery$result$animals$pageInfo;
+	readonly " $fragments": {
+		MonkeyList: {};
+	};
 };
 
 export type AnimalQuery$input = null | undefined;
@@ -1597,11 +1624,13 @@ export type AnimalsOverview = {
 };
 
 export type AnimalsOverview$result = {
-	readonly animals: {
-		readonly " $fragments": {
-			AnimalsOverviewList: {};
-		};
-	} | null;
+	readonly animals: AnimalsOverview$result$animals | null;
+};
+
+export type AnimalsOverview$result$animals = {
+	readonly " $fragments": {
+		AnimalsOverviewList: {};
+	};
 };
 
 export type AnimalsOverview$input = null | undefined;
@@ -1775,14 +1804,20 @@ export type Entities = {
 };
 
 export type Entities$result = {
-	readonly entities: ({} & (({
-		readonly name: string;
-		readonly __typename: "Cat";
-	}) | ({
-		readonly name: string;
-		readonly __typename: "User";
-	})))[];
+	readonly entities: (Entities$result$entities)[];
 };
+
+export type Entities$result$entities$$on$Cat = ({
+	readonly name: string;
+	readonly __typename: "Cat";
+});
+
+export type Entities$result$entities$$on$User = ({
+	readonly name: string;
+	readonly __typename: "User";
+});
+
+export type Entities$result$entities = {} & (Entities$result$entities$$on$Cat | Entities$result$entities$$on$User);
 
 export type Entities$input = null | undefined;
 
@@ -2009,22 +2044,30 @@ export type TestQuery = {
 };
 
 export type TestQuery$result = {
-	readonly usersByCursor: {
-		readonly edges: ({
-			readonly node: {
-				readonly " $fragments": {
-					UserTest: {};
-				};
-			} | null;
-			readonly cursor: string;
-		})[];
-		readonly pageInfo: {
-			readonly hasNextPage: boolean;
-			readonly hasPreviousPage: boolean;
-			readonly startCursor: string | null;
-			readonly endCursor: string | null;
-		};
+	readonly usersByCursor: TestQuery$result$usersByCursor;
+};
+
+export type TestQuery$result$usersByCursor$edges$node = {
+	readonly " $fragments": {
+		UserTest: {};
 	};
+};
+
+export type TestQuery$result$usersByCursor$edges = {
+	readonly node: TestQuery$result$usersByCursor$edges$node | null;
+	readonly cursor: string;
+};
+
+export type TestQuery$result$usersByCursor$pageInfo = {
+	readonly hasNextPage: boolean;
+	readonly hasPreviousPage: boolean;
+	readonly startCursor: string | null;
+	readonly endCursor: string | null;
+};
+
+export type TestQuery$result$usersByCursor = {
+	readonly edges: (TestQuery$result$usersByCursor$edges)[];
+	readonly pageInfo: TestQuery$result$usersByCursor$pageInfo;
 };
 
 export type TestQuery$input = null | undefined;

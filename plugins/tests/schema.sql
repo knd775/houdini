@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS config (
     suppress_pagination_deduplication BOOLEAN,
     log_level TEXT CHECK (log_level IN ('QUIET', 'FULL', 'SUMMARY', 'SHORT_SUMMARY')),
     default_fragment_masking BOOLEAN,
+    experimental_field_reactivity BOOLEAN DEFAULT false,
     default_keys JSON,
     persisted_queries_path TEXT NOT NULL,
     project_root TEXT,

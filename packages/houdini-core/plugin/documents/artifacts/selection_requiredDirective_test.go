@@ -240,13 +240,15 @@ export type TestQuery = {
 };
 
 export type TestQuery$result = {
-	readonly node: {
-		readonly " $fragments": {
-			LegendWithRequiredName: {};
-			GhostWithRequiredLegendName: {};
-			GhostWithRequiredLegendAndLegendName: {};
-		};
-	} | null;
+	readonly node: TestQuery$result$node | null;
+};
+
+export type TestQuery$result$node = {
+	readonly " $fragments": {
+		LegendWithRequiredName: {};
+		GhostWithRequiredLegendName: {};
+		GhostWithRequiredLegendAndLegendName: {};
+	};
 };
 
 export type TestQuery$input = {

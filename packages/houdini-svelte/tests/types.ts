@@ -19,7 +19,7 @@ if (result.data) {
 }
 
 // The public fragment helper exposes readonly payload fields directly.
-import { fragment, FragmentStore } from '../runtime/index.js'
+import { fragment, FragmentStore, mutable } from '../runtime/index.js'
 declare const reference: { ' $fragments': { UserFields: {} } }
 declare const fragmentStore: FragmentStore<{ name: string; nested: { n: number } }, {}>
 const row = fragment(reference, fragmentStore)
@@ -67,3 +67,14 @@ if (scalars.data) {
 	scalars.data.tokens.push(new Token())
 }
 void [money, token, id, fragmentMoney]
+
+// Generated query/fragment results use readonly lists in experimental mode.
+type Users$result = { readonly users: ReadonlyArray<{ readonly name: string; readonly tags: ReadonlyArray<string> }> }
+declare const generated: QueryStore<Users$result, {}>
+if (generated.data) {
+	const result: Users$result = generated.data
+	const copy: Users$result['users'][number][] = mutable(result.users)
+	copy.sort((a, b) => a.name.localeCompare(b.name))
+	// @ts-expect-error Copying the array does not make its items mutable.
+	copy[0].tags.push('new')
+}

@@ -290,23 +290,29 @@ export type MonkeyListQuery = {
 };
 
 export type MonkeyListQuery$result = {
-	readonly monkeys: {
-		readonly pageInfo: {
-			readonly hasPreviousPage: boolean;
-			readonly hasNextPage: boolean;
-			readonly startCursor: string | null;
-			readonly endCursor: string | null;
-		};
-		readonly " $fragments": {
-			AnimalsList: {};
-		};
-	};
+	readonly monkeys: MonkeyListQuery$result$monkeys;
 } | {
-	readonly monkeys: {
-		readonly pageInfo: LoadingType;
-		readonly " $fragments": {
-			AnimalsList: LoadingType;
-		};
+	readonly monkeys: MonkeyListQuery$result$$loading$monkeys;
+};
+
+export type MonkeyListQuery$result$monkeys$pageInfo = {
+	readonly hasPreviousPage: boolean;
+	readonly hasNextPage: boolean;
+	readonly startCursor: string | null;
+	readonly endCursor: string | null;
+};
+
+export type MonkeyListQuery$result$monkeys = {
+	readonly pageInfo: MonkeyListQuery$result$monkeys$pageInfo;
+	readonly " $fragments": {
+		AnimalsList: {};
+	};
+};
+
+export type MonkeyListQuery$result$$loading$monkeys = {
+	readonly pageInfo: LoadingType;
+	readonly " $fragments": {
+		AnimalsList: LoadingType;
 	};
 };
 
@@ -547,26 +553,40 @@ export type Query = {
 };
 
 export type Query$result = {
-	readonly catOwners: ({
-		readonly cats: ({
-			readonly id: string;
-		})[];
-	} & (({
-		readonly firstName: string;
-		readonly __typename: "User";
-	}) | ({
-		readonly " $fragments"?: {};
-		readonly __typename: "non-exhaustive; don't match this";
-	})))[];
+	readonly catOwners: (Query$result$catOwners)[];
 } | {
-	readonly catOwners: {
-		readonly cats: {
-			readonly id: LoadingType;
-		}[];
-		readonly User: {
-			readonly firstName: LoadingType;
-		};
-	}[];
+	readonly catOwners: Query$result$$loading$catOwners[];
+};
+
+export type Query$result$catOwners$$shared$cats = {
+	readonly id: string;
+};
+
+export type Query$result$catOwners$$shared = {
+	readonly cats: (Query$result$catOwners$$shared$cats)[];
+};
+
+export type Query$result$catOwners$$on$User = ({
+	readonly firstName: string;
+	readonly __typename: "User";
+});
+
+export type Query$result$catOwners = Query$result$catOwners$$shared & (Query$result$catOwners$$on$User | ({
+	readonly " $fragments"?: {};
+	readonly __typename: "non-exhaustive; don't match this";
+}));
+
+export type Query$result$$loading$catOwners$cats = {
+	readonly id: LoadingType;
+};
+
+export type Query$result$$loading$catOwners$User = {
+	readonly firstName: LoadingType;
+};
+
+export type Query$result$$loading$catOwners = {
+	readonly cats: Query$result$$loading$catOwners$cats[];
+	readonly User: Query$result$$loading$catOwners$User;
 };
 
 export type Query$input = null | undefined;
@@ -745,25 +765,37 @@ export type Query = {
 };
 
 export type Query$result = {
-	readonly entities: ({} & (({
-		readonly name: string;
-		readonly __typename: "Cat";
-	}) | ({
-		readonly firstName: string;
-		readonly __typename: "User";
-	}) | ({
-		readonly " $fragments"?: {};
-		readonly __typename: "non-exhaustive; don't match this";
-	})))[];
+	readonly entities: (Query$result$entities)[];
 } | {
-	readonly entities: {
-		readonly User: {
-			readonly firstName: LoadingType;
-		};
-		readonly Cat: {
-			readonly name: LoadingType;
-		};
-	}[];
+	readonly entities: Query$result$$loading$entities[];
+};
+
+export type Query$result$entities$$on$Cat = ({
+	readonly name: string;
+	readonly __typename: "Cat";
+});
+
+export type Query$result$entities$$on$User = ({
+	readonly firstName: string;
+	readonly __typename: "User";
+});
+
+export type Query$result$entities = {} & (Query$result$entities$$on$Cat | Query$result$entities$$on$User | ({
+	readonly " $fragments"?: {};
+	readonly __typename: "non-exhaustive; don't match this";
+}));
+
+export type Query$result$$loading$entities$User = {
+	readonly firstName: LoadingType;
+};
+
+export type Query$result$$loading$entities$Cat = {
+	readonly name: LoadingType;
+};
+
+export type Query$result$$loading$entities = {
+	readonly User: Query$result$$loading$entities$User;
+	readonly Cat: Query$result$$loading$entities$Cat;
 };
 
 export type Query$input = null | undefined;
@@ -917,16 +949,20 @@ export type Query = {
 };
 
 export type Query$result = {
-	readonly entity: {
-		readonly " $fragments": {
-			Info: {};
-		};
-	};
+	readonly entity: Query$result$entity;
 } | {
-	readonly entity: {
-		readonly " $fragments": {
-			Info: LoadingType;
-		};
+	readonly entity: Query$result$$loading$entity;
+};
+
+export type Query$result$entity = {
+	readonly " $fragments": {
+		Info: {};
+	};
+};
+
+export type Query$result$$loading$entity = {
+	readonly " $fragments": {
+		Info: LoadingType;
 	};
 };
 
@@ -1093,22 +1129,32 @@ export type Query = {
 };
 
 export type Query$result = {
-	readonly entities: ({} & (({
-		readonly name: string;
-		readonly __typename: "Cat";
-	}) | ({
-		readonly firstName: string;
-		readonly __typename: "User";
-	}) | ({
-		readonly " $fragments"?: {};
-		readonly __typename: "non-exhaustive; don't match this";
-	})))[];
+	readonly entities: (Query$result$entities)[];
 } | {
-	readonly entities: {
-		readonly User: {
-			readonly firstName: LoadingType;
-		};
-	}[];
+	readonly entities: Query$result$$loading$entities[];
+};
+
+export type Query$result$entities$$on$Cat = ({
+	readonly name: string;
+	readonly __typename: "Cat";
+});
+
+export type Query$result$entities$$on$User = ({
+	readonly firstName: string;
+	readonly __typename: "User";
+});
+
+export type Query$result$entities = {} & (Query$result$entities$$on$Cat | Query$result$entities$$on$User | ({
+	readonly " $fragments"?: {};
+	readonly __typename: "non-exhaustive; don't match this";
+}));
+
+export type Query$result$$loading$entities$User = {
+	readonly firstName: LoadingType;
+};
+
+export type Query$result$$loading$entities = {
+	readonly User: Query$result$$loading$entities$User;
 };
 
 export type Query$input = null | undefined;
@@ -1277,28 +1323,40 @@ export type Query = {
 };
 
 export type Query$result = {
-	readonly entities: ({} & (({
-		readonly name: string;
-		readonly __typename: "Cat";
-	}) | ({
-		readonly firstName: string;
-		readonly __typename: "User";
-	}) | ({
-		readonly " $fragments"?: {};
-		readonly __typename: "non-exhaustive; don't match this";
-	})))[];
+	readonly entities: (Query$result$entities)[];
 } | {
-	readonly entities: ({} & (({
-		readonly name: LoadingType;
-		readonly __typename: "Cat";
-	}) | ({
-		readonly firstName: LoadingType;
-		readonly __typename: "User";
-	}) | ({
-		readonly " $fragments"?: {};
-		readonly __typename: "non-exhaustive; don't match this";
-	})))[];
+	readonly entities: Query$result$$loading$entities[];
 };
+
+export type Query$result$entities$$on$Cat = ({
+	readonly name: string;
+	readonly __typename: "Cat";
+});
+
+export type Query$result$entities$$on$User = ({
+	readonly firstName: string;
+	readonly __typename: "User";
+});
+
+export type Query$result$entities = {} & (Query$result$entities$$on$Cat | Query$result$entities$$on$User | ({
+	readonly " $fragments"?: {};
+	readonly __typename: "non-exhaustive; don't match this";
+}));
+
+export type Query$result$$loading$entities$$on$Cat = ({
+	readonly name: LoadingType;
+	readonly __typename: "Cat";
+});
+
+export type Query$result$$loading$entities$$on$User = ({
+	readonly firstName: LoadingType;
+	readonly __typename: "User";
+});
+
+export type Query$result$$loading$entities = ({} & (Query$result$$loading$entities$$on$Cat | Query$result$$loading$entities$$on$User | ({
+	readonly " $fragments"?: {};
+	readonly __typename: "non-exhaustive; don't match this";
+})));
 
 export type Query$input = null | undefined;
 
@@ -1531,35 +1589,51 @@ export type Query = {
 };
 
 export type Query$result = {
-	readonly entities: ({} & (({
-		readonly name: string;
-		readonly __typename: "Cat";
-	}) | ({
-		readonly firstName: string;
-		readonly __typename: "User";
-	}) | ({
-		readonly " $fragments"?: {};
-		readonly __typename: "non-exhaustive; don't match this";
-	})))[];
-	readonly b: ({} & (({
-		readonly firstName: string;
-		readonly __typename: "User";
-	}) | ({
-		readonly " $fragments"?: {};
-		readonly __typename: "non-exhaustive; don't match this";
-	})))[];
+	readonly entities: (Query$result$entities)[];
+	readonly b: (Query$result$b)[];
 } | {
-	readonly entities: ({} & (({
-		readonly name: LoadingType;
-		readonly __typename: "Cat";
-	}) | ({
-		readonly firstName: LoadingType;
-		readonly __typename: "User";
-	}) | ({
-		readonly " $fragments"?: {};
-		readonly __typename: "non-exhaustive; don't match this";
-	})))[];
+	readonly entities: Query$result$$loading$entities[];
 };
+
+export type Query$result$entities$$on$Cat = ({
+	readonly name: string;
+	readonly __typename: "Cat";
+});
+
+export type Query$result$entities$$on$User = ({
+	readonly firstName: string;
+	readonly __typename: "User";
+});
+
+export type Query$result$entities = {} & (Query$result$entities$$on$Cat | Query$result$entities$$on$User | ({
+	readonly " $fragments"?: {};
+	readonly __typename: "non-exhaustive; don't match this";
+}));
+
+export type Query$result$b$$on$User = ({
+	readonly firstName: string;
+	readonly __typename: "User";
+});
+
+export type Query$result$b = {} & (Query$result$b$$on$User | ({
+	readonly " $fragments"?: {};
+	readonly __typename: "non-exhaustive; don't match this";
+}));
+
+export type Query$result$$loading$entities$$on$Cat = ({
+	readonly name: LoadingType;
+	readonly __typename: "Cat";
+});
+
+export type Query$result$$loading$entities$$on$User = ({
+	readonly firstName: LoadingType;
+	readonly __typename: "User";
+});
+
+export type Query$result$$loading$entities = ({} & (Query$result$$loading$entities$$on$Cat | Query$result$$loading$entities$$on$User | ({
+	readonly " $fragments"?: {};
+	readonly __typename: "non-exhaustive; don't match this";
+})));
 
 export type Query$input = null | undefined;
 
@@ -1717,16 +1791,20 @@ export type GlobalLoadingSpreadQuery = {
 };
 
 export type GlobalLoadingSpreadQuery$result = {
-	readonly monkeys: {
-		readonly " $fragments": {
-			ConnectionInfo: {};
-		};
-	};
+	readonly monkeys: GlobalLoadingSpreadQuery$result$monkeys;
 } | {
-	readonly monkeys: {
-		readonly " $fragments": {
-			ConnectionInfo: LoadingType;
-		};
+	readonly monkeys: GlobalLoadingSpreadQuery$result$$loading$monkeys;
+};
+
+export type GlobalLoadingSpreadQuery$result$monkeys = {
+	readonly " $fragments": {
+		ConnectionInfo: {};
+	};
+};
+
+export type GlobalLoadingSpreadQuery$result$$loading$monkeys = {
+	readonly " $fragments": {
+		ConnectionInfo: LoadingType;
 	};
 };
 
@@ -1766,7 +1844,7 @@ export type GlobalLoadingSpreadQuery$artifact = typeof artifact
           }`,
 				},
 				Extra: map[string]any{
-					"GlobalListConfig": "import type { LoadingType } from \"houdini/runtime\";\nconst artifact = {\n    \"name\": \"GlobalListConfig\",\n    \"kind\": \"HoudiniQuery\",\n    \"hash\": \"bf928586ecef8632f1df8ce14f2ec7d9012348852c086f026c174035128d92ba\",\n    \"raw\": `query GlobalListConfig {\n    monkeys {\n        pageInfo {\n            hasNextPage\n            __typename\n        }\n        edges {\n            node {\n                id\n                __typename\n            }\n            __typename\n        }\n        __typename\n    }\n}\n`,\n\n    \"rootType\": \"Query\",\n    \"stripVariables\": [] as Array<string>,\n\n    \"selection\": {\n        \"fields\": {\n            \"monkeys\": {\n                \"type\": \"MonkeyConnection\",\n                \"keyRaw\": \"monkeys\",\n\n                \"selection\": {\n                    \"fields\": {\n                        \"__typename\": {\n                            \"type\": \"String\",\n                            \"keyRaw\": \"__typename\",\n                            \"loading\": {\n                                \"kind\": \"value\",\n                            },\n                        },\n\n                        \"edges\": {\n                            \"type\": \"MonkeyEdge\",\n                            \"keyRaw\": \"edges\",\n\n                            \"directives\": [{\n                                \"name\": \"loading\",\n                                \"arguments\": {\n                                    \"count\": {\n                                        \"kind\": \"IntValue\",\n                                        \"value\": \"2\"\n                                    }\n                                }\n                            }],\n\n\n                            \"selection\": {\n                                \"fields\": {\n                                    \"__typename\": {\n                                        \"type\": \"String\",\n                                        \"keyRaw\": \"__typename\",\n                                        \"loading\": {\n                                            \"kind\": \"value\",\n                                        },\n                                    },\n\n                                    \"node\": {\n                                        \"type\": \"Monkey\",\n                                        \"keyRaw\": \"node\",\n                                        \"nullable\": true,\n\n                                        \"selection\": {\n                                            \"fields\": {\n                                                \"__typename\": {\n                                                    \"type\": \"String\",\n                                                    \"keyRaw\": \"__typename\",\n                                                    \"loading\": {\n                                                        \"kind\": \"value\",\n                                                    },\n                                                },\n\n                                                \"id\": {\n                                                    \"type\": \"ID\",\n                                                    \"keyRaw\": \"id\",\n                                                    \"loading\": {\n                                                        \"kind\": \"value\",\n                                                    },\n                                                    \"visible\": true,\n                                                },\n                                            },\n                                        },\n\n                                        \"loading\": {\n                                            \"kind\": \"continue\",\n                                        },\n                                        \"visible\": true,\n                                    },\n                                },\n                            },\n\n                            \"loading\": {\n                                \"kind\": \"continue\",\n                                \"list\": {\n                                    \"depth\": 1,\n                                    \"count\": 2,\n                                },\n                            },\n                            \"visible\": true,\n                        },\n\n                        \"pageInfo\": {\n                            \"type\": \"PageInfo\",\n                            \"keyRaw\": \"pageInfo\",\n\n                            \"selection\": {\n                                \"fields\": {\n                                    \"__typename\": {\n                                        \"type\": \"String\",\n                                        \"keyRaw\": \"__typename\",\n                                        \"loading\": {\n                                            \"kind\": \"value\",\n                                        },\n                                    },\n\n                                    \"hasNextPage\": {\n                                        \"type\": \"Boolean\",\n                                        \"keyRaw\": \"hasNextPage\",\n                                        \"loading\": {\n                                            \"kind\": \"value\",\n                                        },\n                                        \"visible\": true,\n                                    },\n                                },\n                            },\n\n                            \"loading\": {\n                                \"kind\": \"continue\",\n                            },\n                            \"visible\": true,\n                        },\n                    },\n                },\n\n                \"loading\": {\n                    \"kind\": \"continue\",\n                },\n                \"visible\": true,\n            },\n        },\n    },\n\n    \"pluginData\": {},\n    \"enableLoadingState\": \"local\",\n    \"policy\": \"CacheOrNetwork\",\n    \"partial\": false\n} as const\n\nexport default artifact\n\nexport type GlobalListConfig = {\n\treadonly \"input\"?: GlobalListConfig$input;\n\treadonly \"result\": GlobalListConfig$result | undefined;\n};\n\nexport type GlobalListConfig$result = {\n\treadonly monkeys: {\n\t\treadonly pageInfo: {\n\t\t\treadonly hasNextPage: boolean;\n\t\t};\n\t\treadonly edges: ({\n\t\t\treadonly node: {\n\t\t\t\treadonly id: string;\n\t\t\t} | null;\n\t\t})[];\n\t};\n} | {\n\treadonly monkeys: {\n\t\treadonly pageInfo: {\n\t\t\treadonly hasNextPage: LoadingType;\n\t\t};\n\t\treadonly edges: {\n\t\t\treadonly node: {\n\t\t\t\treadonly id: LoadingType;\n\t\t\t};\n\t\t}[];\n\t};\n};\n\nexport type GlobalListConfig$input = null | undefined;\n\nexport type GlobalListConfig$unmasked = {\n\treadonly monkeys: {\n\t\treadonly __typename: \"MonkeyConnection\";\n\t\treadonly edges: ({\n\t\t\treadonly __typename: \"MonkeyEdge\";\n\t\t\treadonly node: {\n\t\t\t\treadonly __typename: \"Monkey\";\n\t\t\t\treadonly id: string;\n\t\t\t} | null;\n\t\t})[];\n\t\treadonly pageInfo: {\n\t\t\treadonly __typename: \"PageInfo\";\n\t\t\treadonly hasNextPage: boolean;\n\t\t};\n\t};\n};\n\nexport type GlobalListConfig$artifact = typeof artifact\n\n\"HoudiniHash=bf928586ecef8632f1df8ce14f2ec7d9012348852c086f026c174035128d92ba\"",
+					"GlobalListConfig": "import type { LoadingType } from \"houdini/runtime\";\nconst artifact = {\n    \"name\": \"GlobalListConfig\",\n    \"kind\": \"HoudiniQuery\",\n    \"hash\": \"bf928586ecef8632f1df8ce14f2ec7d9012348852c086f026c174035128d92ba\",\n    \"raw\": `query GlobalListConfig {\n    monkeys {\n        pageInfo {\n            hasNextPage\n            __typename\n        }\n        edges {\n            node {\n                id\n                __typename\n            }\n            __typename\n        }\n        __typename\n    }\n}\n`,\n\n    \"rootType\": \"Query\",\n    \"stripVariables\": [] as Array<string>,\n\n    \"selection\": {\n        \"fields\": {\n            \"monkeys\": {\n                \"type\": \"MonkeyConnection\",\n                \"keyRaw\": \"monkeys\",\n\n                \"selection\": {\n                    \"fields\": {\n                        \"__typename\": {\n                            \"type\": \"String\",\n                            \"keyRaw\": \"__typename\",\n                            \"loading\": {\n                                \"kind\": \"value\",\n                            },\n                        },\n\n                        \"edges\": {\n                            \"type\": \"MonkeyEdge\",\n                            \"keyRaw\": \"edges\",\n\n                            \"directives\": [{\n                                \"name\": \"loading\",\n                                \"arguments\": {\n                                    \"count\": {\n                                        \"kind\": \"IntValue\",\n                                        \"value\": \"2\"\n                                    }\n                                }\n                            }],\n\n\n                            \"selection\": {\n                                \"fields\": {\n                                    \"__typename\": {\n                                        \"type\": \"String\",\n                                        \"keyRaw\": \"__typename\",\n                                        \"loading\": {\n                                            \"kind\": \"value\",\n                                        },\n                                    },\n\n                                    \"node\": {\n                                        \"type\": \"Monkey\",\n                                        \"keyRaw\": \"node\",\n                                        \"nullable\": true,\n\n                                        \"selection\": {\n                                            \"fields\": {\n                                                \"__typename\": {\n                                                    \"type\": \"String\",\n                                                    \"keyRaw\": \"__typename\",\n                                                    \"loading\": {\n                                                        \"kind\": \"value\",\n                                                    },\n                                                },\n\n                                                \"id\": {\n                                                    \"type\": \"ID\",\n                                                    \"keyRaw\": \"id\",\n                                                    \"loading\": {\n                                                        \"kind\": \"value\",\n                                                    },\n                                                    \"visible\": true,\n                                                },\n                                            },\n                                        },\n\n                                        \"loading\": {\n                                            \"kind\": \"continue\",\n                                        },\n                                        \"visible\": true,\n                                    },\n                                },\n                            },\n\n                            \"loading\": {\n                                \"kind\": \"continue\",\n                                \"list\": {\n                                    \"depth\": 1,\n                                    \"count\": 2,\n                                },\n                            },\n                            \"visible\": true,\n                        },\n\n                        \"pageInfo\": {\n                            \"type\": \"PageInfo\",\n                            \"keyRaw\": \"pageInfo\",\n\n                            \"selection\": {\n                                \"fields\": {\n                                    \"__typename\": {\n                                        \"type\": \"String\",\n                                        \"keyRaw\": \"__typename\",\n                                        \"loading\": {\n                                            \"kind\": \"value\",\n                                        },\n                                    },\n\n                                    \"hasNextPage\": {\n                                        \"type\": \"Boolean\",\n                                        \"keyRaw\": \"hasNextPage\",\n                                        \"loading\": {\n                                            \"kind\": \"value\",\n                                        },\n                                        \"visible\": true,\n                                    },\n                                },\n                            },\n\n                            \"loading\": {\n                                \"kind\": \"continue\",\n                            },\n                            \"visible\": true,\n                        },\n                    },\n                },\n\n                \"loading\": {\n                    \"kind\": \"continue\",\n                },\n                \"visible\": true,\n            },\n        },\n    },\n\n    \"pluginData\": {},\n    \"enableLoadingState\": \"local\",\n    \"policy\": \"CacheOrNetwork\",\n    \"partial\": false\n} as const\n\nexport default artifact\n\nexport type GlobalListConfig = {\n\treadonly \"input\"?: GlobalListConfig$input;\n\treadonly \"result\": GlobalListConfig$result | undefined;\n};\n\nexport type GlobalListConfig$result = {\n\treadonly monkeys: GlobalListConfig$result$monkeys;\n} | {\n\treadonly monkeys: GlobalListConfig$result$$loading$monkeys;\n};\n\nexport type GlobalListConfig$result$monkeys$pageInfo = {\n\treadonly hasNextPage: boolean;\n};\n\nexport type GlobalListConfig$result$monkeys$edges$node = {\n\treadonly id: string;\n};\n\nexport type GlobalListConfig$result$monkeys$edges = {\n\treadonly node: GlobalListConfig$result$monkeys$edges$node | null;\n};\n\nexport type GlobalListConfig$result$monkeys = {\n\treadonly pageInfo: GlobalListConfig$result$monkeys$pageInfo;\n\treadonly edges: (GlobalListConfig$result$monkeys$edges)[];\n};\n\nexport type GlobalListConfig$result$$loading$monkeys$pageInfo = {\n\treadonly hasNextPage: LoadingType;\n};\n\nexport type GlobalListConfig$result$$loading$monkeys$edges$node = {\n\treadonly id: LoadingType;\n};\n\nexport type GlobalListConfig$result$$loading$monkeys$edges = {\n\treadonly node: GlobalListConfig$result$$loading$monkeys$edges$node;\n};\n\nexport type GlobalListConfig$result$$loading$monkeys = {\n\treadonly pageInfo: GlobalListConfig$result$$loading$monkeys$pageInfo;\n\treadonly edges: GlobalListConfig$result$$loading$monkeys$edges[];\n};\n\nexport type GlobalListConfig$input = null | undefined;\n\nexport type GlobalListConfig$unmasked = {\n\treadonly monkeys: {\n\t\treadonly __typename: \"MonkeyConnection\";\n\t\treadonly edges: ({\n\t\t\treadonly __typename: \"MonkeyEdge\";\n\t\t\treadonly node: {\n\t\t\t\treadonly __typename: \"Monkey\";\n\t\t\t\treadonly id: string;\n\t\t\t} | null;\n\t\t})[];\n\t\treadonly pageInfo: {\n\t\t\treadonly __typename: \"PageInfo\";\n\t\t\treadonly hasNextPage: boolean;\n\t\t};\n\t};\n};\n\nexport type GlobalListConfig$artifact = typeof artifact\n\n\"HoudiniHash=bf928586ecef8632f1df8ce14f2ec7d9012348852c086f026c174035128d92ba\"",
 				},
 			},
 			{

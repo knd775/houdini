@@ -68,16 +68,18 @@ func TestTypescriptFragmentMasking(t *testing.T) {
 				Extra: map[string]any{
 					"MaskQuery": tests.Dedent(`
 						export type MaskQuery$result = {
-							readonly user: {
-								readonly id: string;
-								readonly nickname: string | null;
-								readonly age: number | null;
-								readonly " $fragments": {
-									MaskUserInfo: {};
-								};
+							readonly user: MaskQuery$result$user;
+						};
+
+						export type MaskQuery$result$user = {
+							readonly id: string;
+							readonly nickname: string | null;
+							readonly age: number | null;
+							readonly " $fragments": {
+								MaskUserInfo: {};
 							};
 						};
-					`),
+						`),
 				},
 			},
 			{
@@ -99,16 +101,18 @@ func TestTypescriptFragmentMasking(t *testing.T) {
 				Extra: map[string]any{
 					"MaskQuery": tests.Dedent(`
 						export type MaskQuery$result = {
-							readonly user: {
-								readonly id: string;
-								readonly nickname: string | null;
-								readonly age: number | null;
-								readonly " $fragments": {
-									MaskUserInfo: {};
-								};
+							readonly user: MaskQuery$result$user;
+						};
+
+						export type MaskQuery$result$user = {
+							readonly id: string;
+							readonly nickname: string | null;
+							readonly age: number | null;
+							readonly " $fragments": {
+								MaskUserInfo: {};
 							};
 						};
-					`),
+						`),
 				},
 			},
 			{
@@ -127,14 +131,16 @@ func TestTypescriptFragmentMasking(t *testing.T) {
 				Extra: map[string]any{
 					"MaskQuery": tests.Dedent(`
 						export type MaskQuery$result = {
-							readonly user: {
-								readonly id: string;
-								readonly " $fragments": {
-									MaskNodeInfo: {};
-								};
+							readonly user: MaskQuery$result$user;
+						};
+
+						export type MaskQuery$result$user = {
+							readonly id: string;
+							readonly " $fragments": {
+								MaskNodeInfo: {};
 							};
 						};
-					`),
+						`),
 				},
 			},
 			{
@@ -154,14 +160,16 @@ func TestTypescriptFragmentMasking(t *testing.T) {
 				Extra: map[string]any{
 					"MaskQuery": tests.Dedent(`
 						export type MaskQuery$result = {
-							readonly node: {
-								readonly id: string;
-								readonly " $fragments": {
-									MaskUserInfo: {};
-								};
-							} | null;
+							readonly node: MaskQuery$result$node | null;
 						};
-					`),
+
+						export type MaskQuery$result$node = {
+							readonly id: string;
+							readonly " $fragments": {
+								MaskUserInfo: {};
+							};
+						};
+						`),
 				},
 			},
 			{
@@ -234,16 +242,18 @@ func TestTypescriptFragmentMasking(t *testing.T) {
 				Extra: map[string]any{
 					"MaskQuery": tests.Dedent(`
 						export type MaskQuery$result = {
-							readonly user: {
-								readonly id: string;
-								readonly nickname: string | null;
-								readonly age?: number | null;
-								readonly " $fragments": {
-									MaskUserInfo: {};
-								};
+							readonly user: MaskQuery$result$user;
+						};
+
+						export type MaskQuery$result$user = {
+							readonly id: string;
+							readonly nickname: string | null;
+							readonly age?: number | null;
+							readonly " $fragments": {
+								MaskUserInfo: {};
 							};
 						};
-					`),
+						`),
 				},
 			},
 			{
@@ -268,17 +278,19 @@ func TestTypescriptFragmentMasking(t *testing.T) {
 				Extra: map[string]any{
 					"MaskQuery": tests.Dedent(`
 						export type MaskQuery$result = {
-							readonly user: {
-								readonly id: string;
-								readonly nickname: string | null;
-								readonly age: number | null;
-								readonly " $fragments": {
-									MaskUserInfo: {};
-									MaskOuter: {};
-								};
+							readonly user: MaskQuery$result$user;
+						};
+
+						export type MaskQuery$result$user = {
+							readonly id: string;
+							readonly nickname: string | null;
+							readonly age: number | null;
+							readonly " $fragments": {
+								MaskUserInfo: {};
+								MaskOuter: {};
 							};
 						};
-					`),
+						`),
 				},
 			},
 			{
@@ -305,16 +317,18 @@ func TestTypescriptFragmentMasking(t *testing.T) {
 				Extra: map[string]any{
 					"MaskQuery": tests.Dedent(`
 						export type MaskQuery$result = {
-							readonly user: {
-								readonly id: string;
-								readonly nickname: string | null;
-								readonly " $fragments": {
-									MaskUserInfo: {};
-									MaskUserAge: {};
-								};
+							readonly user: MaskQuery$result$user;
+						};
+
+						export type MaskQuery$result$user = {
+							readonly id: string;
+							readonly nickname: string | null;
+							readonly " $fragments": {
+								MaskUserInfo: {};
+								MaskUserAge: {};
 							};
 						};
-					`),
+						`),
 				},
 			},
 		},
@@ -390,18 +404,22 @@ func TestTypescriptMaskDisableMerging(t *testing.T) {
 				Extra: map[string]any{
 					"MergeQuery": tests.Dedent(`
 						export type MergeQuery$result = {
-							readonly item: {
-								readonly meta: {
-									readonly label: string;
-									readonly color: string;
-								};
-								readonly " $fragments": {
-									ItemLabel: {};
-									ItemColor: {};
-								};
+							readonly item: MergeQuery$result$item;
+						};
+
+						export type MergeQuery$result$item$meta = {
+							readonly label: string;
+							readonly color: string;
+						};
+
+						export type MergeQuery$result$item = {
+							readonly meta: MergeQuery$result$item$meta;
+							readonly " $fragments": {
+								ItemLabel: {};
+								ItemColor: {};
 							};
 						};
-					`),
+						`),
 				},
 			},
 			{
@@ -458,19 +476,23 @@ func TestTypescriptMaskDisableMerging(t *testing.T) {
 				Extra: map[string]any{
 					"DiamondA": tests.Dedent(`
 						export type DiamondA$data = {
-							readonly details: {
-								readonly __typename: string;
-							} | null;
+							readonly details: DiamondA$data$details | null;
 							readonly id: string;
-							readonly meta: {
-								readonly label: string;
-							};
+							readonly meta: DiamondA$data$meta;
 							readonly " $fragments": {
 								DiamondB: {};
 								DiamondC: {};
 							};
 						};
-					`),
+
+						export type DiamondA$data$details = {
+							readonly __typename: string;
+						};
+
+						export type DiamondA$data$meta = {
+							readonly label: string;
+						};
+						`),
 				},
 			},
 			{
@@ -505,24 +527,32 @@ func TestTypescriptMaskDisableMerging(t *testing.T) {
 				Extra: map[string]any{
 					"MergeQuery": tests.Dedent(`
 						export type MergeQuery$result = {
-							readonly item: {
-								readonly details: {} & (({
-									readonly meta: {
-										readonly label: string;
-										readonly color: string;
-									};
-									readonly __typename: "TextDetail";
-								}) | ({
-									readonly " $fragments"?: {};
-									readonly __typename: "non-exhaustive; don't match this";
-								})) | null;
-								readonly " $fragments": {
-									TextLabel: {};
-									TextColor: {};
-								};
+							readonly item: MergeQuery$result$item;
+						};
+
+						export type MergeQuery$result$item$details$$on$TextDetail$meta = {
+							readonly label: string;
+							readonly color: string;
+						};
+
+						export type MergeQuery$result$item$details$$on$TextDetail = ({
+							readonly meta: MergeQuery$result$item$details$$on$TextDetail$meta;
+							readonly __typename: "TextDetail";
+						});
+
+						export type MergeQuery$result$item$details = {} & (MergeQuery$result$item$details$$on$TextDetail | ({
+							readonly " $fragments"?: {};
+							readonly __typename: "non-exhaustive; don't match this";
+						}));
+
+						export type MergeQuery$result$item = {
+							readonly details: MergeQuery$result$item$details | null;
+							readonly " $fragments": {
+								TextLabel: {};
+								TextColor: {};
 							};
 						};
-					`),
+						`),
 				},
 			},
 		},
@@ -570,12 +600,14 @@ func TestTypescriptIncludeListID(t *testing.T) {
 				Extra: map[string]any{
 					"TestQuery": tests.Dedent(`
 						export type TestQuery$result = {
-							readonly users: ({
-								readonly id: string;
-								readonly name: string;
-							})[] & { __id: string };
+							readonly users: (TestQuery$result$users)[] & { __id: string };
 						};
-					`),
+
+						export type TestQuery$result$users = {
+							readonly id: string;
+							readonly name: string;
+						};
+						`),
 				},
 			},
 		},

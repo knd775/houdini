@@ -21,6 +21,7 @@ type ProjectConfig struct {
 	SuppressPaginationDeduplication bool
 	LogLevel                        string
 	DefaultFragmentMasking          bool
+	ExperimentalFieldReactivity     bool
 	DefaultKeys                     []string
 	PersistedQueriesPath            string
 	ProjectRoot                     string
@@ -97,7 +98,8 @@ func (db *DatabasePool[PluginConfig]) ReloadProjectConfig(ctx context.Context) e
 		project_root,
 		runtime_dir,
 		schema_path,
-		path
+		path,
+		experimental_field_reactivity
 	FROM config LIMIT 1`)
 	if err != nil {
 		return err
@@ -139,6 +141,7 @@ func (db *DatabasePool[PluginConfig]) ReloadProjectConfig(ctx context.Context) e
 		config.RuntimeDir = stmt.ColumnText(16)
 		config.SchemaPath = stmt.ColumnText(17)
 		config.Filepath = stmt.GetText("path")
+		config.ExperimentalFieldReactivity = stmt.ColumnInt(19) == 1
 	}
 
 	// load runtime scalar information

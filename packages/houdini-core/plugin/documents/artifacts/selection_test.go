@@ -345,10 +345,12 @@ export type TestQuery = {
 };
 
 export type TestQuery$result = {
-	readonly user: {
-		readonly " $fragments": {
-			TestFragment: {};
-		};
+	readonly user: TestQuery$result$user;
+};
+
+export type TestQuery$result$user = {
+	readonly " $fragments": {
+		TestFragment: {};
 	};
 };
 
@@ -459,11 +461,13 @@ export type TestQuery = {
 };
 
 export type TestQuery$result = {
-	readonly user: {
-		readonly firstName: string;
-		readonly " $fragments": {
-			TestFragment: {};
-		};
+	readonly user: TestQuery$result$user;
+};
+
+export type TestQuery$result$user = {
+	readonly firstName: string;
+	readonly " $fragments": {
+		TestFragment: {};
 	};
 };
 
@@ -594,17 +598,25 @@ export type MyQuery = {
 };
 
 export type MyQuery$result = {
-	readonly node: {} & (({
-		readonly name: string;
-		readonly __typename: "Cat";
-	}) | ({
-		readonly name: string;
-		readonly __typename: "Dog";
-	}) | ({
-		readonly name: string;
-		readonly __typename: "User";
-	})) | null;
+	readonly node: MyQuery$result$node | null;
 };
+
+export type MyQuery$result$node$$on$Cat = ({
+	readonly name: string;
+	readonly __typename: "Cat";
+});
+
+export type MyQuery$result$node$$on$Dog = ({
+	readonly name: string;
+	readonly __typename: "Dog";
+});
+
+export type MyQuery$result$node$$on$User = ({
+	readonly name: string;
+	readonly __typename: "User";
+});
+
+export type MyQuery$result$node = {} & (MyQuery$result$node$$on$Cat | MyQuery$result$node$$on$Dog | MyQuery$result$node$$on$User);
 
 export type MyQuery$input = {
 	id: string;
@@ -751,9 +763,11 @@ export type TestQuery = {
 };
 
 export type TestQuery$result = {
-	readonly user: {
-		readonly name: string;
-	};
+	readonly user: TestQuery$result$user;
+};
+
+export type TestQuery$result$user = {
+	readonly name: string;
 };
 
 export type TestQuery$input = {
@@ -905,17 +919,21 @@ export type TestQuery = {
 };
 
 export type TestQuery$result = {
-	readonly friends: ({} & (({
-		readonly firstName: string;
-		readonly " $fragments": {
-			A: {};
-		};
-		readonly __typename: "User";
-	}) | ({
-		readonly " $fragments"?: {};
-		readonly __typename: "non-exhaustive; don't match this";
-	})))[];
+	readonly friends: (TestQuery$result$friends)[];
 };
+
+export type TestQuery$result$friends$$on$User = ({
+	readonly firstName: string;
+	readonly " $fragments": {
+		A: {};
+	};
+	readonly __typename: "User";
+});
+
+export type TestQuery$result$friends = {} & (TestQuery$result$friends$$on$User | ({
+	readonly " $fragments"?: {};
+	readonly __typename: "non-exhaustive; don't match this";
+}));
 
 export type TestQuery$input = null | undefined;
 
@@ -1083,20 +1101,28 @@ export type Friends = {
 };
 
 export type Friends$result = {
-	readonly friends: ({} & (({
-		readonly id: string;
-		readonly owner: {
-			readonly firstName: string;
-		};
-		readonly __typename: "Cat";
-	}) | ({
-		readonly name: string;
-		readonly __typename: "User";
-	}) | ({
-		readonly " $fragments"?: {};
-		readonly __typename: "non-exhaustive; don't match this";
-	})))[];
+	readonly friends: (Friends$result$friends)[];
 };
+
+export type Friends$result$friends$$on$Cat$owner = {
+	readonly firstName: string;
+};
+
+export type Friends$result$friends$$on$Cat = ({
+	readonly id: string;
+	readonly owner: Friends$result$friends$$on$Cat$owner;
+	readonly __typename: "Cat";
+});
+
+export type Friends$result$friends$$on$User = ({
+	readonly name: string;
+	readonly __typename: "User";
+});
+
+export type Friends$result$friends = {} & (Friends$result$friends$$on$Cat | Friends$result$friends$$on$User | ({
+	readonly " $fragments"?: {};
+	readonly __typename: "non-exhaustive; don't match this";
+}));
 
 export type Friends$input = null | undefined;
 
@@ -1263,14 +1289,20 @@ export type Friends = {
 };
 
 export type Friends$result = {
-	readonly pets: ({} & (({
-		readonly id: string;
-		readonly owner: {
-			readonly firstName: string;
-		};
-		readonly __typename: "Cat";
-	})))[];
+	readonly pets: (Friends$result$pets)[];
 };
+
+export type Friends$result$pets$$on$Cat$owner = {
+	readonly firstName: string;
+};
+
+export type Friends$result$pets$$on$Cat = ({
+	readonly id: string;
+	readonly owner: Friends$result$pets$$on$Cat$owner;
+	readonly __typename: "Cat";
+});
+
+export type Friends$result$pets = {} & (Friends$result$pets$$on$Cat);
 
 export type Friends$input = null | undefined;
 
@@ -1400,11 +1432,15 @@ export type Friends = {
 };
 
 export type Friends$result = {
-	readonly pets: ({} & (({
-		readonly id: string;
-		readonly __typename: "Cat";
-	})))[];
+	readonly pets: (Friends$result$pets)[];
 };
+
+export type Friends$result$pets$$on$Cat = ({
+	readonly id: string;
+	readonly __typename: "Cat";
+});
+
+export type Friends$result$pets = {} & (Friends$result$pets$$on$Cat);
 
 export type Friends$input = null | undefined;
 
@@ -1565,9 +1601,11 @@ export type TestQuery = {
 };
 
 export type TestQuery$result = {
-	readonly users: ({
-		readonly firstName: string;
-	})[];
+	readonly users: (TestQuery$result$users)[];
+};
+
+export type TestQuery$result$users = {
+	readonly firstName: string;
 };
 
 export type TestQuery$input = {
@@ -1648,9 +1686,11 @@ export type TestQuery = {
 };
 
 export type TestQuery$result = {
-	readonly allItems: ({
-		readonly createdAt: DateTime;
-	})[];
+	readonly allItems: (TestQuery$result$allItems)[];
+};
+
+export type TestQuery$result$allItems = {
+	readonly createdAt: DateTime;
 };
 
 export type TestQuery$input = null | undefined;
@@ -1757,11 +1797,15 @@ export type B = {
 };
 
 export type B$result = {
-	readonly newUser: {
-		readonly user: {
-			readonly firstName: string;
-		};
-	};
+	readonly newUser: B$result$newUser;
+};
+
+export type B$result$newUser$user = {
+	readonly firstName: string;
+};
+
+export type B$result$newUser = {
+	readonly user: B$result$newUser$user;
 };
 
 export type B$input = null | undefined;
@@ -1927,21 +1971,27 @@ export type NestedQuery = {
 };
 
 export type NestedQuery$result = {
-	readonly node: {
-		readonly id: string;
-		readonly " $fragments": {
-			NodeDetails: {};
-		};
-	} & (({
-		readonly " $fragments": {
-			UserThings: {};
-		};
-		readonly __typename: "User";
-	}) | ({
-		readonly " $fragments"?: {};
-		readonly __typename: "non-exhaustive; don't match this";
-	})) | null;
+	readonly node: NestedQuery$result$node | null;
 };
+
+export type NestedQuery$result$node$$shared = {
+	readonly id: string;
+	readonly " $fragments": {
+		NodeDetails: {};
+	};
+};
+
+export type NestedQuery$result$node$$on$User = ({
+	readonly " $fragments": {
+		UserThings: {};
+	};
+	readonly __typename: "User";
+});
+
+export type NestedQuery$result$node = NestedQuery$result$node$$shared & (NestedQuery$result$node$$on$User | ({
+	readonly " $fragments"?: {};
+	readonly __typename: "non-exhaustive; don't match this";
+}));
 
 export type NestedQuery$input = null | undefined;
 
@@ -2096,12 +2146,14 @@ export type TestQuery = {
 };
 
 export type TestQuery$result = {
-	readonly node: {
-		readonly id: string;
-		readonly " $fragments": {
-			NodeDetails: {};
-		};
-	} | null;
+	readonly node: TestQuery$result$node | null;
+};
+
+export type TestQuery$result$node = {
+	readonly id: string;
+	readonly " $fragments": {
+		NodeDetails: {};
+	};
 };
 
 export type TestQuery$input = null | undefined;
@@ -2245,12 +2297,14 @@ export type TestQuery = {
 };
 
 export type TestQuery$result = {
-	readonly node: {
-		readonly id: string;
-		readonly " $fragments": {
-			NodeDetails: {};
-		};
-	} | null;
+	readonly node: TestQuery$result$node | null;
+};
+
+export type TestQuery$result$node = {
+	readonly id: string;
+	readonly " $fragments": {
+		NodeDetails: {};
+	};
 };
 
 export type TestQuery$input = null | undefined;
@@ -2419,10 +2473,12 @@ export type TestQuery = {
 };
 
 export type TestQuery$result = {
-	readonly user: {
-		readonly " $fragments": {
-			UserPets: {};
-		};
+	readonly user: TestQuery$result$user;
+};
+
+export type TestQuery$result$user = {
+	readonly " $fragments": {
+		UserPets: {};
 	};
 };
 
@@ -2571,10 +2627,12 @@ export type TestQuery = {
 };
 
 export type TestQuery$result = {
-	readonly user: {
-		readonly " $fragments": {
-			UserFriends: {};
-		};
+	readonly user: TestQuery$result$user;
+};
+
+export type TestQuery$result$user = {
+	readonly " $fragments": {
+		UserFriends: {};
 	};
 };
 
@@ -2758,10 +2816,12 @@ export type TestQuery = {
 };
 
 export type TestQuery$result = {
-	readonly user: {
-		readonly " $fragments": {
-			UserPetsByAge: {};
-		};
+	readonly user: TestQuery$result$user;
+};
+
+export type TestQuery$result$user = {
+	readonly " $fragments": {
+		UserPetsByAge: {};
 	};
 };
 
@@ -2969,9 +3029,11 @@ export type AnimalsOverview = {
 };
 
 export type AnimalsOverview$result = {
-	readonly node: {
-		readonly id: string;
-	} | null;
+	readonly node: AnimalsOverview$result$node | null;
+};
+
+export type AnimalsOverview$result$node = {
+	readonly id: string;
 };
 
 export type AnimalsOverview$input = {
@@ -3107,11 +3169,15 @@ export type UserFriends = {
 };
 
 export type UserFriends$result = {
-	readonly user: {
-		readonly friendsByOffset: ({
-			readonly name: string;
-		})[];
-	};
+	readonly user: UserFriends$result$user;
+};
+
+export type UserFriends$result$user$friendsByOffset = {
+	readonly name: string;
+};
+
+export type UserFriends$result$user = {
+	readonly friendsByOffset: (UserFriends$result$user$friendsByOffset)[];
 };
 
 export type UserFriends$input = {
@@ -3230,9 +3296,11 @@ export type ListUsers = {
 };
 
 export type ListUsers$result = {
-	readonly users: ({
-		readonly name: string;
-	})[];
+	readonly users: (ListUsers$result$users)[];
+};
+
+export type ListUsers$result$users = {
+	readonly name: string;
 };
 
 export type ListUsers$input = {
@@ -3361,9 +3429,11 @@ export type FindUser = {
 };
 
 export type FindUser$result = {
-	readonly users: ({
-		readonly name: string;
-	})[];
+	readonly users: (FindUser$result$users)[];
+};
+
+export type FindUser$result$users = {
+	readonly name: string;
 };
 
 export type FindUser$input = {
@@ -3462,9 +3532,11 @@ export type FindUser = {
 };
 
 export type FindUser$result = {
-	readonly users: ({
-		readonly name: string;
-	})[];
+	readonly users: (FindUser$result$users)[];
+};
+
+export type FindUser$result$users = {
+	readonly name: string;
 };
 
 export type FindUser$input = null | undefined;
@@ -3560,9 +3632,11 @@ export type FindUser = {
 };
 
 export type FindUser$result = {
-	readonly users: ({
-		readonly name: string;
-	})[];
+	readonly users: (FindUser$result$users)[];
+};
+
+export type FindUser$result$users = {
+	readonly name: string;
 };
 
 export type FindUser$input = null | undefined;
@@ -3658,9 +3732,11 @@ export type FindUser = {
 };
 
 export type FindUser$result = {
-	readonly users: ({
-		readonly name: string;
-	})[];
+	readonly users: (FindUser$result$users)[];
+};
+
+export type FindUser$result$users = {
+	readonly name: string;
 };
 
 export type FindUser$input = null | undefined;
@@ -3693,110 +3769,112 @@ export type FindUser$artifact = typeof artifact
           `,
 				},
 				Extra: map[string]any{
-					"CachedFriends": tests.Dedent(`
-              const artifact = {
-                  "name": "CachedFriends",
-                  "kind": "HoudiniQuery",
-                  "hash": "0c6098a719ba87b3bdc37ae86f125da4f8abcf54cc285000f8317ae8060daa8a",
-                  "raw": ` + "`" + `query CachedFriends {
-                  user {
-                      friends {
-                          id
-                          __typename
-                      }
-                      __typename
-                      id
-                  }
-              }
-              ` + "`" + `,
+					"CachedFriends": tests.Dedent(`const artifact = {
+    "name": "CachedFriends",
+    "kind": "HoudiniQuery",
+    "hash": "0c6098a719ba87b3bdc37ae86f125da4f8abcf54cc285000f8317ae8060daa8a",
+    "raw": ` + "`" + `query CachedFriends {
+    user {
+        friends {
+            id
+            __typename
+        }
+        __typename
+        id
+    }
+}
+` + "`" + `,
 
-                  "rootType": "Query",
-                  "stripVariables": [] as Array<string>,
+    "rootType": "Query",
+    "stripVariables": [] as Array<string>,
 
-                  "selection": {
-                      "fields": {
-                          "user": {
-                              "type": "User",
-                              "keyRaw": "user",
+    "selection": {
+        "fields": {
+            "user": {
+                "type": "User",
+                "keyRaw": "user",
 
-                              "selection": {
-                                  "fields": {
-                                      "__typename": {
-                                          "type": "String",
-                                          "keyRaw": "__typename",
-                                      },
+                "selection": {
+                    "fields": {
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
+                        },
 
-                                      "friends": {
-                                          "type": "User",
-                                          "keyRaw": "friends",
+                        "friends": {
+                            "type": "User",
+                            "keyRaw": "friends",
 
-                                          "selection": {
-                                              "fields": {
-                                                  "__typename": {
-                                                      "type": "String",
-                                                      "keyRaw": "__typename",
-                                                  },
+                            "selection": {
+                                "fields": {
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
+                                    },
 
-                                                  "id": {
-                                                      "type": "ID",
-                                                      "keyRaw": "id",
-                                                      "visible": true,
-                                                  },
-                                              },
-                                          },
+                                    "id": {
+                                        "type": "ID",
+                                        "keyRaw": "id",
+                                        "visible": true,
+                                    },
+                                },
+                            },
 
-                                          "visible": true,
-                                      },
+                            "visible": true,
+                        },
 
-                                      "id": {
-                                          "type": "ID",
-                                          "keyRaw": "id",
-                                      },
-                                  },
-                              },
+                        "id": {
+                            "type": "ID",
+                            "keyRaw": "id",
+                        },
+                    },
+                },
 
-                              "visible": true,
-                          },
-                      },
-                  },
+                "visible": true,
+            },
+        },
+    },
 
-                  "pluginData": {},
-                  "policy": "CacheAndNetwork",
-                  "partial": false
-              } as const
+    "pluginData": {},
+    "policy": "CacheAndNetwork",
+    "partial": false
+} as const
 
-              export default artifact
+export default artifact
 
-              export type CachedFriends = {
-              	readonly "input"?: CachedFriends$input;
-              	readonly "result": CachedFriends$result | undefined;
-              };
+export type CachedFriends = {
+	readonly "input"?: CachedFriends$input;
+	readonly "result": CachedFriends$result | undefined;
+};
 
-              export type CachedFriends$result = {
-              	readonly user: {
-              		readonly friends: ({
-              			readonly id: string;
-              		})[];
-              	};
-              };
+export type CachedFriends$result = {
+	readonly user: CachedFriends$result$user;
+};
 
-              export type CachedFriends$input = null | undefined;
+export type CachedFriends$result$user$friends = {
+	readonly id: string;
+};
 
-              export type CachedFriends$unmasked = {
-              	readonly user: {
-              		readonly __typename: "User";
-              		readonly friends: ({
-              			readonly __typename: "User";
-              			readonly id: string;
-              		})[];
-              		readonly id: string;
-              	};
-              };
+export type CachedFriends$result$user = {
+	readonly friends: (CachedFriends$result$user$friends)[];
+};
 
-              export type CachedFriends$artifact = typeof artifact
+export type CachedFriends$input = null | undefined;
 
-              "HoudiniHash=0c6098a719ba87b3bdc37ae86f125da4f8abcf54cc285000f8317ae8060daa8a"
-            `),
+export type CachedFriends$unmasked = {
+	readonly user: {
+		readonly __typename: "User";
+		readonly friends: ({
+			readonly __typename: "User";
+			readonly id: string;
+		})[];
+		readonly id: string;
+	};
+};
+
+export type CachedFriends$artifact = typeof artifact
+
+"HoudiniHash=0c6098a719ba87b3bdc37ae86f125da4f8abcf54cc285000f8317ae8060daa8a"`),
 				},
 			},
 			{
@@ -3817,31 +3895,41 @@ export type FindUser$artifact = typeof artifact
           `,
 				},
 				Extra: map[string]any{
-					"CachedFriends": tests.Dedent(`
-            const artifact = {
-                "name": "CachedFriends",
-                "kind": "HoudiniQuery",
-                "hash": "0c6098a719ba87b3bdc37ae86f125da4f8abcf54cc285000f8317ae8060daa8a",
-                "raw": ` + "`" + `query CachedFriends {
-                user {
-                    friends {
-                        id
-                        __typename
-                    }
-                    __typename
-                    id
-                }
-            }
-            ` + "`" + `,
+					"CachedFriends": tests.Dedent(`const artifact = {
+    "name": "CachedFriends",
+    "kind": "HoudiniQuery",
+    "hash": "0c6098a719ba87b3bdc37ae86f125da4f8abcf54cc285000f8317ae8060daa8a",
+    "raw": ` + "`" + `query CachedFriends {
+    user {
+        friends {
+            id
+            __typename
+        }
+        __typename
+        id
+    }
+}
+` + "`" + `,
 
-                "rootType": "Query",
-                "stripVariables": [] as Array<string>,
+    "rootType": "Query",
+    "stripVariables": [] as Array<string>,
+
+    "selection": {
+        "fields": {
+            "user": {
+                "type": "User",
+                "keyRaw": "user",
 
                 "selection": {
                     "fields": {
-                        "user": {
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
+                        },
+
+                        "friends": {
                             "type": "User",
-                            "keyRaw": "user",
+                            "keyRaw": "friends",
 
                             "selection": {
                                 "fields": {
@@ -3850,77 +3938,69 @@ export type FindUser$artifact = typeof artifact
                                         "keyRaw": "__typename",
                                     },
 
-                                    "friends": {
-                                        "type": "User",
-                                        "keyRaw": "friends",
-
-                                        "selection": {
-                                            "fields": {
-                                                "__typename": {
-                                                    "type": "String",
-                                                    "keyRaw": "__typename",
-                                                },
-
-                                                "id": {
-                                                    "type": "ID",
-                                                    "keyRaw": "id",
-                                                    "visible": true,
-                                                },
-                                            },
-                                        },
-
-                                        "visible": true,
-                                    },
-
                                     "id": {
                                         "type": "ID",
                                         "keyRaw": "id",
+                                        "visible": true,
                                     },
                                 },
                             },
 
                             "visible": true,
                         },
+
+                        "id": {
+                            "type": "ID",
+                            "keyRaw": "id",
+                        },
                     },
                 },
 
-                "pluginData": {},
-                "policy": "NetworkOnly",
-                "partial": false
-            } as const
+                "visible": true,
+            },
+        },
+    },
 
-            export default artifact
+    "pluginData": {},
+    "policy": "NetworkOnly",
+    "partial": false
+} as const
 
-            export type CachedFriends = {
-            	readonly "input"?: CachedFriends$input;
-            	readonly "result": CachedFriends$result | undefined;
-            };
+export default artifact
 
-            export type CachedFriends$result = {
-            	readonly user: {
-            		readonly friends: ({
-            			readonly id: string;
-            		})[];
-            	};
-            };
+export type CachedFriends = {
+	readonly "input"?: CachedFriends$input;
+	readonly "result": CachedFriends$result | undefined;
+};
 
-            export type CachedFriends$input = null | undefined;
+export type CachedFriends$result = {
+	readonly user: CachedFriends$result$user;
+};
 
-            export type CachedFriends$unmasked = {
-            	readonly user: {
-            		readonly __typename: "User";
-            		readonly friends: ({
-            			readonly __typename: "User";
-            			readonly id: string;
-            		})[];
-            		readonly id: string;
-            	};
-            };
+export type CachedFriends$result$user$friends = {
+	readonly id: string;
+};
 
-            export type CachedFriends$artifact = typeof artifact
+export type CachedFriends$result$user = {
+	readonly friends: (CachedFriends$result$user$friends)[];
+};
 
-            "HoudiniHash=0c6098a719ba87b3bdc37ae86f125da4f8abcf54cc285000f8317ae8060daa8a"
-          `),
+export type CachedFriends$input = null | undefined;
+
+export type CachedFriends$unmasked = {
+	readonly user: {
+		readonly __typename: "User";
+		readonly friends: ({
+			readonly __typename: "User";
+			readonly id: string;
+		})[];
+		readonly id: string;
+	};
+};
+
+export type CachedFriends$artifact = typeof artifact
+
+"HoudiniHash=0c6098a719ba87b3bdc37ae86f125da4f8abcf54cc285000f8317ae8060daa8a"`),
 				},
 			},
 			{
@@ -3938,110 +4018,112 @@ export type FindUser$artifact = typeof artifact
           `,
 				},
 				Extra: map[string]any{
-					"CachedFriends": tests.Dedent(`
-              const artifact = {
-                  "name": "CachedFriends",
-                  "kind": "HoudiniQuery",
-                  "hash": "0c6098a719ba87b3bdc37ae86f125da4f8abcf54cc285000f8317ae8060daa8a",
-                  "raw": ` + "`" + `query CachedFriends {
-                  user {
-                      friends {
-                          id
-                          __typename
-                      }
-                      __typename
-                      id
-                  }
-              }
-              ` + "`" + `,
+					"CachedFriends": tests.Dedent(`const artifact = {
+    "name": "CachedFriends",
+    "kind": "HoudiniQuery",
+    "hash": "0c6098a719ba87b3bdc37ae86f125da4f8abcf54cc285000f8317ae8060daa8a",
+    "raw": ` + "`" + `query CachedFriends {
+    user {
+        friends {
+            id
+            __typename
+        }
+        __typename
+        id
+    }
+}
+` + "`" + `,
 
-                  "rootType": "Query",
-                  "stripVariables": [] as Array<string>,
+    "rootType": "Query",
+    "stripVariables": [] as Array<string>,
 
-                  "selection": {
-                      "fields": {
-                          "user": {
-                              "type": "User",
-                              "keyRaw": "user",
+    "selection": {
+        "fields": {
+            "user": {
+                "type": "User",
+                "keyRaw": "user",
 
-                              "selection": {
-                                  "fields": {
-                                      "__typename": {
-                                          "type": "String",
-                                          "keyRaw": "__typename",
-                                      },
+                "selection": {
+                    "fields": {
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
+                        },
 
-                                      "friends": {
-                                          "type": "User",
-                                          "keyRaw": "friends",
+                        "friends": {
+                            "type": "User",
+                            "keyRaw": "friends",
 
-                                          "selection": {
-                                              "fields": {
-                                                  "__typename": {
-                                                      "type": "String",
-                                                      "keyRaw": "__typename",
-                                                  },
+                            "selection": {
+                                "fields": {
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
+                                    },
 
-                                                  "id": {
-                                                      "type": "ID",
-                                                      "keyRaw": "id",
-                                                      "visible": true,
-                                                  },
-                                              },
-                                          },
+                                    "id": {
+                                        "type": "ID",
+                                        "keyRaw": "id",
+                                        "visible": true,
+                                    },
+                                },
+                            },
 
-                                          "visible": true,
-                                      },
+                            "visible": true,
+                        },
 
-                                      "id": {
-                                          "type": "ID",
-                                          "keyRaw": "id",
-                                      },
-                                  },
-                              },
+                        "id": {
+                            "type": "ID",
+                            "keyRaw": "id",
+                        },
+                    },
+                },
 
-                              "visible": true,
-                          },
-                      },
-                  },
+                "visible": true,
+            },
+        },
+    },
 
-                  "pluginData": {},
-                  "policy": "CacheAndNetwork",
-                  "partial": true
-              } as const
+    "pluginData": {},
+    "policy": "CacheAndNetwork",
+    "partial": true
+} as const
 
-              export default artifact
+export default artifact
 
-              export type CachedFriends = {
-              	readonly "input"?: CachedFriends$input;
-              	readonly "result": CachedFriends$result | undefined;
-              };
+export type CachedFriends = {
+	readonly "input"?: CachedFriends$input;
+	readonly "result": CachedFriends$result | undefined;
+};
 
-              export type CachedFriends$result = {
-              	readonly user: {
-              		readonly friends: ({
-              			readonly id: string;
-              		})[];
-              	};
-              };
+export type CachedFriends$result = {
+	readonly user: CachedFriends$result$user;
+};
 
-              export type CachedFriends$input = null | undefined;
+export type CachedFriends$result$user$friends = {
+	readonly id: string;
+};
 
-              export type CachedFriends$unmasked = {
-              	readonly user: {
-              		readonly __typename: "User";
-              		readonly friends: ({
-              			readonly __typename: "User";
-              			readonly id: string;
-              		})[];
-              		readonly id: string;
-              	};
-              };
+export type CachedFriends$result$user = {
+	readonly friends: (CachedFriends$result$user$friends)[];
+};
 
-              export type CachedFriends$artifact = typeof artifact
+export type CachedFriends$input = null | undefined;
 
-              "HoudiniHash=0c6098a719ba87b3bdc37ae86f125da4f8abcf54cc285000f8317ae8060daa8a"
-            `),
+export type CachedFriends$unmasked = {
+	readonly user: {
+		readonly __typename: "User";
+		readonly friends: ({
+			readonly __typename: "User";
+			readonly id: string;
+		})[];
+		readonly id: string;
+	};
+};
+
+export type CachedFriends$artifact = typeof artifact
+
+"HoudiniHash=0c6098a719ba87b3bdc37ae86f125da4f8abcf54cc285000f8317ae8060daa8a"`),
 				},
 			},
 			{
@@ -4062,110 +4144,112 @@ export type FindUser$artifact = typeof artifact
           `,
 				},
 				Extra: map[string]any{
-					"CachedFriends": tests.Dedent(`
-              const artifact = {
-                  "name": "CachedFriends",
-                  "kind": "HoudiniQuery",
-                  "hash": "0c6098a719ba87b3bdc37ae86f125da4f8abcf54cc285000f8317ae8060daa8a",
-                  "raw": ` + "`" + `query CachedFriends {
-                  user {
-                      friends {
-                          id
-                          __typename
-                      }
-                      __typename
-                      id
-                  }
-              }
-              ` + "`" + `,
+					"CachedFriends": tests.Dedent(`const artifact = {
+    "name": "CachedFriends",
+    "kind": "HoudiniQuery",
+    "hash": "0c6098a719ba87b3bdc37ae86f125da4f8abcf54cc285000f8317ae8060daa8a",
+    "raw": ` + "`" + `query CachedFriends {
+    user {
+        friends {
+            id
+            __typename
+        }
+        __typename
+        id
+    }
+}
+` + "`" + `,
 
-                  "rootType": "Query",
-                  "stripVariables": [] as Array<string>,
+    "rootType": "Query",
+    "stripVariables": [] as Array<string>,
 
-                  "selection": {
-                      "fields": {
-                          "user": {
-                              "type": "User",
-                              "keyRaw": "user",
+    "selection": {
+        "fields": {
+            "user": {
+                "type": "User",
+                "keyRaw": "user",
 
-                              "selection": {
-                                  "fields": {
-                                      "__typename": {
-                                          "type": "String",
-                                          "keyRaw": "__typename",
-                                      },
+                "selection": {
+                    "fields": {
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
+                        },
 
-                                      "friends": {
-                                          "type": "User",
-                                          "keyRaw": "friends",
+                        "friends": {
+                            "type": "User",
+                            "keyRaw": "friends",
 
-                                          "selection": {
-                                              "fields": {
-                                                  "__typename": {
-                                                      "type": "String",
-                                                      "keyRaw": "__typename",
-                                                  },
+                            "selection": {
+                                "fields": {
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
+                                    },
 
-                                                  "id": {
-                                                      "type": "ID",
-                                                      "keyRaw": "id",
-                                                      "visible": true,
-                                                  },
-                                              },
-                                          },
+                                    "id": {
+                                        "type": "ID",
+                                        "keyRaw": "id",
+                                        "visible": true,
+                                    },
+                                },
+                            },
 
-                                          "visible": true,
-                                      },
+                            "visible": true,
+                        },
 
-                                      "id": {
-                                          "type": "ID",
-                                          "keyRaw": "id",
-                                      },
-                                  },
-                              },
+                        "id": {
+                            "type": "ID",
+                            "keyRaw": "id",
+                        },
+                    },
+                },
 
-                              "visible": true,
-                          },
-                      },
-                  },
+                "visible": true,
+            },
+        },
+    },
 
-                  "pluginData": {},
-                  "policy": "CacheAndNetwork",
-                  "partial": true
-              } as const
+    "pluginData": {},
+    "policy": "CacheAndNetwork",
+    "partial": true
+} as const
 
-              export default artifact
+export default artifact
 
-              export type CachedFriends = {
-              	readonly "input"?: CachedFriends$input;
-              	readonly "result": CachedFriends$result | undefined;
-              };
+export type CachedFriends = {
+	readonly "input"?: CachedFriends$input;
+	readonly "result": CachedFriends$result | undefined;
+};
 
-              export type CachedFriends$result = {
-              	readonly user: {
-              		readonly friends: ({
-              			readonly id: string;
-              		})[];
-              	};
-              };
+export type CachedFriends$result = {
+	readonly user: CachedFriends$result$user;
+};
 
-              export type CachedFriends$input = null | undefined;
+export type CachedFriends$result$user$friends = {
+	readonly id: string;
+};
 
-              export type CachedFriends$unmasked = {
-              	readonly user: {
-              		readonly __typename: "User";
-              		readonly friends: ({
-              			readonly __typename: "User";
-              			readonly id: string;
-              		})[];
-              		readonly id: string;
-              	};
-              };
+export type CachedFriends$result$user = {
+	readonly friends: (CachedFriends$result$user$friends)[];
+};
 
-              export type CachedFriends$artifact = typeof artifact
+export type CachedFriends$input = null | undefined;
 
-              "HoudiniHash=0c6098a719ba87b3bdc37ae86f125da4f8abcf54cc285000f8317ae8060daa8a"
-            `),
+export type CachedFriends$unmasked = {
+	readonly user: {
+		readonly __typename: "User";
+		readonly friends: ({
+			readonly __typename: "User";
+			readonly id: string;
+		})[];
+		readonly id: string;
+	};
+};
+
+export type CachedFriends$artifact = typeof artifact
+
+"HoudiniHash=0c6098a719ba87b3bdc37ae86f125da4f8abcf54cc285000f8317ae8060daa8a"`),
 				},
 			},
 			{
@@ -4191,12 +4275,11 @@ export type FindUser$artifact = typeof artifact
           `,
 				},
 				Extra: map[string]any{
-					"EntityList": tests.Dedent(`
-              const artifact = {
-                  "name": "EntityList",
-                  "kind": "HoudiniQuery",
-                  "hash": "41abe068027a3e99325fd911b69effe90a0a3aabbb2e1cdfed73dd37dd73677e",
-                  "raw": ` + "`" + `fragment EntityInfo on Entity {
+					"EntityList": tests.Dedent(`const artifact = {
+    "name": "EntityList",
+    "kind": "HoudiniQuery",
+    "hash": "41abe068027a3e99325fd911b69effe90a0a3aabbb2e1cdfed73dd37dd73677e",
+    "raw": ` + "`" + `fragment EntityInfo on Entity {
     ... on User {
         firstName
         __typename
@@ -4220,113 +4303,114 @@ query EntityList {
 }
 ` + "`" + `,
 
-                  "rootType": "Query",
-                  "stripVariables": [] as Array<string>,
+    "rootType": "Query",
+    "stripVariables": [] as Array<string>,
 
-                  "selection": {
-                      "fields": {
-                          "entities": {
-                              "type": "Entity",
-                              "keyRaw": "entities",
+    "selection": {
+        "fields": {
+            "entities": {
+                "type": "Entity",
+                "keyRaw": "entities",
 
-                              "selection": {
-                                  "fields": {
-                                      "__typename": {
-                                          "type": "String",
-                                          "keyRaw": "__typename",
-                                      },
+                "selection": {
+                    "fields": {
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
+                        },
 
-                                      "id": {
-                                          "type": "ID",
-                                          "keyRaw": "id",
-                                      },
-                                  },
-                                  "abstractFields": {
-                                      "fields": {
-                                          "Cat": {
-                                              "__typename": {
-                                                  "type": "String",
-                                                  "keyRaw": "__typename",
-                                              },
-                                              "id": {
-                                                  "type": "ID",
-                                                  "keyRaw": "id",
-                                              },
-                                              "name": {
-                                                  "type": "String",
-                                                  "keyRaw": "name",
-                                              },
-                                          },
-                                          "User": {
-                                              "__typename": {
-                                                  "type": "String",
-                                                  "keyRaw": "__typename",
-                                              },
-                                              "firstName": {
-                                                  "type": "String",
-                                                  "keyRaw": "firstName",
-                                              },
-                                              "id": {
-                                                  "type": "ID",
-                                                  "keyRaw": "id",
-                                              },
-                                          },
-                                      },
+                        "id": {
+                            "type": "ID",
+                            "keyRaw": "id",
+                        },
+                    },
+                    "abstractFields": {
+                        "fields": {
+                            "Cat": {
+                                "__typename": {
+                                    "type": "String",
+                                    "keyRaw": "__typename",
+                                },
+                                "id": {
+                                    "type": "ID",
+                                    "keyRaw": "id",
+                                },
+                                "name": {
+                                    "type": "String",
+                                    "keyRaw": "name",
+                                },
+                            },
+                            "User": {
+                                "__typename": {
+                                    "type": "String",
+                                    "keyRaw": "__typename",
+                                },
+                                "firstName": {
+                                    "type": "String",
+                                    "keyRaw": "firstName",
+                                },
+                                "id": {
+                                    "type": "ID",
+                                    "keyRaw": "id",
+                                },
+                            },
+                        },
 
-                                      "typeMap": {},
-                                  },
+                        "typeMap": {},
+                    },
 
-                                  "fragments": {
-                                      "EntityInfo": {
-                                          "arguments": {}
-                                      },
-                                  },
-                              },
+                    "fragments": {
+                        "EntityInfo": {
+                            "arguments": {}
+                        },
+                    },
+                },
 
-                              "abstract": true,
-                              "visible": true,
-                          },
-                      },
-                  },
+                "abstract": true,
+                "visible": true,
+            },
+        },
+    },
 
-                  "pluginData": {},
-                  "policy": "CacheOrNetwork",
-                  "partial": false
-              } as const
+    "pluginData": {},
+    "policy": "CacheOrNetwork",
+    "partial": false
+} as const
 
-              export default artifact
+export default artifact
 
-              export type EntityList = {
-              	readonly "input"?: EntityList$input;
-              	readonly "result": EntityList$result | undefined;
-              };
+export type EntityList = {
+	readonly "input"?: EntityList$input;
+	readonly "result": EntityList$result | undefined;
+};
 
-              export type EntityList$result = {
-              	readonly entities: ({
-              		readonly " $fragments": {
-              			EntityInfo: {};
-              		};
-              	})[];
-              };
+export type EntityList$result = {
+	readonly entities: (EntityList$result$entities)[];
+};
 
-              export type EntityList$input = null | undefined;
+export type EntityList$result$entities = {
+	readonly " $fragments": {
+		EntityInfo: {};
+	};
+};
 
-              export type EntityList$unmasked = {
-              	readonly entities: ({} & (({
-              		readonly id: string;
-              		readonly name: string;
-              		readonly __typename: "Cat";
-              	}) | ({
-              		readonly firstName: string;
-              		readonly id: string;
-              		readonly __typename: "User";
-              	})))[];
-              };
+export type EntityList$input = null | undefined;
 
-              export type EntityList$artifact = typeof artifact
+export type EntityList$unmasked = {
+	readonly entities: ({} & (({
+		readonly id: string;
+		readonly name: string;
+		readonly __typename: "Cat";
+	}) | ({
+		readonly firstName: string;
+		readonly id: string;
+		readonly __typename: "User";
+	})))[];
+};
 
-              "HoudiniHash=41abe068027a3e99325fd911b69effe90a0a3aabbb2e1cdfed73dd37dd73677e"
-            `),
+export type EntityList$artifact = typeof artifact
+
+"HoudiniHash=41abe068027a3e99325fd911b69effe90a0a3aabbb2e1cdfed73dd37dd73677e"`),
 				},
 			},
 			{
@@ -4349,12 +4433,11 @@ query EntityList {
           }`,
 				},
 				Extra: map[string]any{
-					"UserWithAvatar": tests.Dedent(`
-            const artifact = {
-                "name": "UserWithAvatar",
-                "kind": "HoudiniQuery",
-                "hash": "51262f47df33c40c18a8f4b081242dedd62c8ffb0fd94595ee122afb0e83ad71",
-                "raw": ` + "`" + `fragment FriendList on User {
+					"UserWithAvatar": tests.Dedent(`const artifact = {
+    "name": "UserWithAvatar",
+    "kind": "HoudiniQuery",
+    "hash": "51262f47df33c40c18a8f4b081242dedd62c8ffb0fd94595ee122afb0e83ad71",
+    "raw": ` + "`" + `fragment FriendList on User {
     firstName
     __typename
     id
@@ -4376,107 +4459,108 @@ query UserWithAvatar {
 }
 ` + "`" + `,
 
-                "rootType": "Query",
-                "stripVariables": [] as Array<string>,
+    "rootType": "Query",
+    "stripVariables": [] as Array<string>,
+
+    "selection": {
+        "fields": {
+            "user": {
+                "type": "User",
+                "keyRaw": "user",
 
                 "selection": {
                     "fields": {
-                        "user": {
-                            "type": "User",
-                            "keyRaw": "user",
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
+                        },
 
-                            "selection": {
-                                "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
+                        "firstName": {
+                            "type": "String",
+                            "keyRaw": "firstName",
+                        },
 
-                                    "firstName": {
-                                        "type": "String",
-                                        "keyRaw": "firstName",
-                                    },
+                        "id": {
+                            "type": "ID",
+                            "keyRaw": "id",
+                        },
 
-                                    "id": {
-                                        "type": "ID",
-                                        "keyRaw": "id",
-                                    },
-
-                                    "FriendList": {
-                                        "keyRaw": "FriendList",
-                                        "type": "Component",
-                                        "component": {
-                                            "prop": "user",
-                                            "key": "User.FriendList",
-                                            "fragment": "FriendList",
-                                            "variables": {}
-                                        },
-                                        "visible": true,
-                                    },
-
-                                    "Avatar": {
-                                        "keyRaw": "Avatar",
-                                        "type": "Component",
-                                        "component": {
-                                            "prop": "user",
-                                            "key": "User.Avatar",
-                                            "fragment": "UserAvatar",
-                                            "variables": {}
-                                        },
-                                        "visible": true,
-                                    },
-                                },
-
-                                "fragments": {
-                                    "FriendList": {
-                                        "arguments": {}
-                                    },
-                                    "UserAvatar": {
-                                        "arguments": {}
-                                    },
-                                },
+                        "FriendList": {
+                            "keyRaw": "FriendList",
+                            "type": "Component",
+                            "component": {
+                                "prop": "user",
+                                "key": "User.FriendList",
+                                "fragment": "FriendList",
+                                "variables": {}
                             },
-
                             "visible": true,
+                        },
+
+                        "Avatar": {
+                            "keyRaw": "Avatar",
+                            "type": "Component",
+                            "component": {
+                                "prop": "user",
+                                "key": "User.Avatar",
+                                "fragment": "UserAvatar",
+                                "variables": {}
+                            },
+                            "visible": true,
+                        },
+                    },
+
+                    "fragments": {
+                        "FriendList": {
+                            "arguments": {}
+                        },
+                        "UserAvatar": {
+                            "arguments": {}
                         },
                     },
                 },
 
-                "pluginData": {},
-                "hasComponents": true,
-                "policy": "CacheOrNetwork",
-                "partial": false
-            } as const
+                "visible": true,
+            },
+        },
+    },
 
-            export default artifact
+    "pluginData": {},
+    "hasComponents": true,
+    "policy": "CacheOrNetwork",
+    "partial": false
+} as const
 
-            export type UserWithAvatar = {
-            	readonly "input"?: UserWithAvatar$input;
-            	readonly "result": UserWithAvatar$result | undefined;
-            };
+export default artifact
 
-            export type UserWithAvatar$result = {
-            	readonly user: {
-            		readonly " $fragments": {
-            			UserAvatar: {};
-            		};
-            	};
-            };
+export type UserWithAvatar = {
+	readonly "input"?: UserWithAvatar$input;
+	readonly "result": UserWithAvatar$result | undefined;
+};
 
-            export type UserWithAvatar$input = null | undefined;
+export type UserWithAvatar$result = {
+	readonly user: UserWithAvatar$result$user;
+};
 
-            export type UserWithAvatar$unmasked = {
-            	readonly user: {
-            		readonly __typename: "User";
-            		readonly firstName: string;
-            		readonly id: string;
-            	};
-            };
+export type UserWithAvatar$result$user = {
+	readonly " $fragments": {
+		UserAvatar: {};
+	};
+};
 
-            export type UserWithAvatar$artifact = typeof artifact
+export type UserWithAvatar$input = null | undefined;
 
-            "HoudiniHash=51262f47df33c40c18a8f4b081242dedd62c8ffb0fd94595ee122afb0e83ad71"
-          `),
+export type UserWithAvatar$unmasked = {
+	readonly user: {
+		readonly __typename: "User";
+		readonly firstName: string;
+		readonly id: string;
+	};
+};
+
+export type UserWithAvatar$artifact = typeof artifact
+
+"HoudiniHash=51262f47df33c40c18a8f4b081242dedd62c8ffb0fd94595ee122afb0e83ad71"`),
 				},
 			},
 			{
@@ -4505,120 +4589,120 @@ query UserWithAvatar {
 					`,
 				},
 				Extra: map[string]any{
-					"UserRequiredFragments": tests.Dedent(`
-							const artifact = {
-							    "name": "UserRequiredFragments",
-							    "kind": "HoudiniQuery",
-							    "hash": "67cc15d853c8c680b147a01db88491fc092dac7acb22354144b6107c52d86963",
-							    "raw": ` + "`" + `query UserRequiredFragments {
-							    user {
-							        ...UserWithRequired
-							        ...UserWithoutRequired
-							        __typename
-							        id
-							    }
-							}
+					"UserRequiredFragments": tests.Dedent(`const artifact = {
+    "name": "UserRequiredFragments",
+    "kind": "HoudiniQuery",
+    "hash": "67cc15d853c8c680b147a01db88491fc092dac7acb22354144b6107c52d86963",
+    "raw": ` + "`" + `query UserRequiredFragments {
+    user {
+        ...UserWithRequired
+        ...UserWithoutRequired
+        __typename
+        id
+    }
+}
 
-							fragment UserWithRequired on User {
-							    name
-							    field
-							    __typename
-							    id
-							}
+fragment UserWithRequired on User {
+    name
+    field
+    __typename
+    id
+}
 
-							fragment UserWithoutRequired on User {
-							    name
-							    field
-							    __typename
-							    id
-							}
-							` + "`" + `,
+fragment UserWithoutRequired on User {
+    name
+    field
+    __typename
+    id
+}
+` + "`" + `,
 
-							    "rootType": "Query",
-							    "stripVariables": [] as Array<string>,
+    "rootType": "Query",
+    "stripVariables": [] as Array<string>,
 
-							    "selection": {
-							        "fields": {
-							            "user": {
-							                "type": "User",
-							                "keyRaw": "user",
-							                "nullable": true,
+    "selection": {
+        "fields": {
+            "user": {
+                "type": "User",
+                "keyRaw": "user",
+                "nullable": true,
 
-							                "selection": {
-							                    "fields": {
-							                        "__typename": {
-							                            "type": "String",
-							                            "keyRaw": "__typename",
-							                        },
+                "selection": {
+                    "fields": {
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
+                        },
 
-							                        "field": {
-							                            "type": "String",
-							                            "keyRaw": "field",
-							                            "nullable": true,
-							                        },
+                        "field": {
+                            "type": "String",
+                            "keyRaw": "field",
+                            "nullable": true,
+                        },
 
-							                        "id": {
-							                            "type": "ID",
-							                            "keyRaw": "id",
-							                        },
+                        "id": {
+                            "type": "ID",
+                            "keyRaw": "id",
+                        },
 
-							                        "name": {
-							                            "type": "String",
-							                            "keyRaw": "name",
-							                        },
-							                    },
+                        "name": {
+                            "type": "String",
+                            "keyRaw": "name",
+                        },
+                    },
 
-							                    "fragments": {
-							                        "UserWithRequired": {
-							                            "arguments": {}
-							                        },
-							                        "UserWithoutRequired": {
-							                            "arguments": {}
-							                        },
-							                    },
-							                },
+                    "fragments": {
+                        "UserWithRequired": {
+                            "arguments": {}
+                        },
+                        "UserWithoutRequired": {
+                            "arguments": {}
+                        },
+                    },
+                },
 
-							                "visible": true,
-							            },
-							        },
-							    },
+                "visible": true,
+            },
+        },
+    },
 
-							    "pluginData": {},
-							    "policy": "CacheOrNetwork",
-							    "partial": false
-							} as const
+    "pluginData": {},
+    "policy": "CacheOrNetwork",
+    "partial": false
+} as const
 
-							export default artifact
+export default artifact
 
-							export type UserRequiredFragments = {
-								readonly "input"?: UserRequiredFragments$input;
-								readonly "result": UserRequiredFragments$result | undefined;
-							};
+export type UserRequiredFragments = {
+	readonly "input"?: UserRequiredFragments$input;
+	readonly "result": UserRequiredFragments$result | undefined;
+};
 
-							export type UserRequiredFragments$result = {
-								readonly user: {
-									readonly " $fragments": {
-										UserWithRequired: {};
-										UserWithoutRequired: {};
-									};
-								};
-							};
+export type UserRequiredFragments$result = {
+	readonly user: UserRequiredFragments$result$user;
+};
 
-							export type UserRequiredFragments$input = null | undefined;
+export type UserRequiredFragments$result$user = {
+	readonly " $fragments": {
+		UserWithRequired: {};
+		UserWithoutRequired: {};
+	};
+};
 
-							export type UserRequiredFragments$unmasked = {
-								readonly user: {
-									readonly __typename: "User";
-									readonly field: string | null;
-									readonly id: string;
-									readonly name: string;
-								};
-							};
+export type UserRequiredFragments$input = null | undefined;
 
-							export type UserRequiredFragments$artifact = typeof artifact
+export type UserRequiredFragments$unmasked = {
+	readonly user: {
+		readonly __typename: "User";
+		readonly field: string | null;
+		readonly id: string;
+		readonly name: string;
+	};
+};
 
-							"HoudiniHash=67cc15d853c8c680b147a01db88491fc092dac7acb22354144b6107c52d86963"
-				`),
+export type UserRequiredFragments$artifact = typeof artifact
+
+"HoudiniHash=67cc15d853c8c680b147a01db88491fc092dac7acb22354144b6107c52d86963"`),
 				},
 			},
 			{
@@ -4775,9 +4859,11 @@ export type CreateUserForm = {
 };
 
 export type CreateUserForm$result = {
-	readonly createUser: {
-		readonly id: string;
-	};
+	readonly createUser: CreateUserForm$result$createUser;
+};
+
+export type CreateUserForm$result$createUser = {
+	readonly id: string;
 };
 
 export type CreateUserForm$input = {
@@ -4880,9 +4966,11 @@ export type UploadAvatarForm = {
 };
 
 export type UploadAvatarForm$result = {
-	readonly uploadAvatar: {
-		readonly id: string;
-	};
+	readonly uploadAvatar: UploadAvatarForm$result$uploadAvatar;
+};
+
+export type UploadAvatarForm$result$uploadAvatar = {
+	readonly id: string;
 };
 
 export type UploadAvatarForm$input = {
@@ -4985,9 +5073,11 @@ export type CreateUserFieldsForm = {
 };
 
 export type CreateUserFieldsForm$result = {
-	readonly createUser: {
-		readonly id: string;
-	};
+	readonly createUser: CreateUserFieldsForm$result$createUser;
+};
+
+export type CreateUserFieldsForm$result$createUser = {
+	readonly id: string;
 };
 
 export type CreateUserFieldsForm$input = {
@@ -5088,9 +5178,11 @@ export type LoginForm = {
 };
 
 export type LoginForm$result = {
-	readonly createUser: {
-		readonly id: string;
-	};
+	readonly createUser: LoginForm$result$createUser;
+};
+
+export type LoginForm$result$createUser = {
+	readonly id: string;
 };
 
 export type LoginForm$input = {
@@ -5126,7 +5218,7 @@ export type LoginForm$artifact = typeof artifact
           }`,
 				},
 				Extra: map[string]any{
-					"NullLiteralQuery": "const artifact = {\n    \"name\": \"NullLiteralQuery\",\n    \"kind\": \"HoudiniQuery\",\n    \"hash\": \"b168d64e381365250361866d0735e605dd687b515c90b497da2f60b02129fbe5\",\n\n    \"refetch\": {\n        \"path\": [\"users\"],\n        \"method\": \"offset\",\n        \"pageSize\": 0,\n        \"embedded\": false,\n        \"targetType\": \"Query\",\n        \"paginated\": false,\n        \"direction\": \"forward\",\n        \"mode\": \"Infinite\"\n    },\n\n    \"raw\": `query NullLiteralQuery($name: String = null) {\n    users(filter: {name: null}, intValue: null, stringValue: $name) {\n        firstName\n        __typename\n        id\n    }\n}\n`,\n\n    \"rootType\": \"Query\",\n    \"stripVariables\": [] as Array<string>,\n\n    \"selection\": {\n        \"fields\": {\n            \"users\": {\n                \"type\": \"User\",\n                \"keyRaw\": \"users(filter: {name: null}, intValue: null, stringValue: $name)\",\n\n                \"directives\": [{\n                    \"name\": \"list\",\n                    \"arguments\": {\n                        \"name\": {\n                            \"kind\": \"StringValue\",\n                            \"value\": \"Null_Users\"\n                        }\n                    }\n                }],\n\n                \"list\": {\n                    \"name\": \"Null_Users\",\n                    \"connection\": false,\n                    \"type\": \"User\"\n                },\n\n                \"selection\": {\n                    \"fields\": {\n                        \"__typename\": {\n                            \"type\": \"String\",\n                            \"keyRaw\": \"__typename\",\n                        },\n\n                        \"firstName\": {\n                            \"type\": \"String\",\n                            \"keyRaw\": \"firstName\",\n                            \"visible\": true,\n                        },\n\n                        \"id\": {\n                            \"type\": \"ID\",\n                            \"keyRaw\": \"id\",\n                        },\n                    },\n                },\n\n                \"filters\": {\n                    \"filter\": {\n                        \"kind\": \"Object\",\n                        \"value\": {\n                            \"name\": {\n                                \"kind\": \"Null\",\n                                \"value\": null\n                            }\n                        }\n                    },\n                    \"intValue\": {\n                        \"kind\": \"Null\",\n                        \"value\": null\n                    },\n                    \"stringValue\": {\n                        \"kind\": \"Variable\",\n                        \"value\": \"name\"\n                    },\n                },\n                \"visible\": true,\n            },\n        },\n    },\n\n    \"pluginData\": {},\n\n    \"input\": {\n        \"fields\": {\n            \"name\": \"String\",\n        },\n\n        \"types\": {},\n\n        \"defaults\": {\n            \"name\": null,\n        },\n\n        \"runtimeScalars\": {},\n    },\n\n    \"policy\": \"CacheOrNetwork\",\n    \"partial\": false\n} as const\n\nexport default artifact\n\nexport type NullLiteralQuery = {\n\treadonly \"input\": NullLiteralQuery$input;\n\treadonly \"result\": NullLiteralQuery$result | undefined;\n};\n\nexport type NullLiteralQuery$result = {\n\treadonly users: ({\n\t\treadonly firstName: string;\n\t})[];\n};\n\nexport type NullLiteralQuery$input = {\n\tname?: string | null;\n};\n\nexport type NullLiteralQuery$unmasked = {\n\treadonly users: ({\n\t\treadonly __typename: \"User\";\n\t\treadonly firstName: string;\n\t\treadonly id: string;\n\t})[];\n};\n\nexport type NullLiteralQuery$artifact = typeof artifact\n\n\"HoudiniHash=b168d64e381365250361866d0735e605dd687b515c90b497da2f60b02129fbe5\"",
+					"NullLiteralQuery": "const artifact = {\n    \"name\": \"NullLiteralQuery\",\n    \"kind\": \"HoudiniQuery\",\n    \"hash\": \"b168d64e381365250361866d0735e605dd687b515c90b497da2f60b02129fbe5\",\n\n    \"refetch\": {\n        \"path\": [\"users\"],\n        \"method\": \"offset\",\n        \"pageSize\": 0,\n        \"embedded\": false,\n        \"targetType\": \"Query\",\n        \"paginated\": false,\n        \"direction\": \"forward\",\n        \"mode\": \"Infinite\"\n    },\n\n    \"raw\": `query NullLiteralQuery($name: String = null) {\n    users(filter: {name: null}, intValue: null, stringValue: $name) {\n        firstName\n        __typename\n        id\n    }\n}\n`,\n\n    \"rootType\": \"Query\",\n    \"stripVariables\": [] as Array<string>,\n\n    \"selection\": {\n        \"fields\": {\n            \"users\": {\n                \"type\": \"User\",\n                \"keyRaw\": \"users(filter: {name: null}, intValue: null, stringValue: $name)\",\n\n                \"directives\": [{\n                    \"name\": \"list\",\n                    \"arguments\": {\n                        \"name\": {\n                            \"kind\": \"StringValue\",\n                            \"value\": \"Null_Users\"\n                        }\n                    }\n                }],\n\n                \"list\": {\n                    \"name\": \"Null_Users\",\n                    \"connection\": false,\n                    \"type\": \"User\"\n                },\n\n                \"selection\": {\n                    \"fields\": {\n                        \"__typename\": {\n                            \"type\": \"String\",\n                            \"keyRaw\": \"__typename\",\n                        },\n\n                        \"firstName\": {\n                            \"type\": \"String\",\n                            \"keyRaw\": \"firstName\",\n                            \"visible\": true,\n                        },\n\n                        \"id\": {\n                            \"type\": \"ID\",\n                            \"keyRaw\": \"id\",\n                        },\n                    },\n                },\n\n                \"filters\": {\n                    \"filter\": {\n                        \"kind\": \"Object\",\n                        \"value\": {\n                            \"name\": {\n                                \"kind\": \"Null\",\n                                \"value\": null\n                            }\n                        }\n                    },\n                    \"intValue\": {\n                        \"kind\": \"Null\",\n                        \"value\": null\n                    },\n                    \"stringValue\": {\n                        \"kind\": \"Variable\",\n                        \"value\": \"name\"\n                    },\n                },\n                \"visible\": true,\n            },\n        },\n    },\n\n    \"pluginData\": {},\n\n    \"input\": {\n        \"fields\": {\n            \"name\": \"String\",\n        },\n\n        \"types\": {},\n\n        \"defaults\": {\n            \"name\": null,\n        },\n\n        \"runtimeScalars\": {},\n    },\n\n    \"policy\": \"CacheOrNetwork\",\n    \"partial\": false\n} as const\n\nexport default artifact\n\nexport type NullLiteralQuery = {\n\treadonly \"input\": NullLiteralQuery$input;\n\treadonly \"result\": NullLiteralQuery$result | undefined;\n};\n\nexport type NullLiteralQuery$result = {\n\treadonly users: (NullLiteralQuery$result$users)[];\n};\n\nexport type NullLiteralQuery$result$users = {\n\treadonly firstName: string;\n};\n\nexport type NullLiteralQuery$input = {\n\tname?: string | null;\n};\n\nexport type NullLiteralQuery$unmasked = {\n\treadonly users: ({\n\t\treadonly __typename: \"User\";\n\t\treadonly firstName: string;\n\t\treadonly id: string;\n\t})[];\n};\n\nexport type NullLiteralQuery$artifact = typeof artifact\n\n\"HoudiniHash=b168d64e381365250361866d0735e605dd687b515c90b497da2f60b02129fbe5\"",
 				},
 			},
 			{
@@ -5136,7 +5228,7 @@ export type LoginForm$artifact = typeof artifact
 					`query PercentQuery { user { field(filter: "100%") } }`,
 				},
 				Extra: map[string]any{
-					"PercentQuery": "const artifact = {\n    \"name\": \"PercentQuery\",\n    \"kind\": \"HoudiniQuery\",\n    \"hash\": \"f7405bc779e404e2cf401d43970f163098a1fb64b3467ed16cea305bd6133033\",\n    \"raw\": `query PercentQuery {\n    user {\n        field(filter: \"100%\")\n        __typename\n        id\n    }\n}\n`,\n\n    \"rootType\": \"Query\",\n    \"stripVariables\": [] as Array<string>,\n\n    \"selection\": {\n        \"fields\": {\n            \"user\": {\n                \"type\": \"User\",\n                \"keyRaw\": \"user\",\n\n                \"selection\": {\n                    \"fields\": {\n                        \"__typename\": {\n                            \"type\": \"String\",\n                            \"keyRaw\": \"__typename\",\n                        },\n\n                        \"field\": {\n                            \"type\": \"String\",\n                            \"keyRaw\": \"field(filter: \\\"100%\\\")\",\n                            \"nullable\": true,\n                            \"visible\": true,\n                        },\n\n                        \"id\": {\n                            \"type\": \"ID\",\n                            \"keyRaw\": \"id\",\n                        },\n                    },\n                },\n\n                \"visible\": true,\n            },\n        },\n    },\n\n    \"pluginData\": {},\n    \"policy\": \"CacheOrNetwork\",\n    \"partial\": false\n} as const\n\nexport default artifact\n\nexport type PercentQuery = {\n\treadonly \"input\"?: PercentQuery$input;\n\treadonly \"result\": PercentQuery$result | undefined;\n};\n\nexport type PercentQuery$result = {\n\treadonly user: {\n\t\treadonly field: string | null;\n\t};\n};\n\nexport type PercentQuery$input = null | undefined;\n\nexport type PercentQuery$unmasked = {\n\treadonly user: {\n\t\treadonly __typename: \"User\";\n\t\treadonly field: string | null;\n\t\treadonly id: string;\n\t};\n};\n\nexport type PercentQuery$artifact = typeof artifact\n\n\"HoudiniHash=f7405bc779e404e2cf401d43970f163098a1fb64b3467ed16cea305bd6133033\"",
+					"PercentQuery": "const artifact = {\n    \"name\": \"PercentQuery\",\n    \"kind\": \"HoudiniQuery\",\n    \"hash\": \"f7405bc779e404e2cf401d43970f163098a1fb64b3467ed16cea305bd6133033\",\n    \"raw\": `query PercentQuery {\n    user {\n        field(filter: \"100%\")\n        __typename\n        id\n    }\n}\n`,\n\n    \"rootType\": \"Query\",\n    \"stripVariables\": [] as Array<string>,\n\n    \"selection\": {\n        \"fields\": {\n            \"user\": {\n                \"type\": \"User\",\n                \"keyRaw\": \"user\",\n\n                \"selection\": {\n                    \"fields\": {\n                        \"__typename\": {\n                            \"type\": \"String\",\n                            \"keyRaw\": \"__typename\",\n                        },\n\n                        \"field\": {\n                            \"type\": \"String\",\n                            \"keyRaw\": \"field(filter: \\\"100%\\\")\",\n                            \"nullable\": true,\n                            \"visible\": true,\n                        },\n\n                        \"id\": {\n                            \"type\": \"ID\",\n                            \"keyRaw\": \"id\",\n                        },\n                    },\n                },\n\n                \"visible\": true,\n            },\n        },\n    },\n\n    \"pluginData\": {},\n    \"policy\": \"CacheOrNetwork\",\n    \"partial\": false\n} as const\n\nexport default artifact\n\nexport type PercentQuery = {\n\treadonly \"input\"?: PercentQuery$input;\n\treadonly \"result\": PercentQuery$result | undefined;\n};\n\nexport type PercentQuery$result = {\n\treadonly user: PercentQuery$result$user;\n};\n\nexport type PercentQuery$result$user = {\n\treadonly field: string | null;\n};\n\nexport type PercentQuery$input = null | undefined;\n\nexport type PercentQuery$unmasked = {\n\treadonly user: {\n\t\treadonly __typename: \"User\";\n\t\treadonly field: string | null;\n\t\treadonly id: string;\n\t};\n};\n\nexport type PercentQuery$artifact = typeof artifact\n\n\"HoudiniHash=f7405bc779e404e2cf401d43970f163098a1fb64b3467ed16cea305bd6133033\"",
 				},
 			},
 		},

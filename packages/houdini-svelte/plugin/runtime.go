@@ -47,7 +47,7 @@ func (p *HoudiniSvelte) transformRuntimeContent(
 
 	switch filepath.ToSlash(fp) {
 	case "stores/mode.ts":
-		if pluginConfig.ExperimentalFieldReactivity {
+		if projectConfig.ExperimentalFieldReactivity {
 			return "export * from '../reactivity/stores.js'\n", nil
 		}
 		return content, nil

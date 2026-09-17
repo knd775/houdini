@@ -5,7 +5,7 @@ chains, see the [dashboard benchmark](../svelte-dashboard/README.md). It include
 initial mount, structural updates, and local filtering, which expose costs that
 this single-field table workload does not measure.
 
-Enable `experimentalFieldReactivity: true` in the Svelte plugin configuration to
+Enable `experimentalFieldReactivity: true` in the top-level Houdini configuration to
 use `Query.data`. Scalar cache notifications carry changed record/field pairs to
 the store's internal Svelte state. Updating one field reads and patches that field
 without reconstructing or comparing the query result. Existing stores remain

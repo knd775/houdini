@@ -74,6 +74,7 @@ CREATE TABLE IF NOT EXISTS config (
     suppress_pagination_deduplication BOOLEAN,
     log_level TEXT CHECK (log_level IN ('QUIET', 'FULL', 'SUMMARY', 'SHORT_SUMMARY')),
     default_fragment_masking BOOLEAN,
+    experimental_field_reactivity BOOLEAN DEFAULT false,
     default_keys JSON,
     persisted_queries_path TEXT NOT NULL,
     project_root TEXT,
@@ -587,8 +588,9 @@ export async function write_config(
 			default_cache_policy, default_partial, default_lifetime,
 			default_list_position, default_list_target, default_paginate_mode,
 			suppress_pagination_deduplication, log_level, default_fragment_masking,
-			default_keys, persisted_queries_path, project_root, runtime_dir, path
-		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			default_keys, persisted_queries_path, project_root, runtime_dir, path,
+			experimental_field_reactivity
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		[
 			JSON.stringify(config.include),
 			JSON.stringify(config.exclude),
@@ -609,6 +611,7 @@ export async function write_config(
 			config.root_dir ?? null,
 			config_file.runtimeDir ?? null,
 			config.filepath ?? null,
+			config_file.experimentalFieldReactivity ? 1 : 0,
 		]
 	)
 

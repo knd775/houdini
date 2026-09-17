@@ -5,7 +5,7 @@ import { createSubscriber, SvelteMap } from 'svelte/reactivity'
 import type { Readable } from 'svelte/store'
 import { getCurrentConfig } from '$houdini/runtime/config'
 import { FieldIndex } from './fields.js'
-import { project, reconcile } from './projection.svelte.js'
+import { project, readonlyArray, reconcile } from './projection.svelte.js'
 import type { ReactiveValue, ResultKey } from './snapshot.js'
 
 // Generated projects can target ES2021.
@@ -104,7 +104,7 @@ export class ResultState<T extends { data: unknown }> {
 
 export class FragmentListState<T> {
 	#readers: Array<() => T> = []
-	#values = $derived(Object.freeze(this.#readers.map((read) => read())))
+	#values = $derived(readonlyArray(this.#readers.map((read) => read())))
 	constructor(readers: Array<() => T>) {
 		this.#readers = readers
 	}

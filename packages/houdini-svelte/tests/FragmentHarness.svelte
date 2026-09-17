@@ -9,13 +9,13 @@
 		}),
 	)
 	$effect(() => {
-		source.data.name
+		source.data?.name
 		counts.name++
 	})
 	$effect(() => {
-		source.data.email
+		source.data?.email
 		counts.email++
 	})
 </script>
 
-<p id="fragment">{source.data.name}</p>
+<p id="fragment">{source.data?.name}</p>

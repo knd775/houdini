@@ -131,12 +131,14 @@ export type TestQuery = {
 };
 
 export type TestQuery$result = {
-	readonly user: {
-		readonly id: string;
-		readonly firstName?: string;
-		readonly " $fragments": {
-			UserDetails: {};
-		};
+	readonly user: TestQuery$result$user;
+};
+
+export type TestQuery$result$user = {
+	readonly id: string;
+	readonly firstName?: string;
+	readonly " $fragments": {
+		UserDetails: {};
 	};
 };
 
@@ -288,12 +290,14 @@ export type TestQuery = {
 };
 
 export type TestQuery$result = {
-	readonly node: {
-		readonly id: string;
-		readonly " $fragments": {
-			UserDetails: {};
-		};
-	} | null;
+	readonly node: TestQuery$result$node | null;
+};
+
+export type TestQuery$result$node = {
+	readonly id: string;
+	readonly " $fragments": {
+		UserDetails: {};
+	};
 };
 
 export type TestQuery$input = {
@@ -429,11 +433,13 @@ export type TestQuery = {
 };
 
 export type TestQuery$result = {
-	readonly user: {
-		readonly id: string;
-		readonly " $fragments": {
-			UserDetails: {};
-		};
+	readonly user: TestQuery$result$user;
+};
+
+export type TestQuery$result$user = {
+	readonly id: string;
+	readonly " $fragments": {
+		UserDetails: {};
 	};
 };
 

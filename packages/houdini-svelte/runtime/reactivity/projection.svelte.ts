@@ -25,8 +25,20 @@ const dates = new WeakMap<Date, number>()
 const owns = Object.prototype.hasOwnProperty
 const reject = () => {
 	throw new TypeError(
-		'Reactive results are readonly. Use a mutation or cache.write() to update data.'
+		'Reactive results are readonly. Use .toSorted() or .slice() to copy a list. Use a mutation or cache.write() to change cached data.'
 	)
+}
+
+// Preserve native array reads and iteration, but give mutating methods useful
+// advice before Object.freeze would throw an engine-specific error.
+const readonlyArrayMethods = Object.fromEntries(
+	['copyWithin', 'fill', 'pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift'].map(
+		(name) => [name, { value: reject, writable: true, configurable: true }]
+	)
+)
+
+export function readonlyArray<T>(value: T[]): readonly T[] {
+	return Object.freeze(Object.defineProperties(value, readonlyArrayMethods))
 }
 
 const recordHandler: ProxyHandler<Record<string, Field>> = {
@@ -132,7 +144,7 @@ function container(snapshot: any, read: (name: string) => unknown): any {
 		records.set(view, fields)
 		copyRecordMetadata(snapshot, view)
 	}
-	return Array.isArray(view) ? Object.freeze(view) : view
+	return Array.isArray(view) ? readonlyArray(view) : view
 }
 
 // Reconcile against owned views using their private values without tracking.

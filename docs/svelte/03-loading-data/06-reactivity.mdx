@@ -7,14 +7,16 @@ Field-level reactivity is experimental and disabled by default. Enable it in
 `houdini.config.js`, then regenerate Houdini's output and restart your dev server:
 
 ```js
-plugins: {
-  'houdini-svelte': {
-    experimentalFieldReactivity: true
-  }
+export default {
+  experimentalFieldReactivity: true,
+  plugins: { 'houdini-svelte': {} }
 }
 ```
 
-The option selects the runtime and its TypeScript types during generation.
+The top-level option selects the runtime and generates readonly arrays in query
+and fragment result types. Projects without the option keep their existing types.
+If you used a preview with this option inside `plugins['houdini-svelte']`, move it
+to the top level and regenerate.
 With it enabled, query stores expose reactive fields directly. Updating one
 user's name updates the consumers of that name without rerunning calculations
 for every user in the query. The examples below use experimental mode.
@@ -90,11 +92,60 @@ membership or ordering replace the array while retaining surviving keyed record
 objects. Adding or removing selected object keys replaces that object. Read lists
 through a reactive expression if your code needs to follow those replacements.
 
+Use `$derived` for a local alias that follows cache updates and record replacement:
+
+```ts
+const row = $derived(query.data?.case)
+```
+
+`$state(query.data.case)` and `$state.raw(query.data.case)` retain a reference to
+the current record. Its fields remain reactive while the query has a reactive
+consumer, but neither assignment follows record replacement. `$state.raw` avoids
+adding a deep proxy when you need a reassignable local reference. A captured
+reference does not keep the query subscribed by itself; keep reading the store
+in reactive code.
+
+## Readonly results and local copies
+
+Generated query `$result` and fragment `$data` types include readonly arrays
+when the option is enabled. Use these types for component props and local aliases;
+you do not need to wrap them in `ReactiveValue`. Inputs and optimistic payloads
+keep their existing array types.
+
+Nested selections also have generated names, such as `UsersTable$result$users`.
+These aliases appear in type errors and can be imported from `$houdini`. They are
+available with either setting of the flag.
+
 Objects and arrays are readonly in TypeScript and reject direct writes at
 runtime. Update them through mutations or cache APIs. Standard Dates are copied
 and compared by timestamp. Custom scalar class instances remain atomic values;
 replace them through the cache rather than mutating them through the view.
 Cyclic results are unsupported.
+
+For sorting, use `.toSorted()` where supported, or copy the list with `mutable()`:
+
+```ts
+import { mutable } from '$houdini'
+
+const sorted = $derived(
+  mutable(users.data?.users ?? []).sort((a, b) => a.name.localeCompare(b.name))
+)
+```
+
+`mutable(list)` is a shallow `.slice()` copy for APIs that require a mutable array.
+It copies membership and order. Items keep their readonly reactive fields, so a
+scalar update remains visible through the copied list. Create a new copy in a
+reactive expression to follow membership changes. For an editable form, copy the
+fields the form owns into local state; this helper does not create an editable
+record or deep clone.
+
+`ReactiveValue<T>` remains exported from `$houdini` for handwritten types. It makes
+plain records and arrays recursively readonly and preserves configured scalar
+classes. Generated result types already describe the readonly GraphQL lists.
+
+If a fragment reports a missing cache record, inspect the parent response for the
+selected `__typename` and configured key fields. A reference to an evicted or
+deleted record can cause the same warning.
 
 ## Existing store code
 

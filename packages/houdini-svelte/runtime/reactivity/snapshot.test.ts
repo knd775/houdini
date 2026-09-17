@@ -209,6 +209,31 @@ describe('result snapshots', () => {
 		}).toThrow(TypeError)
 		expect(JSON.stringify(current)).toBe('{"list":[{"n":1}]}')
 	})
+	it('explains how to sort locally without changing a shared array', () => {
+		const list = project([{ n: 2 }, { n: 1 }])
+		for (const method of [
+			'sort',
+			'reverse',
+			'push',
+			'pop',
+			'shift',
+			'unshift',
+			'splice',
+			'fill',
+			'copyWithin',
+		]) {
+			expect(() => list[method]()).toThrow('.toSorted() or .slice()')
+		}
+		expect(Object.getPrototypeOf(list)).toBe(Array.prototype)
+		expect(Object.keys(list)).toEqual(['0', '1'])
+		expect(
+			list
+				.slice()
+				.sort((a: any, b: any) => a.n - b.n)
+				.map((x: any) => x.n)
+		).toEqual([1, 2])
+		expect(list.map((x: any) => x.n)).toEqual([2, 1])
+	})
 })
 
 it('cache identity survives masked/custom keys without changing JSON or own keys', () => {

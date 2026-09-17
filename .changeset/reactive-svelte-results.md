@@ -4,6 +4,6 @@
 "houdini-svelte": minor
 ---
 
-Add experimental field-level Svelte reactivity via `experimentalFieldReactivity`
-in the `houdini-svelte` plugin config. Enable it and regenerate to use direct
-`Query.data` and plain fragment `data` reads. Existing store APIs remain the default.
+Add opt-in Svelte field reactivity via top-level `experimentalFieldReactivity`,
+with direct `Query.data` reads and readonly result arrays. Add named selection
+types and a `mutable()` list-copy helper. Existing store APIs remain the default.

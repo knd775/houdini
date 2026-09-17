@@ -33,6 +33,10 @@ func convertScalarType(kind, typeName string, config plugins.ProjectConfig, isIn
 }
 
 func ApplyTypeModifiers(baseType, modifiers string, isInput bool) string {
+	return applyTypeModifiers(baseType, modifiers, isInput, false)
+}
+
+func applyTypeModifiers(baseType, modifiers string, isInput, readonlyArrays bool) string {
 	if modifiers == "" {
 		if isInput {
 			return baseType + " | null | undefined"
@@ -66,7 +70,12 @@ func ApplyTypeModifiers(baseType, modifiers string, isInput bool) string {
 		// Check if the element before ']' is '!' (non-null elements)
 		elementsNonNull := bracketPos > 0 && modifiers[bracketPos-1] == '!'
 
-		if elementsNonNull {
+		if readonlyArrays {
+			if !elementsNonNull {
+				result += " | null"
+			}
+			result = fmt.Sprintf("ReadonlyArray<%s>", result)
+		} else if elementsNonNull {
 			// Elements are non-null
 			result = fmt.Sprintf("(%s)[]", result)
 		} else {

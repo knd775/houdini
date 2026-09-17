@@ -6,7 +6,7 @@ cache. Both modes render the same Svelte components. No wrapper API or per-row
 subscriptions are involved.
 
 The field API is opt-in through `experimentalFieldReactivity: true` in the
-`houdini-svelte` plugin configuration. The runner selects the experimental runtime
+top-level Houdini configuration. The runner selects the experimental runtime
 for `fields` and a separate legacy query class for `store`. Both share the same
 cache and client, and run separately so their subscriptions do not affect each
 other's measurements. The legacy run omits field-change tracking and reactive
@@ -295,3 +295,32 @@ tracking cost, not a third Houdini implementation. Mode order rotates each trial
 New reports include fixture creation/cache population, query preparation, mount,
 total startup, and each workload's first update before warm-up. Older reports do
 not contain these additional fields.
+
+## Readonly array diagnostics
+
+The `native-array-errors` variant isolates the cost of clearer errors for array
+mutations. It uses the same field runtime with plain frozen arrays; the current
+runtime adds shared, non-enumerable methods that explain how to make a local copy.
+Array prototypes and iteration remain native.
+
+On September 16, 2026, a paired run with 432 tasks and 15 trials per workload gave
+these medians. Mount combines 135 samples per mode; updates use 150 samples each.
+
+| Work | Native errors | Clearer errors |
+| --- | ---: | ---: |
+| Mount | 34.47 ms | 34.83 ms |
+| Scalar title update | 0.080 ms | 0.080 ms |
+| Local filtering | 16.26 ms | 16.07 ms |
+| Reorder | 5.35 ms | 5.41 ms |
+
+The measured mount difference was about 1%. These small differences do not
+establish a filtering improvement. All nine workloads and the mixed sequence
+passed for both field variants and legacy stores. Legacy mount was 27.85 ms, so
+the existing field initialization overhead remains.
+
+```sh
+PROJECTION_VARIANT=native-array-errors PROJECTS=18 TRIALS=15 UPDATES=10 WARMUP=4 pnpm bench:svelte:dashboard
+```
+
+The local raw report is `results-feedback-array-errors-paired.json`, excluded
+from Git with the other benchmark captures.

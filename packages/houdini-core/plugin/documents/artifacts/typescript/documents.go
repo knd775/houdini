@@ -13,15 +13,17 @@ import (
 	"code.houdinigraphql.com/plugins/graphql"
 )
 
-// DocumentContext holds document-specific state that was previously stored in global variables
-// and embeds context.Context to serve as both context and document state
+// DocumentContext holds printing options and import dependencies for one document.
 type DocumentContext struct {
-	HasLoading    bool
-	SortKeys      bool
-	ProjectConfig plugins.ProjectConfig
-	EnumTypes     map[string]bool
-	InputTypes    map[string]bool
-	ScalarImports map[string]bool // full import statement → true
+	HasLoading     bool
+	SortKeys       bool
+	ProjectConfig  plugins.ProjectConfig
+	EnumTypes      map[string]bool
+	InputTypes     map[string]bool
+	ScalarImports  map[string]bool // full import statement → true
+	ReadonlyArrays bool
+	typeName       string
+	aliases        *[]string
 }
 
 // isRuntimeScalarVariable returns true when the variable was declared with a
@@ -421,10 +423,14 @@ func generateFragmentTypes(
 	// variant is generated when the fragment has field-level @loading OR a definition-level
 	// @loading (`fragment X on Y @loading`); the latter cascades into every field, and
 	// composes with any field-level marks rather than being cancelled by them.
+	resultCtx := *ctx
+	aliases := []string{}
+	resultCtx.typeName, resultCtx.aliases = dataTypeName, &aliases
+	resultCtx.ReadonlyArrays = ctx.ProjectConfig.ExperimentalFieldReactivity
 	if hasAnyLoadingDirectives(doc.Selections) || documentLoading {
 		// Generate union type with normal and loading states
 		normalType, _ := generateSelectionType(
-			ctx,
+			&resultCtx,
 			doc.Selections,
 			true,
 			0,
@@ -433,8 +439,9 @@ func generateFragmentTypes(
 			false,
 		)
 		hasGlobalLoading := documentLoading
+		resultCtx.typeName += "$$loading"
 		loadingType, _ := generateLoadingStateType(
-			ctx,
+			&resultCtx,
 			doc.Selections,
 			0,
 			rootTypeName,
@@ -445,11 +452,11 @@ func generateFragmentTypes(
 		types = append(types, fmt.Sprintf("export type %s = %s;", dataTypeName, dataType))
 	} else {
 		// Generate normal single type
-		dataType, _ := generateSelectionType(ctx, doc.Selections, true, 0, rootTypeName, collectedDocs, false)
+		dataType, _ := generateSelectionType(&resultCtx, doc.Selections, true, 0, rootTypeName, collectedDocs, false)
 		types = append(types, fmt.Sprintf("export type %s = %s;", dataTypeName, dataType))
 	}
 
-	return types
+	return append(types, aliases...)
 }
 
 func generateOperationTypes(
@@ -486,10 +493,14 @@ func generateOperationTypes(
 	types = append(types, mainType)
 
 	// Generate result type
+	resultCtx := *ctx
+	aliases := []string{}
+	resultCtx.typeName, resultCtx.aliases = resultTypeName, &aliases
+	resultCtx.ReadonlyArrays = ctx.ProjectConfig.ExperimentalFieldReactivity && doc.Kind == "query"
 	if ctx.HasLoading {
 		// Generate union type with normal and loading states
 		normalType, _ := generateSelectionType(
-			ctx,
+			&resultCtx,
 			doc.Selections,
 			true,
 			0,
@@ -502,8 +513,9 @@ func generateOperationTypes(
 		// configure individual fields (e.g. @loading(count:) on a list); they must not
 		// switch the document out of global mode and drop the unmarked fields.
 		hasGlobalLoading := hasDocumentLevelLoading(doc)
+		resultCtx.typeName += "$$loading"
 		loadingType, _ := generateLoadingStateType(
-			ctx,
+			&resultCtx,
 			doc.Selections,
 			0,
 			rootTypeName,
@@ -514,9 +526,11 @@ func generateOperationTypes(
 		types = append(types, fmt.Sprintf("export type %s = %s;", resultTypeName, resultType))
 	} else {
 		// Generate normal single type
-		resultType, _ := generateSelectionType(ctx, doc.Selections, true, 0, rootTypeName, collectedDocs, false)
+		resultType, _ := generateSelectionType(&resultCtx, doc.Selections, true, 0, rootTypeName, collectedDocs, false)
 		types = append(types, fmt.Sprintf("export type %s = %s;", resultTypeName, resultType))
 	}
+
+	types = append(types, aliases...)
 
 	// Generate input type - always generate, but set to null | undefined if no variables
 	if len(doc.Variables) > 0 {
@@ -642,25 +656,6 @@ func generateSelectionType(
 	// Second pass: generate types for visible selections
 	for _, selection := range visibleSelections {
 
-		// Check if this field has inline fragments (interface/union type)
-		hasInlineFragments := false
-		for _, child := range selection.Children {
-			if child.Kind == "inline_fragment" {
-				hasInlineFragments = true
-				break
-			}
-		}
-
-		// Check if this field has @loading directive (for future use)
-		hasLoadingDirective := false
-		for _, directive := range selection.Directives {
-			if directive.Name == graphql.LoadingDirective {
-				hasLoadingDirective = true
-				break
-			}
-		}
-		_ = hasLoadingDirective // Mark as used
-
 		fieldName := selection.FieldName
 		if selection.Alias != nil {
 			fieldName = *selection.Alias
@@ -686,37 +681,15 @@ func generateSelectionType(
 		var fieldType string
 
 		if len(selection.Children) > 0 {
-			if hasInlineFragments {
-				// Interface/Union type - generate union with discriminators
-				unionType := generateInterfaceUnionType(
-					ctx,
-					selection,
-					readonly,
-					collectedDocs,
-					unmasked,
-					indentLevel+1,
-				)
-
-				// Apply type modifiers (lists, nullability) to the union type
-				modifiers := ""
-				if selection.TypeModifiers != nil {
-					modifiers = *selection.TypeModifiers
-				}
-				fieldType = ApplyTypeModifiers(unionType, modifiers, false) // Output type
-			} else {
-				// Regular nested object type
-				childType, childErr := generateSelectionType(ctx, selection.Children, readonly, indentLevel+1, selection.FieldType, collectedDocs, unmasked)
-				if childErr != nil {
-					return "", childErr
-				}
-
-				// Apply type modifiers (lists, nullability) using the proper function
-				modifiers := ""
-				if selection.TypeModifiers != nil {
-					modifiers = *selection.TypeModifiers
-				}
-				fieldType = ApplyTypeModifiers(childType, modifiers, false) // Output type
+			childType, err := generateNestedSelectionType(ctx, selection, readonly, indentLevel+1, collectedDocs, unmasked)
+			if err != nil {
+				return "", err
 			}
+			modifiers := ""
+			if selection.TypeModifiers != nil {
+				modifiers = *selection.TypeModifiers
+			}
+			fieldType = applyTypeModifiers(childType, modifiers, false, ctx.ReadonlyArrays)
 		} else {
 			// Scalar field - use simplified type conversion.
 			// Special-case __typename on a concrete parent type: we know the exact string literal.
@@ -924,8 +897,9 @@ func generateInterfaceUnionTypeWithLoading(
 			sharedChildren = append(sharedChildren, child)
 		}
 		if len(sharedChildren) > 0 {
-			if generated, err := generateSelectionType(ctx, sharedChildren, readonly, indentLevel, selection.FieldType, collectedDocs, unmasked); err == nil {
-				sharedType = generated
+			sharedCtx, sharedIndent := ctx.nestedType("$shared", indentLevel)
+			if generated, err := generateSelectionType(sharedCtx, sharedChildren, readonly, sharedIndent, selection.FieldType, collectedDocs, unmasked); err == nil {
+				sharedType = sharedCtx.referenceType(generated)
 			}
 		}
 	}
@@ -950,6 +924,7 @@ func generateInterfaceUnionTypeWithLoading(
 	// Build union parts for each type that has an inline fragment
 	var unionParts []string
 	for _, typeName := range filteredTypes {
+		variantCtx, _ := ctx.nestedType("$on$"+typeName, indentLevel)
 		// Build the type literal for this possible type
 		var fields []string
 
@@ -980,55 +955,15 @@ func generateInterfaceUnionTypeWithLoading(
 				} else {
 					// Check if this field has children (nested object type)
 					if len(fragmentChild.Children) > 0 {
-						// Check if this field has inline fragments (interface/union type)
-						hasInlineFragments := false
-						for _, child := range fragmentChild.Children {
-							if child.Kind == "inline_fragment" {
-								hasInlineFragments = true
-								break
-							}
-						}
-
-						if hasInlineFragments {
-							// Interface/Union type - generate union with discriminators
-							unionType := generateInterfaceUnionType(
-								ctx,
-								fragmentChild,
-								readonly,
-								collectedDocs,
-								unmasked,
-								indentLevel+1,
-							)
-
-							// Apply type modifiers (lists, nullability) to the union type
+						childType, err := generateNestedSelectionType(variantCtx, fragmentChild, readonly, indentLevel+1, collectedDocs, unmasked)
+						if err != nil {
+							fieldType = convertLeafType(ctx, fragmentChild.FieldType, fragmentChild.TypeModifiers, collectedDocs)
+						} else {
 							modifiers := ""
 							if fragmentChild.TypeModifiers != nil {
 								modifiers = *fragmentChild.TypeModifiers
 							}
-							fieldType = ApplyTypeModifiers(
-								unionType,
-								modifiers,
-								false,
-							) // Output type
-						} else {
-							// Regular nested object type
-							childType, childErr := generateSelectionType(ctx, fragmentChild.Children, readonly, indentLevel+1, fragmentChild.FieldType, collectedDocs, unmasked)
-							if childErr != nil {
-								// Fallback to simple type conversion on error
-								fieldType = convertLeafType(
-									ctx,
-									fragmentChild.FieldType,
-									fragmentChild.TypeModifiers,
-									collectedDocs,
-								)
-							} else {
-								// Apply type modifiers (lists, nullability) using the proper function
-								modifiers := ""
-								if fragmentChild.TypeModifiers != nil {
-									modifiers = *fragmentChild.TypeModifiers
-								}
-								fieldType = ApplyTypeModifiers(childType, modifiers, false) // Output type
-							}
+							fieldType = applyTypeModifiers(childType, modifiers, false, ctx.ReadonlyArrays)
 						}
 					} else {
 						fieldType = convertLeafType(
@@ -1107,7 +1042,7 @@ func generateInterfaceUnionTypeWithLoading(
 
 		// Create the type literal
 		typeLiteral := fmt.Sprintf("({\n%s\n%s})", strings.Join(fields, "\n"), memberIndent)
-		unionParts = append(unionParts, typeLiteral)
+		unionParts = append(unionParts, variantCtx.referenceType(typeLiteral))
 	}
 
 	// Add non-exhaustive case for interfaces (not unions)
@@ -1363,6 +1298,13 @@ func generateOptimisticType(
 	return fmt.Sprintf("{\n%s\n%s}", strings.Join(fields, "\n"), closingIndent), nil
 }
 
+func loadingListType(ctx *DocumentContext, element string) string {
+	if ctx.ReadonlyArrays {
+		return fmt.Sprintf("ReadonlyArray<%s>", element)
+	}
+	return fmt.Sprintf("%s[]", element)
+}
+
 func generateLoadingStateType(
 	ctx *DocumentContext,
 	selections []*collected.Selection,
@@ -1502,11 +1444,10 @@ func generateLoadingStateType(
 				if onlyLoadingFragments && hasLoadingFragments {
 					// Field with @loading that only contains fragment spreads with @loading
 					// Generate the same structure as normal state (fragment structure)
-					childType, childErr := generateLoadingStateType(
+					childType, childErr := generateNestedLoadingType(
 						ctx,
-						selection.Children,
+						selection,
 						indentLevel+1,
-						selection.FieldType,
 						cascadeLoading,
 						collectedDocs,
 					)
@@ -1518,7 +1459,7 @@ func generateLoadingStateType(
 					// Apply array syntax if this is a list type
 					if selection.TypeModifiers != nil &&
 						strings.Contains(*selection.TypeModifiers, "]") {
-						fieldType = fmt.Sprintf("%s[]", fieldType)
+						fieldType = loadingListType(ctx, fieldType)
 					}
 
 				} else if hasAnyLoadingDirectives(selection.Children) || cascadeLoading {
@@ -1533,29 +1474,30 @@ func generateLoadingStateType(
 
 					if hasInlineFragments && cascadeLoading {
 						// Interface/Union type with cascade - generate union with loading states
+						childCtx, childIndent := ctx.nestedType(fieldName, indentLevel+1)
 						unionType := generateInterfaceUnionTypeWithLoading(
-							ctx,
+							childCtx,
 							selection,
 							true, // readonly
 							true, // isLoadingState
 							collectedDocs,
 							false, // unmasked
-							indentLevel+1,
+							childIndent,
 						)
+						unionType = childCtx.referenceType(unionType)
 
 						// Apply array syntax if this is a list type
 						if selection.TypeModifiers != nil && strings.Contains(*selection.TypeModifiers, "]") {
-							fieldType = fmt.Sprintf("%s[]", unionType)
+							fieldType = loadingListType(ctx, unionType)
 						} else {
 							fieldType = unionType
 						}
 					} else {
 						// Field with @loading directive that has children with loading - generate nested loading structure
-						childType, childErr := generateLoadingStateType(
+						childType, childErr := generateNestedLoadingType(
 							ctx,
-							selection.Children,
+							selection,
 							indentLevel+1,
-							selection.FieldType,
 							cascadeLoading,
 							collectedDocs,
 						)
@@ -1567,7 +1509,7 @@ func generateLoadingStateType(
 						// Apply array syntax if this is a list type
 						if selection.TypeModifiers != nil &&
 							strings.Contains(*selection.TypeModifiers, "]") {
-							fieldType = fmt.Sprintf("%s[]", fieldType)
+							fieldType = loadingListType(ctx, fieldType)
 						}
 					}
 				} else {
@@ -1576,7 +1518,7 @@ func generateLoadingStateType(
 
 					// Check if this is a list type and apply array syntax
 					if selection.TypeModifiers != nil && strings.Contains(*selection.TypeModifiers, "]") {
-						fieldType = "LoadingType[]"
+						fieldType = loadingListType(ctx, "LoadingType")
 					}
 				}
 			} else {
@@ -1585,18 +1527,17 @@ func generateLoadingStateType(
 
 				// Check if this is a list type and apply array syntax
 				if selection.TypeModifiers != nil && strings.Contains(*selection.TypeModifiers, "]") {
-					fieldType = "LoadingType[]"
+					fieldType = loadingListType(ctx, "LoadingType")
 				}
 			}
 		} else {
 			// Field without @loading directive is omitted in loading state, unless it has children with @loading
 			if len(selection.Children) > 0 && hasAnyLoadingDirectives(selection.Children) {
 				// Nested object with loading children - generate loading state for children
-				childType, childErr := generateLoadingStateType(
+				childType, childErr := generateNestedLoadingType(
 					ctx,
-					selection.Children,
+					selection,
 					indentLevel+1,
-					selection.FieldType,
 					forceLoading,
 					collectedDocs,
 				)
@@ -1608,7 +1549,7 @@ func generateLoadingStateType(
 				// Apply array syntax if this is a list type
 				if selection.TypeModifiers != nil &&
 					strings.Contains(*selection.TypeModifiers, "]") {
-					fieldType = fmt.Sprintf("%s[]", fieldType)
+					fieldType = loadingListType(ctx, fieldType)
 				}
 			} else {
 				// Field without loading - skip it in loading state
@@ -1688,7 +1629,7 @@ func convertLeafType(
 		modifiers = *typeModifiers
 	}
 
-	return ApplyTypeModifiers(typeStr, modifiers, false)
+	return applyTypeModifiers(typeStr, modifiers, false, ctx.ReadonlyArrays)
 }
 
 // ScalarImportStatement builds the TypeScript import statement for a custom scalar.

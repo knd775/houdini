@@ -3,7 +3,7 @@
 Query stores expose reactive getters directly: `query.data`, `query.fetching`,
 `query.errors`, and the other result metadata. `query.fetch()` and pagination
 methods stay on the same object. Plain fragment instances expose `fragment.data`.
-Enable `experimentalFieldReactivity: true` in the `houdini-svelte` plugin
+Enable `experimentalFieldReactivity: true` in the top-level Houdini
 configuration and regenerate. It defaults to false.
 
 Generation selects `stores/mode.ts`, which exports either the legacy or

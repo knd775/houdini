@@ -5,6 +5,56 @@ test.beforeEach(async ({ page }) => {
 	await page.waitForFunction(() => window.testing)
 })
 
+test('$state forwards live record fields while $derived also follows replacements', async ({ page }) => {
+	await page.evaluate(async () => {
+		const t = window.testing
+		const query = await t.query()
+		await t.state(query)
+		t.clientCache.write({ parent: 'User:t__a', selection: t.row, data: { name: 'Changed' } })
+		t.flush()
+	})
+	for (const id of ['deep', 'raw', 'current']) {
+		await expect(page.locator(`#${id}`)).toHaveText('Changed')
+	}
+	await page.evaluate(() => {
+		const t = window.testing
+		t.clientCache.write({ selection: t.selection, data: { users: [
+			{ tenant: 't', uid: 'replacement', name: 'Replacement', email: 'new@example.com' },
+		] } })
+		t.flush()
+	})
+	await expect(page.locator('#current')).toHaveText('Replacement')
+	await expect(page.locator('#deep')).toHaveText('Changed')
+	await expect(page.locator('#raw')).toHaveText('Changed')
+})
+
+test('an absent fragment record warns with its name and cache ID', async ({ page }) => {
+	const warnings: string[] = []
+	page.on('console', message => {
+		if (message.type() === 'warning') warnings.push(message.text())
+	})
+	await page.evaluate(async () => {
+		const t = window.testing
+		await t.query()
+		await t.fragment(undefined, { ' $fragments': { values: {
+			UserFields: { parent: 'User:missing', variables: {} },
+		} } })
+	})
+	expect(warnings).toHaveLength(1)
+	expect(warnings[0]).toContain('Fragment "UserFields" could not read cache record "User:missing"')
+	expect(warnings[0]).toContain('__typename and key fields')
+
+	warnings.length = 0
+	await page.evaluate(async () => {
+		const t = window.testing
+		await t.fragment(undefined, null)
+		await t.fragment(undefined, { ' $fragments': { loading: true, values: {} } })
+		t.clientCache.write({ parent: 'User:t__a', selection: t.row, data: { name: null, email: null } })
+		await t.fragment()
+	})
+	expect(warnings).toEqual([])
+})
+
 test('cache field updates leave unrelated effects and list evaluation alone', async ({ page }) => {
 	const errors: string[] = []
 	page.on('pageerror', (error) => errors.push(error.message))

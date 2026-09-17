@@ -248,7 +248,7 @@ export type GraphQLValue =
 	| symbol
 	| null
 	| GraphQLObject
-	| GraphQLValue[]
+	| readonly GraphQLValue[]
 	| undefined
 
 export type GraphQLVariables = { [key: string]: any } | null | undefined

@@ -136,6 +136,22 @@ Please ensure that you have passed a record that has ${this.artifact.name} mixed
 				variables,
 				loading,
 			}).data as _Data
+			if (!loading && isBrowser && data === null) {
+				const storage = cache._internal_unstable.storage
+				// Only diagnose an absent record. Cached null fields, skipped fields,
+				// and incomplete selections on an existing record are valid reads.
+				const ids = [parent, storage.idMaps[parent]].filter(Boolean)
+				const exists = storage.data.some((layer) =>
+					ids.some((id) => layer.fields[id] || layer.links[id])
+				)
+				if (!exists) {
+					console.warn(
+						`Fragment "${this.artifact.name}" could not read cache record "${parent}". ` +
+							'Check that the parent response includes the selected __typename and key fields, ' +
+							'and that this reference has not been evicted or deleted.'
+					)
+				}
+			}
 		}
 
 		// build up a document store that we will use to subscribe the fragment to cache updates

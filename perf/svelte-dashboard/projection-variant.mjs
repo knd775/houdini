@@ -15,7 +15,7 @@ export function projectionVariant(name) {
 	name = name.replace(/-single$/, '')
 	const plain = ['plain-records', 'plain-resolved'].includes(name)
 	const resolved = ['resolved-fields', 'plain-resolved', 'resolved-leaves'].includes(name)
-	const fieldReads = ['single-lookup', 'checked-lookup'].includes(name)
+	const fieldReads = ['single-lookup', 'checked-lookup', 'native-array-errors'].includes(name)
 	if (!plain && !resolved && !fieldReads && name !== 'baseline')
 		throw new Error('Unknown projection variant: ' + name)
 	const originals = [
@@ -62,6 +62,12 @@ ${await readFile(id, 'utf8')}`
 			let source = await readFile(original, 'utf8')
 			if (original.endsWith('/stores/mode.ts')) return "export * from '../reactivity/stores.js'\n"
 			if (original.endsWith('/projection.svelte.ts')) {
+				if (name === 'native-array-errors') {
+					const freeze = 'Object.freeze(Object.defineProperties(value, readonlyArrayMethods))'
+					if (!source.includes(freeze)) throw new Error('Readonly array construction changed.')
+					return source.replace(freeze, 'Object.freeze(value)') +
+						'\nexport const ownsVariant = value => records.has(value)\n'
+				}
 				const checked = `return typeof name === 'string' && owns.call(target, name)
 			? target[name].read()
 			: Reflect.get(Object.prototype, name, receiver)`

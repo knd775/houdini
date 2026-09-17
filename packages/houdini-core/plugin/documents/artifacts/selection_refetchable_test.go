@@ -152,11 +152,13 @@ export type UserInfo_Refetch_Query = {
 };
 
 export type UserInfo_Refetch_Query$result = {
-	readonly node: {
-		readonly " $fragments": {
-			UserInfo: {};
-		};
-	} | null;
+	readonly node: UserInfo_Refetch_Query$result$node | null;
+};
+
+export type UserInfo_Refetch_Query$result$node = {
+	readonly " $fragments": {
+		UserInfo: {};
+	};
 };
 
 export type UserInfo_Refetch_Query$input = {

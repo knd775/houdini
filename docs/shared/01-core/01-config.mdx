@@ -45,6 +45,7 @@ By default, your config file can contain the following values:
 - `defaultKeys` (optional, default: `["id"]`): A list of fields to use when computing a record's id. The default value is `['id']`. For more information see the [Cache API](~/updating-data/caching-data#custom-ids).
 - `types` (optional): an object that customizes the resolution behavior for a specific type. For more information see the [Cache API](~/updating-data/caching-data#custom-ids).
 - `logLevel` (optional, default: `"summary"`): Specifies the style of logging houdini will use when generating your file. One of "quiet", "full", "summary", or "short-summary".
+- `experimentalFieldReactivity` (optional, default: `false`): Enables direct reactive Svelte reads such as `Query.data` and generates readonly arrays in query and fragment result types. Regenerate and restart the dev server after changing it. See [Field-level reactivity](~/loading-data/reactivity) for migration details.
 - `defaultFragmentMasking` (optional, default: `"enable"`): `"enable"` to mask fragment and use collocated data requirement as best or `"disable"` to access fragment data directly in operation. Can be overridden individually at fragment level.
 - `defaultListTarget` (optional): Can be set to `"all"` for all list operations to ignore parent ID and affect all lists with the name.
 - `defaultPaginateMode` (optional, default: `"Infinite"`): The default mode for pagination. One of `"Infinite"` or `"SinglePage"`.

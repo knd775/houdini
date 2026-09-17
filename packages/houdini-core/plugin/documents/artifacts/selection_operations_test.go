@@ -134,11 +134,15 @@ export type B = {
 };
 
 export type B$result = {
-	readonly addFriend: {
-		readonly friend: {
-			readonly firstName: string;
-		};
-	};
+	readonly addFriend: B$result$addFriend;
+};
+
+export type B$result$addFriend$friend = {
+	readonly firstName: string;
+};
+
+export type B$result$addFriend = {
+	readonly friend: B$result$addFriend$friend;
 };
 
 export type B$input = null | undefined;
@@ -279,13 +283,17 @@ export type A = {
 };
 
 export type A$result = {
-	readonly addFriend: {
-		readonly friend: {
-			readonly " $fragments": {
-				All_Users_insert: {};
-			};
-		};
+	readonly addFriend: A$result$addFriend;
+};
+
+export type A$result$addFriend$friend = {
+	readonly " $fragments": {
+		All_Users_insert: {};
 	};
+};
+
+export type A$result$addFriend = {
+	readonly friend: A$result$addFriend$friend;
 };
 
 export type A$input = null | undefined;
@@ -439,13 +447,17 @@ export type A = {
 };
 
 export type A$result = {
-	readonly addFriend: {
-		readonly friend: {
-			readonly " $fragments": {
-				All_Users_insert: {};
-			};
-		};
+	readonly addFriend: A$result$addFriend;
+};
+
+export type A$result$addFriend$friend = {
+	readonly " $fragments": {
+		All_Users_insert: {};
 	};
+};
+
+export type A$result$addFriend = {
+	readonly friend: A$result$addFriend$friend;
 };
 
 export type A$input = null | undefined;
@@ -610,13 +622,17 @@ export type B = {
 };
 
 export type B$result = {
-	readonly addFriend: {
-		readonly friend: {
-			readonly " $fragments": {
-				All_Users_insert: {};
-			};
-		};
+	readonly addFriend: B$result$addFriend;
+};
+
+export type B$result$addFriend$friend = {
+	readonly " $fragments": {
+		All_Users_insert: {};
 	};
+};
+
+export type B$result$addFriend = {
+	readonly friend: B$result$addFriend$friend;
 };
 
 export type B$input = {
@@ -768,13 +784,17 @@ export type A = {
 };
 
 export type A$result = {
-	readonly addFriend: {
-		readonly friend: {
-			readonly " $fragments": {
-				All_Users_insert: {};
-			};
-		};
+	readonly addFriend: A$result$addFriend;
+};
+
+export type A$result$addFriend$friend = {
+	readonly " $fragments": {
+		All_Users_insert: {};
 	};
+};
+
+export type A$result$addFriend = {
+	readonly friend: A$result$addFriend$friend;
 };
 
 export type A$input = null | undefined;
@@ -924,13 +944,17 @@ export type A = {
 };
 
 export type A$result = {
-	readonly addFriend: {
-		readonly friend: {
-			readonly " $fragments": {
-				All_Users_insert: {};
-			};
-		};
+	readonly addFriend: A$result$addFriend;
+};
+
+export type A$result$addFriend$friend = {
+	readonly " $fragments": {
+		All_Users_insert: {};
 	};
+};
+
+export type A$result$addFriend = {
+	readonly friend: A$result$addFriend$friend;
 };
 
 export type A$input = null | undefined;
@@ -1086,13 +1110,17 @@ export type A = {
 };
 
 export type A$result = {
-	readonly addFriend: {
-		readonly friend: {
-			readonly " $fragments": {
-				All_Users_insert: {};
-			};
-		};
+	readonly addFriend: A$result$addFriend;
+};
+
+export type A$result$addFriend$friend = {
+	readonly " $fragments": {
+		All_Users_insert: {};
 	};
+};
+
+export type A$result$addFriend = {
+	readonly friend: A$result$addFriend$friend;
 };
 
 export type A$input = null | undefined;
@@ -1247,13 +1275,17 @@ export type A = {
 };
 
 export type A$result = {
-	readonly addFriend: {
-		readonly friend: {
-			readonly " $fragments": {
-				All_Users_insert: {};
-			};
-		};
+	readonly addFriend: A$result$addFriend;
+};
+
+export type A$result$addFriend$friend = {
+	readonly " $fragments": {
+		All_Users_insert: {};
 	};
+};
+
+export type A$result$addFriend = {
+	readonly friend: A$result$addFriend$friend;
 };
 
 export type A$input = null | undefined;
@@ -1376,11 +1408,15 @@ export type A = {
 };
 
 export type A$result = {
-	readonly addFriend: {
-		readonly friend: {
-			readonly id: string;
-		};
-	};
+	readonly addFriend: A$result$addFriend;
+};
+
+export type A$result$addFriend$friend = {
+	readonly id: string;
+};
+
+export type A$result$addFriend = {
+	readonly friend: A$result$addFriend$friend;
 };
 
 export type A$input = null | undefined;
@@ -1519,13 +1555,17 @@ export type A = {
 };
 
 export type A$result = {
-	readonly addFriend: {
-		readonly friend: {
-			readonly " $fragments": {
-				All_Users_insert: {};
-			};
-		};
+	readonly addFriend: A$result$addFriend;
+};
+
+export type A$result$addFriend$friend = {
+	readonly " $fragments": {
+		All_Users_insert: {};
 	};
+};
+
+export type A$result$addFriend = {
+	readonly friend: A$result$addFriend$friend;
 };
 
 export type A$input = null | undefined;
@@ -1660,13 +1700,17 @@ export type A = {
 };
 
 export type A$result = {
-	readonly addFriend: {
-		readonly friend: {
-			readonly " $fragments": {
-				All_Users_remove: {};
-			};
-		};
+	readonly addFriend: A$result$addFriend;
+};
+
+export type A$result$addFriend$friend = {
+	readonly " $fragments": {
+		All_Users_remove: {};
 	};
+};
+
+export type A$result$addFriend = {
+	readonly friend: A$result$addFriend$friend;
 };
 
 export type A$input = null | undefined;
@@ -1805,13 +1849,17 @@ export type A = {
 };
 
 export type A$result = {
-	readonly addFriend: {
-		readonly friend: {
-			readonly " $fragments": {
-				All_Users_toggle: {};
-			};
-		};
+	readonly addFriend: A$result$addFriend;
+};
+
+export type A$result$addFriend$friend = {
+	readonly " $fragments": {
+		All_Users_toggle: {};
 	};
+};
+
+export type A$result$addFriend = {
+	readonly friend: A$result$addFriend$friend;
 };
 
 export type A$input = null | undefined;
@@ -1966,13 +2014,17 @@ export type A = {
 };
 
 export type A$result = {
-	readonly addFriend: {
-		readonly friend: {
-			readonly " $fragments": {
-				All_Users_toggle: {};
-			};
-		};
+	readonly addFriend: A$result$addFriend;
+};
+
+export type A$result$addFriend$friend = {
+	readonly " $fragments": {
+		All_Users_toggle: {};
 	};
+};
+
+export type A$result$addFriend = {
+	readonly friend: A$result$addFriend$friend;
 };
 
 export type A$input = null | undefined;
@@ -2119,13 +2171,17 @@ export type A = {
 };
 
 export type A$result = {
-	readonly addFriend: {
-		readonly friend: {
-			readonly " $fragments": {
-				All_Users_toggle: {};
-			};
-		};
+	readonly addFriend: A$result$addFriend;
+};
+
+export type A$result$addFriend$friend = {
+	readonly " $fragments": {
+		All_Users_toggle: {};
 	};
+};
+
+export type A$result$addFriend = {
+	readonly friend: A$result$addFriend$friend;
 };
 
 export type A$input = null | undefined;
@@ -2269,13 +2325,17 @@ export type A = {
 };
 
 export type A$result = {
-	readonly addFriend: {
-		readonly friend: {
-			readonly " $fragments": {
-				All_Users_toggle: {};
-			};
-		};
+	readonly addFriend: A$result$addFriend;
+};
+
+export type A$result$addFriend$friend = {
+	readonly " $fragments": {
+		All_Users_toggle: {};
 	};
+};
+
+export type A$result$addFriend = {
+	readonly friend: A$result$addFriend$friend;
 };
 
 export type A$input = null | undefined;
@@ -2409,13 +2469,17 @@ export type A = {
 };
 
 export type A$result = {
-	readonly addFriend: {
-		readonly friend: {
-			readonly " $fragments": {
-				All_Users_remove: {};
-			};
-		};
+	readonly addFriend: A$result$addFriend;
+};
+
+export type A$result$addFriend$friend = {
+	readonly " $fragments": {
+		All_Users_remove: {};
 	};
+};
+
+export type A$result$addFriend = {
+	readonly friend: A$result$addFriend$friend;
 };
 
 export type A$input = null | undefined;
@@ -2521,9 +2585,11 @@ export type A = {
 };
 
 export type A$result = {
-	readonly deleteUser: {
-		readonly userID: string | null;
-	};
+	readonly deleteUser: A$result$deleteUser;
+};
+
+export type A$result$deleteUser = {
+	readonly userID: string | null;
 };
 
 export type A$input = null | undefined;
@@ -2643,9 +2709,11 @@ export type A = {
 };
 
 export type A$result = {
-	readonly deleteUser: {
-		readonly userID: string | null;
-	};
+	readonly deleteUser: A$result$deleteUser;
+};
+
+export type A$result$deleteUser = {
+	readonly userID: string | null;
 };
 
 export type A$input = null | undefined;
@@ -2765,9 +2833,11 @@ export type A = {
 };
 
 export type A$result = {
-	readonly deleteUser: {
-		readonly userID: string | null;
-	};
+	readonly deleteUser: A$result$deleteUser;
+};
+
+export type A$result$deleteUser = {
+	readonly userID: string | null;
 };
 
 export type A$input = null | undefined;
@@ -2907,13 +2977,17 @@ export type A = {
 };
 
 export type A$result = {
-	readonly addFriend: {
-		readonly friend: {
-			readonly " $fragments": {
-				All_Users_insert: {};
-			};
-		};
+	readonly addFriend: A$result$addFriend;
+};
+
+export type A$result$addFriend$friend = {
+	readonly " $fragments": {
+		All_Users_insert: {};
 	};
+};
+
+export type A$result$addFriend = {
+	readonly friend: A$result$addFriend$friend;
 };
 
 export type A$input = null | undefined;
@@ -3044,11 +3118,15 @@ export type RefetchFriend = {
 };
 
 export type RefetchFriend$result = {
-	readonly addFriend: {
-		readonly friend: {
-			readonly firstName: string;
-		};
-	};
+	readonly addFriend: RefetchFriend$result$addFriend;
+};
+
+export type RefetchFriend$result$addFriend$friend = {
+	readonly firstName: string;
+};
+
+export type RefetchFriend$result$addFriend = {
+	readonly friend: RefetchFriend$result$addFriend$friend;
 };
 
 export type RefetchFriend$input = null | undefined;
@@ -3214,14 +3292,20 @@ export type MultiRefetch = {
 };
 
 export type MultiRefetch$result = {
-	readonly addFriend: {
-		readonly friend: {
-			readonly id: string;
-		};
-		readonly node: {
-			readonly id: string;
-		} | null;
-	};
+	readonly addFriend: MultiRefetch$result$addFriend;
+};
+
+export type MultiRefetch$result$addFriend$friend = {
+	readonly id: string;
+};
+
+export type MultiRefetch$result$addFriend$node = {
+	readonly id: string;
+};
+
+export type MultiRefetch$result$addFriend = {
+	readonly friend: MultiRefetch$result$addFriend$friend;
+	readonly node: MultiRefetch$result$addFriend$node | null;
 };
 
 export type MultiRefetch$input = null | undefined;
@@ -3358,11 +3442,15 @@ export type RefetchFriends = {
 };
 
 export type RefetchFriends$result = {
-	readonly addFriend: {
-		readonly friends: ({
-			readonly firstName: string;
-		})[];
-	};
+	readonly addFriend: RefetchFriends$result$addFriend;
+};
+
+export type RefetchFriends$result$addFriend$friends = {
+	readonly firstName: string;
+};
+
+export type RefetchFriends$result$addFriend = {
+	readonly friends: (RefetchFriends$result$addFriend$friends)[];
 };
 
 export type RefetchFriends$input = null | undefined;
@@ -3538,14 +3626,22 @@ export type RefetchInline = {
 };
 
 export type RefetchInline$result = {
-	readonly addFriend: {
-		readonly node: {} & (({
-			readonly bestFriend: {
-				readonly id: string;
-			} | null;
-			readonly __typename: "User";
-		})) | null;
-	};
+	readonly addFriend: RefetchInline$result$addFriend;
+};
+
+export type RefetchInline$result$addFriend$node$$on$User$bestFriend = {
+	readonly id: string;
+};
+
+export type RefetchInline$result$addFriend$node$$on$User = ({
+	readonly bestFriend: RefetchInline$result$addFriend$node$$on$User$bestFriend | null;
+	readonly __typename: "User";
+});
+
+export type RefetchInline$result$addFriend$node = {} & (RefetchInline$result$addFriend$node$$on$User);
+
+export type RefetchInline$result$addFriend = {
+	readonly node: RefetchInline$result$addFriend$node | null;
 };
 
 export type RefetchInline$input = null | undefined;
@@ -3678,11 +3774,15 @@ export type RefetchNode = {
 };
 
 export type RefetchNode$result = {
-	readonly addFriend: {
-		readonly node: {
-			readonly id: string;
-		} | null;
-	};
+	readonly addFriend: RefetchNode$result$addFriend;
+};
+
+export type RefetchNode$result$addFriend$node = {
+	readonly id: string;
+};
+
+export type RefetchNode$result$addFriend = {
+	readonly node: RefetchNode$result$addFriend$node | null;
 };
 
 export type RefetchNode$input = null | undefined;
