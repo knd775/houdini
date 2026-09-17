@@ -1,4 +1,5 @@
 import type { QueryStore } from '../runtime/stores/query.js'
+import type { LoadingType } from 'houdini/runtime'
 
 declare const query: QueryStore<
 	{ users: { id: string; name: string; date: Date }[] },
@@ -78,3 +79,23 @@ if (generated.data) {
 	// @ts-expect-error Copying the array does not make its items mutable.
 	copy[0].tags.push('new')
 }
+
+// @loading(cascade: true) produces a union of loaded and placeholder lists.
+type Users$loading = {
+	readonly users: ReadonlyArray<{
+		readonly name: LoadingType
+		readonly tags: ReadonlyArray<LoadingType>
+	}>
+}
+declare const loading: QueryStore<Users$result | Users$loading, {}>
+const loadingCopy = mutable(loading.data?.users ?? [])
+const loadingName: string | LoadingType | undefined = loadingCopy[0]?.name
+loadingCopy.push({ name: 'New', tags: [] })
+loadingCopy.reverse()
+// @ts-expect-error Copying a loading union still preserves readonly item fields.
+loadingCopy[0].name = 'Changed'
+// @ts-expect-error Nested lists are shared and remain readonly.
+loadingCopy[0].tags.push('new')
+// @ts-expect-error Elements retain their loaded or placeholder types.
+loadingCopy.push({ name: 123, tags: [] })
+void loadingName

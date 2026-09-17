@@ -105,12 +105,42 @@ adding a deep proxy when you need a reassignable local reference. A captured
 reference does not keep the query subscribed by itself; keep reading the store
 in reactive code.
 
+### Avoid spreading rows in a list derived
+
+Spreading a row reads all of its enumerable fields. This derived subscribes to
+every field of every row and creates new row objects whenever any of them changes:
+
+```ts
+const rows = $derived(
+  users.data?.users.map(user => ({ ...user, label: user.profile.name })) ?? []
+)
+```
+
+For a table library, prefer a column accessor that reads `user.profile.name` when
+rendering that cell. If the library requires a flattened property, keep the
+original row and expose a getter:
+
+```ts
+const rows = $derived(
+  users.data?.users.map(user => ({
+    user,
+    get label() { return user.profile.name }
+  })) ?? []
+)
+```
+
+Creating these wrappers reads only the list and row references. Reading `label`
+in a reactive cell tracks that row's name. The library must read the getter in
+reactive code for this to work; a library that snapshots all rows still determines
+its own update cost. Use `mutable()` below when only a mutable array is needed.
+
 ## Readonly results and local copies
 
 Generated query `$result` and fragment `$data` types include readonly arrays
 when the option is enabled. Use these types for component props and local aliases;
 you do not need to wrap them in `ReactiveValue`. Inputs and optimistic payloads
-keep their existing array types.
+keep their existing array types. The readonly result types apply throughout the
+project, including components that still use `$Query.data`.
 
 Nested selections also have generated names, such as `UsersTable$result$users`.
 These aliases appear in type errors and can be imported from `$houdini`. They are
@@ -139,13 +169,28 @@ reactive expression to follow membership changes. For an editable form, copy the
 fields the form owns into local state; this helper does not create an editable
 record or deep clone.
 
+With `$derived(mutable(list))`, the copy runs when the list reference changes.
+Scalar updates flow through the shared row objects. Adding `.sort()` also tracks
+the fields its comparator reads, so changes to those fields rerun the sort.
+
+During migration, an in-place `.sort((a, b) => ...)` on a readonly list can produce
+"Parameter 'a' implicitly has an 'any' type" errors. The unavailable `.sort()`
+method also removes contextual typing for its callback. Check whether the list is
+readonly, then use `.toSorted()` or `mutable(list).sort(...)` to preserve both the
+cached order and comparator types.
+
 `ReactiveValue<T>` remains exported from `$houdini` for handwritten types. It makes
 plain records and arrays recursively readonly and preserves configured scalar
 classes. Generated result types already describe the readonly GraphQL lists.
 
 If a fragment reports a missing cache record, inspect the parent response for the
 selected `__typename` and configured key fields. A reference to an evicted or
-deleted record can cause the same warning.
+deleted record can cause the same warning. Fragments with type-specific selections
+need `__typename` to choose their fields. Generated concrete fragments also select
+a non-null root `__typename`: omitting it makes the fragment read null even when
+the cache has correctly keyed the record. The parent query can still render because
+it hides that field. Both cases now warn. Include `__typename` on the object where
+the fragment is spread; adding it only to nested objects does not fix the root read.
 
 ## Existing store code
 

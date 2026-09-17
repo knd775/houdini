@@ -55,6 +55,140 @@ test('an absent fragment record warns with its name and cache ID', async ({ page
 	expect(warnings).toEqual([])
 })
 
+for (const commonField of [false, true]) {
+	test(`a fragment diagnoses missing __typename with common fields=${commonField}`, async ({ page }) => {
+		const warnings: string[] = []
+		page.on('console', (message) => {
+			if (message.type() === 'warning') warnings.push(message.text())
+		})
+		const result = await page.evaluate(async (commonField) => {
+			const t = window.testing
+			await t.query()
+			const typename = { type: 'String', keyRaw: '__typename', visible: false }
+			// A concrete parent query can use its schema type to key this response.
+			const parentSelection = {
+				fields: {
+					users: {
+						...t.selection.fields.users,
+						selection: {
+							fields: { ...t.row.fields, __typename: typename },
+							fragments: { UserFields: { arguments: {} } },
+						},
+					},
+				},
+			}
+			const data = {
+				users: [
+					{ tenant: 't', uid: 'missing-type', name: 'Visible parent', email: 'a@example.com' },
+				],
+			}
+			t.clientCache.write({ selection: parentSelection, data })
+			const parent = t.clientCache.read({ selection: parentSelection }).data.users[0]
+			const artifact = {
+				rootType: 'Node',
+				selection: {
+					fields: {
+						__typename: typename,
+						...(commonField ? { email: t.row.fields.email } : {}),
+					},
+					abstractFields: {
+						fields: { User: { ...t.row.fields, __typename: typename } },
+						typeMap: {},
+					},
+				},
+			}
+			const instance = await t.fragment(undefined, parent, artifact)
+			const missing = { name: instance.data?.name ?? null, email: instance.data?.email ?? null }
+			// Supplying the omitted field makes a fresh fragment read succeed.
+			t.clientCache.write({
+				selection: parentSelection,
+				data: { users: [{ ...data.users[0], __typename: 'User' }] },
+			})
+			await t.fragment(undefined, parent, artifact)
+			return { parent: parent.name, missing }
+		}, commonField)
+		expect(result).toEqual({
+			parent: 'Visible parent',
+			missing: { name: null, email: commonField ? 'a@example.com' : null },
+		})
+		expect(warnings).toHaveLength(1)
+		expect(warnings[0]).toContain('Fragment "UserFields"')
+		expect(warnings[0]).toContain('User:t__missing-type')
+		expect(warnings[0]).toContain('has no __typename')
+		await expect(page.locator('#fragment')).toHaveText('Visible parent')
+	})
+}
+
+test('a concrete fragment without a typename selection can read a response without it', async ({ page }) => {
+	const warnings: string[] = []
+	page.on('console', (message) => {
+		if (message.type() === 'warning') warnings.push(message.text())
+	})
+	await page.evaluate(async () => {
+		const t = window.testing
+		await t.query()
+		const selection = {
+			fields: {
+				users: {
+					...t.selection.fields.users,
+					selection: {
+						...t.row,
+						fragments: { UserFields: { arguments: {} } },
+					},
+				},
+			},
+		}
+		const parent = t.clientCache.read({ selection }).data.users[0]
+		await t.fragment(undefined, parent)
+	})
+	await expect(page.locator('#fragment')).toHaveText('A')
+	expect(warnings).toEqual([])
+})
+
+test('a generated concrete fragment diagnoses a missing non-null root __typename', async ({ page }) => {
+	const warnings: string[] = []
+	page.on('console', (message) => {
+		if (message.type() === 'warning') warnings.push(message.text())
+	})
+	const result = await page.evaluate(async () => {
+		const t = window.testing
+		await t.query()
+		const typename = { type: 'String', keyRaw: '__typename' }
+		// Codegen hides the injected typename in the parent, but exposes the
+		// fragment's root typename as non-null even for a plain concrete fragment.
+		const parentSelection = {
+			fields: { ...t.row.fields, __typename: typename },
+			fragments: { UserFields: { arguments: {} } },
+		}
+		const parent = t.clientCache.read({ parent: 'User:t__a', selection: parentSelection }).data
+		const artifact = {
+			selection: {
+				fields: {
+					name: t.row.fields.name,
+					__typename: { ...typename, visible: true },
+				},
+			},
+		}
+		const source = await t.fragment(undefined, parent, artifact)
+		const missing = source.data
+		// The record and its scalar already exist under the correct cache ID.
+		const cachedName = t.clientCache._internal_unstable.storage.get('User:t__a', 'name').value
+		t.clientCache.write({
+			parent: 'User:t__a',
+			selection: parentSelection,
+			data: { __typename: 'User' },
+		})
+		await t.fragment(undefined, parent, artifact)
+		return { parentName: parent.name, cachedName, missing }
+	})
+	expect(result).toEqual({ parentName: 'A', cachedName: 'A', missing: null })
+	expect(warnings).toHaveLength(1)
+	expect(warnings[0]).toContain('Fragment "UserFields"')
+	expect(warnings[0]).toContain('User:t__a')
+	expect(warnings[0]).toContain('has no __typename')
+	await expect(page.locator('#fragment')).toHaveText('A')
+})
+
 test('cache field updates leave unrelated effects and list evaluation alone', async ({ page }) => {
 	const errors: string[] = []
 	page.on('pageerror', (error) => errors.push(error.message))

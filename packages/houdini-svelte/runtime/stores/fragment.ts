@@ -136,20 +136,39 @@ Please ensure that you have passed a record that has ${this.artifact.name} mixed
 				variables,
 				loading,
 			}).data as _Data
-			if (!loading && isBrowser && data === null) {
+			if (!loading && isBrowser) {
 				const storage = cache._internal_unstable.storage
-				// Only diagnose an absent record. Cached null fields, skipped fields,
-				// and incomplete selections on an existing record are valid reads.
-				const ids = [parent, storage.idMaps[parent]].filter(Boolean)
-				const exists = storage.data.some((layer) =>
-					ids.some((id) => layer.fields[id] || layer.links[id])
-				)
-				if (!exists) {
+				const typename = this.artifact.selection.fields?.__typename
+				// Generated concrete fragments also select a non-null root typename.
+				// Its absence nulls the read even when the record was keyed correctly.
+				const missingRequiredTypename =
+					data === null &&
+					typename?.visible &&
+					!typename.nullable &&
+					!typename.directives?.length
+				if (
+					(this.artifact.selection.abstractFields || missingRequiredTypename) &&
+					!storage.getTypename(parent)
+				) {
 					console.warn(
-						`Fragment "${this.artifact.name}" could not read cache record "${parent}". ` +
-							'Check that the parent response includes the selected __typename and key fields, ' +
-							'and that this reference has not been evicted or deleted.'
+						`Fragment "${this.artifact.name}" could not read all its selected fields because ` +
+							`cache record "${parent}" has no __typename. ` +
+							'Include __typename in the parent response on the object where this fragment is spread.'
 					)
+				} else if (data === null) {
+					// Cached null fields, skipped fields, and incomplete selections on
+					// an existing record are valid reads. Only diagnose an absent record.
+					const ids = [parent, storage.idMaps[parent]].filter(Boolean)
+					const exists = storage.data.some((layer) =>
+						ids.some((id) => layer.fields[id] || layer.links[id])
+					)
+					if (!exists) {
+						console.warn(
+							`Fragment "${this.artifact.name}" could not read cache record "${parent}". ` +
+								'Check that the parent response includes the selected __typename and key fields, ' +
+								'and that this reference has not been evicted or deleted.'
+						)
+					}
 				}
 			}
 		}

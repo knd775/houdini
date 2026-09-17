@@ -6,6 +6,7 @@ import StateHarness from './StateHarness.svelte'
 import { QueryStore, FragmentStore, SubscriptionStore, fragment } from '../runtime/index.js'
 import { initClient } from '../runtime/client.js'
 import clientCache from './clientCache.js'
+import type { FragmentArtifact } from 'houdini/runtime'
 
 declare global {
 	interface Window {
@@ -76,7 +77,7 @@ window.testing = {
 		reset()
 		return query
 	},
-	async fragment(size?: number, reference?: any) {
+	async fragment(size?: number, reference?: any, artifactOverride?: Partial<FragmentArtifact>) {
 		if (component) await unmount(component)
 		const fragmentSelection =
 			size === undefined
@@ -107,6 +108,7 @@ window.testing = {
 				hash: 'test',
 				pluginData: {},
 				stripVariables: [],
+				...artifactOverride,
 			},
 		})
 		const source = fragment(
