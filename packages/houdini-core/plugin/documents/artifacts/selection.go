@@ -28,7 +28,6 @@ func writeSelectionDocument(
 	docs *collected.Documents,
 	name string,
 	selection []*collected.Selection,
-	sortKeys bool,
 	typeRoots *typescript.RootTypeNames,
 ) (string, error) {
 	// generate the artifact content
@@ -40,7 +39,6 @@ func writeSelectionDocument(
 		docs,
 		name,
 		selection,
-		sortKeys,
 		typeRoots,
 	)
 	if err != nil {
@@ -80,7 +78,6 @@ func GenerateSelectionDocument(
 	docs *collected.Documents,
 	name string,
 	selection []*collected.Selection,
-	sortKeys bool,
 	rootTypes *typescript.RootTypeNames,
 ) (string, error) {
 	doc := docs.Selections[name]
@@ -230,7 +227,6 @@ func GenerateSelectionDocument(
 		doc.TypeCondition,
 		selection,
 		1,
-		sortKeys,
 		flags,
 		&SelectionFlags{},
 		[]string{},
@@ -242,11 +238,6 @@ func GenerateSelectionDocument(
 	if len(doc.Variables) > 0 {
 		var defaultsBuilder strings.Builder
 		var inputSpecsBuilder strings.Builder
-		if sortKeys {
-			sort.Slice(doc.Variables, func(i int, j int) bool {
-				return doc.Variables[i].Name < doc.Variables[j].Name
-			})
-		}
 		for _, variable := range doc.Variables {
 			fmt.Fprintf(&inputSpecsBuilder, `
             "%s": "%s",`, variable.Name, variable.Type)
@@ -450,7 +441,7 @@ func GenerateSelectionDocument(
 	}
 
 	// compute the type definitions
-	unmaskedSelection, err := FlattenSelection(ctx, docs, name, false, sortKeys)
+	unmaskedSelection, err := FlattenSelection(ctx, docs, name, false)
 	if err != nil {
 		return "", err
 	}
@@ -460,7 +451,6 @@ func GenerateSelectionDocument(
 		docs,
 		doc,
 		unmaskedSelection,
-		sortKeys,
 	)
 	if err != nil {
 		return "", err
@@ -625,7 +615,6 @@ func stringifySelection(
 	parentType string,
 	selections []*collected.Selection,
 	level int,
-	sortKeys bool,
 	flags *ArtifactFlags,
 	parentSelectionFlags *SelectionFlags,
 	updates []string,
@@ -680,7 +669,6 @@ func stringifySelection(
 				docs,
 				level,
 				selection,
-				sortKeys,
 				flags,
 				parentSelectionFlags,
 				updates,
@@ -789,7 +777,6 @@ func stringifySelection(
 							docs,
 							level+2,
 							field,
-							sortKeys,
 							flags,
 							parentSelectionFlags,
 							[]string{},
@@ -1025,7 +1012,6 @@ func stringifyFieldSelection(
 	docs *collected.Documents,
 	level int,
 	selection *collected.Selection,
-	sortKeys bool,
 	flags *ArtifactFlags,
 	parentSelectionFlags *SelectionFlags,
 	updates []string,
@@ -1189,7 +1175,6 @@ func stringifyFieldSelection(
 				selection.FieldType,
 				selection.Children,
 				level+3,
-				sortKeys,
 				flags,
 				selectionFlags,
 				subSelUpdates,

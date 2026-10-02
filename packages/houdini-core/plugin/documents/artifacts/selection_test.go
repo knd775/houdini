@@ -212,12 +212,6 @@ export type TestQuery$artifact = typeof artifact
 
     "selection": {
         "fields": {
-            "__typename": {
-                "type": "String",
-                "keyRaw": "__typename",
-                "visible": true,
-            },
-
             "firstName": {
                 "type": "String",
                 "keyRaw": "firstName",
@@ -227,6 +221,12 @@ export type TestQuery$artifact = typeof artifact
             "id": {
                 "type": "ID",
                 "keyRaw": "id",
+                "visible": true,
+            },
+
+            "__typename": {
+                "type": "String",
+                "keyRaw": "__typename",
                 "visible": true,
             },
         },
@@ -304,14 +304,14 @@ query TestQuery {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "firstName": {
                             "type": "String",
                             "keyRaw": "firstName",
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
 
                         "id": {
@@ -356,8 +356,8 @@ export type TestQuery$input = null | undefined;
 
 export type TestQuery$unmasked = {
 	readonly user: {
-		readonly __typename: "User";
 		readonly firstName: string;
+		readonly __typename: "User";
 		readonly id: string;
 	};
 };
@@ -417,15 +417,15 @@ query TestQuery {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "firstName": {
                             "type": "String",
                             "keyRaw": "firstName",
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
 
                         "id": {
@@ -471,8 +471,8 @@ export type TestQuery$input = null | undefined;
 
 export type TestQuery$unmasked = {
 	readonly user: {
-		readonly __typename: "User";
 		readonly firstName: string;
+		readonly __typename: "User";
 		readonly id: string;
 	};
 };
@@ -538,6 +538,11 @@ export type TestQuery$artifact = typeof artifact
                     "abstractFields": {
                         "fields": {
                             "Friend": {
+                                "name": {
+                                    "type": "String",
+                                    "keyRaw": "name",
+                                    "visible": true,
+                                },
                                 "__typename": {
                                     "type": "String",
                                     "keyRaw": "__typename",
@@ -545,11 +550,6 @@ export type TestQuery$artifact = typeof artifact
                                 "id": {
                                     "type": "ID",
                                     "keyRaw": "id",
-                                },
-                                "name": {
-                                    "type": "String",
-                                    "keyRaw": "name",
-                                    "visible": true,
                                 },
                             },
                         },
@@ -612,16 +612,16 @@ export type MyQuery$input = {
 
 export type MyQuery$unmasked = {
 	readonly node: {} & (({
-		readonly id: string;
 		readonly name: string;
+		readonly id: string;
 		readonly __typename: "Cat";
 	}) | ({
-		readonly id: string;
 		readonly name: string;
+		readonly id: string;
 		readonly __typename: "Dog";
 	}) | ({
-		readonly id: string;
 		readonly name: string;
+		readonly id: string;
 		readonly __typename: "User";
 	})) | null;
 };
@@ -654,15 +654,14 @@ export type MyQuery$artifact = typeof artifact
           `,
 				},
 				Extra: map[string]any{
-					"TestQuery": tests.Dedent(
-						`import type { MyEnum$options } from "$houdini/graphql/enums";
+					"TestQuery": tests.Dedent(`import type { MyEnum$options } from "$houdini/graphql/enums";
 import type { UserFilter } from "$houdini/graphql/inputs";
 const artifact = {
     "name": "TestQuery",
     "kind": "HoudiniQuery",
-    "hash": "fd7aa425b2f63c25bb733385c5337c0f128be116a423c65722b23a616b02d1f7",
+    "hash": "112094d9fbd4ebb68244978b442ec16f29540a1de899eb58c61450e0c1eecc98",
     "raw": ` + "`" + `query TestQuery($enumArg: MyEnum, $filter: UserFilter, $filterList: [UserFilter!], $id: ID = "123") {
-    user(enumArg: $enumArg, filter: $filter, filterList: $filterList, id: $id) {
+    user(id: $id, filter: $filter, filterList: $filterList, enumArg: $enumArg) {
         name
         __typename
         id
@@ -677,10 +676,16 @@ const artifact = {
         "fields": {
             "user": {
                 "type": "User",
-                "keyRaw": "user(enumArg: $enumArg, filter: $filter, filterList: $filterList, id: $id)",
+                "keyRaw": "user(id: $id, filter: $filter, filterList: $filterList, enumArg: $enumArg)",
 
                 "selection": {
                     "fields": {
+                        "name": {
+                            "type": "String",
+                            "keyRaw": "name",
+                            "visible": true,
+                        },
+
                         "__typename": {
                             "type": "String",
                             "keyRaw": "__typename",
@@ -689,12 +694,6 @@ const artifact = {
                         "id": {
                             "type": "ID",
                             "keyRaw": "id",
-                        },
-
-                        "name": {
-                            "type": "String",
-                            "keyRaw": "name",
-                            "visible": true,
                         },
                     },
                 },
@@ -708,10 +707,10 @@ const artifact = {
 
     "input": {
         "fields": {
-            "enumArg": "MyEnum",
+            "id": "ID",
             "filter": "UserFilter",
             "filterList": "UserFilter",
-            "id": "ID",
+            "enumArg": "MyEnum",
         },
 
         "types": {
@@ -757,24 +756,23 @@ export type TestQuery$result = {
 };
 
 export type TestQuery$input = {
-	enumArg?: MyEnum$options | null;
+	id?: string | null;
 	filter?: UserFilter | null;
 	filterList?: (UserFilter)[] | null;
-	id?: string | null;
+	enumArg?: MyEnum$options | null;
 };
 
 export type TestQuery$unmasked = {
 	readonly user: {
+		readonly name: string;
 		readonly __typename: "User";
 		readonly id: string;
-		readonly name: string;
 	};
 };
 
 export type TestQuery$artifact = typeof artifact
 
-"HoudiniHash=fd7aa425b2f63c25bb733385c5337c0f128be116a423c65722b23a616b02d1f7"`,
-					),
+"HoudiniHash=112094d9fbd4ebb68244978b442ec16f29540a1de899eb58c61450e0c1eecc98"`),
 				},
 			},
 			{
@@ -835,14 +833,18 @@ query TestQuery {
                     "abstractFields": {
                         "fields": {
                             "User": {
-                                "__typename": {
-                                    "type": "String",
-                                    "keyRaw": "__typename",
-                                },
                                 "firstName": {
                                     "type": "String",
                                     "keyRaw": "firstName",
                                     "visible": true,
+                                },
+                                "__typename": {
+                                    "type": "String",
+                                    "keyRaw": "__typename",
+                                },
+                                "id": {
+                                    "type": "ID",
+                                    "keyRaw": "id",
                                 },
                                 "friends": {
                                     "type": "User",
@@ -850,6 +852,11 @@ query TestQuery {
 
                                     "selection": {
                                         "fields": {
+                                            "lastName": {
+                                                "type": "String",
+                                                "keyRaw": "lastName",
+                                            },
+
                                             "__typename": {
                                                 "type": "String",
                                                 "keyRaw": "__typename",
@@ -860,18 +867,9 @@ query TestQuery {
                                                 "type": "ID",
                                                 "keyRaw": "id",
                                             },
-
-                                            "lastName": {
-                                                "type": "String",
-                                                "keyRaw": "lastName",
-                                            },
                                         },
                                     },
 
-                                },
-                                "id": {
-                                    "type": "ID",
-                                    "keyRaw": "id",
                                 },
                             },
                         },
@@ -922,12 +920,12 @@ export type TestQuery$input = null | undefined;
 export type TestQuery$unmasked = {
 	readonly friends: ({} & (({
 		readonly firstName: string;
+		readonly id: string;
 		readonly friends: ({
+			readonly lastName: string;
 			readonly __typename: "User";
 			readonly id: string;
-			readonly lastName: string;
 		})[];
-		readonly id: string;
 		readonly __typename: "User";
 	}) | ({
 		readonly " $fragments"?: {};
@@ -1005,11 +1003,6 @@ export type TestQuery$artifact = typeof artifact
                     "abstractFields": {
                         "fields": {
                             "Cat": {
-                                "__typename": {
-                                    "type": "String",
-                                    "keyRaw": "__typename",
-                                    "visible": true,
-                                },
                                 "id": {
                                     "type": "ID",
                                     "keyRaw": "id",
@@ -1021,15 +1014,15 @@ export type TestQuery$artifact = typeof artifact
 
                                     "selection": {
                                         "fields": {
-                                            "__typename": {
-                                                "type": "String",
-                                                "keyRaw": "__typename",
-                                            },
-
                                             "firstName": {
                                                 "type": "String",
                                                 "keyRaw": "firstName",
                                                 "visible": true,
+                                            },
+
+                                            "__typename": {
+                                                "type": "String",
+                                                "keyRaw": "__typename",
                                             },
 
                                             "id": {
@@ -1041,8 +1034,18 @@ export type TestQuery$artifact = typeof artifact
 
                                     "visible": true,
                                 },
+                                "__typename": {
+                                    "type": "String",
+                                    "keyRaw": "__typename",
+                                    "visible": true,
+                                },
                             },
                             "User": {
+                                "name": {
+                                    "type": "String",
+                                    "keyRaw": "name",
+                                    "visible": true,
+                                },
                                 "__typename": {
                                     "type": "String",
                                     "keyRaw": "__typename",
@@ -1051,11 +1054,6 @@ export type TestQuery$artifact = typeof artifact
                                 "id": {
                                     "type": "ID",
                                     "keyRaw": "id",
-                                },
-                                "name": {
-                                    "type": "String",
-                                    "keyRaw": "name",
-                                    "visible": true,
                                 },
                             },
                         },
@@ -1104,14 +1102,14 @@ export type Friends$unmasked = {
 	readonly friends: ({} & (({
 		readonly id: string;
 		readonly owner: {
-			readonly __typename: "User";
 			readonly firstName: string;
+			readonly __typename: "User";
 			readonly id: string;
 		};
 		readonly __typename: "Cat";
 	}) | ({
-		readonly id: string;
 		readonly name: string;
+		readonly id: string;
 		readonly __typename: "User";
 	}) | ({
 		readonly " $fragments"?: {};
@@ -1187,10 +1185,6 @@ export type Friends$artifact = typeof artifact
                     "abstractFields": {
                         "fields": {
                             "Cat": {
-                                "__typename": {
-                                    "type": "String",
-                                    "keyRaw": "__typename",
-                                },
                                 "id": {
                                     "type": "ID",
                                     "keyRaw": "id",
@@ -1202,15 +1196,15 @@ export type Friends$artifact = typeof artifact
 
                                     "selection": {
                                         "fields": {
-                                            "__typename": {
-                                                "type": "String",
-                                                "keyRaw": "__typename",
-                                            },
-
                                             "firstName": {
                                                 "type": "String",
                                                 "keyRaw": "firstName",
                                                 "visible": true,
+                                            },
+
+                                            "__typename": {
+                                                "type": "String",
+                                                "keyRaw": "__typename",
                                             },
 
                                             "id": {
@@ -1222,8 +1216,17 @@ export type Friends$artifact = typeof artifact
 
                                     "visible": true,
                                 },
+                                "__typename": {
+                                    "type": "String",
+                                    "keyRaw": "__typename",
+                                },
                             },
                             "Dog": {
+                                "name": {
+                                    "type": "String",
+                                    "keyRaw": "name",
+                                    "visible": true,
+                                },
                                 "__typename": {
                                     "type": "String",
                                     "keyRaw": "__typename",
@@ -1231,11 +1234,6 @@ export type Friends$artifact = typeof artifact
                                 "id": {
                                     "type": "ID",
                                     "keyRaw": "id",
-                                },
-                                "name": {
-                                    "type": "String",
-                                    "keyRaw": "name",
-                                    "visible": true,
                                 },
                             },
                         },
@@ -1278,8 +1276,8 @@ export type Friends$unmasked = {
 	readonly pets: ({} & (({
 		readonly id: string;
 		readonly owner: {
-			readonly __typename: "User";
 			readonly firstName: string;
+			readonly __typename: "User";
 			readonly id: string;
 		};
 		readonly __typename: "Cat";
@@ -1348,18 +1346,23 @@ export type Friends$artifact = typeof artifact
                     "abstractFields": {
                         "fields": {
                             "Cat": {
-                                "__typename": {
-                                    "type": "String",
-                                    "keyRaw": "__typename",
-                                    "visible": true,
-                                },
                                 "id": {
                                     "type": "ID",
                                     "keyRaw": "id",
+                                    "visible": true,
+                                },
+                                "__typename": {
+                                    "type": "String",
+                                    "keyRaw": "__typename",
                                     "visible": true,
                                 },
                             },
                             "Dog": {
+                                "name": {
+                                    "type": "String",
+                                    "keyRaw": "name",
+                                    "visible": true,
+                                },
                                 "__typename": {
                                     "type": "String",
                                     "keyRaw": "__typename",
@@ -1368,11 +1371,6 @@ export type Friends$artifact = typeof artifact
                                 "id": {
                                     "type": "ID",
                                     "keyRaw": "id",
-                                },
-                                "name": {
-                                    "type": "String",
-                                    "keyRaw": "name",
-                                    "visible": true,
                                 },
                             },
                         },
@@ -1440,7 +1438,7 @@ export type Friends$artifact = typeof artifact
 					"TestQuery": tests.Dedent(`const artifact = {
     "name": "TestQuery",
     "kind": "HoudiniQuery",
-    "hash": "cf9a1b37522817318bc0893e797a289dc9ff66bee13544171839bd1b685ad514",
+    "hash": "ea7246e8c82bd4160bef141ce05d2550fa7ca408b7a1c2e2270b3c756e9cdd71",
 
     "refetch": {
         "path": ["users"],
@@ -1454,7 +1452,7 @@ export type Friends$artifact = typeof artifact
     },
 
     "raw": ` + "`" + `query TestQuery($value: String!) {
-    users(boolValue: true, filter: {name: $value}, floatValue: 1.2, intValue: 1, stringValue: $value) {
+    users(stringValue: $value, boolValue: true, floatValue: 1.2, intValue: 1, filter: {name: $value}) {
         firstName
         __typename
         id
@@ -1469,7 +1467,7 @@ export type Friends$artifact = typeof artifact
         "fields": {
             "users": {
                 "type": "User",
-                "keyRaw": "users(boolValue: true, filter: {name: $value}, floatValue: 1.2, intValue: 1, stringValue: $value)",
+                "keyRaw": "users(stringValue: $value, boolValue: true, floatValue: 1.2, intValue: 1, filter: {name: $value})",
 
                 "directives": [{
                     "name": "list",
@@ -1489,15 +1487,15 @@ export type Friends$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "firstName": {
                             "type": "String",
                             "keyRaw": "firstName",
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
 
                         "id": {
@@ -1508,18 +1506,13 @@ export type Friends$artifact = typeof artifact
                 },
 
                 "filters": {
+                    "stringValue": {
+                        "kind": "Variable",
+                        "value": "value"
+                    },
                     "boolValue": {
                         "kind": "Boolean",
                         "value": true
-                    },
-                    "filter": {
-                        "kind": "Object",
-                        "value": {
-                            "name": {
-                                "kind": "Variable",
-                                "value": "value"
-                            }
-                        }
                     },
                     "floatValue": {
                         "kind": "Float",
@@ -1529,9 +1522,14 @@ export type Friends$artifact = typeof artifact
                         "kind": "Int",
                         "value": 1
                     },
-                    "stringValue": {
-                        "kind": "Variable",
-                        "value": "value"
+                    "filter": {
+                        "kind": "Object",
+                        "value": {
+                            "name": {
+                                "kind": "Variable",
+                                "value": "value"
+                            }
+                        }
                     },
                 },
                 "visible": true,
@@ -1576,15 +1574,15 @@ export type TestQuery$input = {
 
 export type TestQuery$unmasked = {
 	readonly users: ({
-		readonly __typename: "User";
 		readonly firstName: string;
+		readonly __typename: "User";
 		readonly id: string;
 	})[];
 };
 
 export type TestQuery$artifact = typeof artifact
 
-"HoudiniHash=cf9a1b37522817318bc0893e797a289dc9ff66bee13544171839bd1b685ad514"`),
+"HoudiniHash=ea7246e8c82bd4160bef141ce05d2550fa7ca408b7a1c2e2270b3c756e9cdd71"`),
 				},
 			},
 			{
@@ -1617,15 +1615,15 @@ export type TestQuery$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "createdAt": {
                             "type": "DateTime",
                             "keyRaw": "createdAt",
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -1657,8 +1655,8 @@ export type TestQuery$input = null | undefined;
 
 export type TestQuery$unmasked = {
 	readonly allItems: ({
-		readonly __typename: "TodoItem";
 		readonly createdAt: DateTime;
+		readonly __typename: "TodoItem";
 	})[];
 };
 
@@ -1707,26 +1705,21 @@ export type TestQuery$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "user": {
                             "type": "User",
                             "keyRaw": "user",
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
                                     "firstName": {
                                         "type": "String",
                                         "keyRaw": "firstName",
                                         "visible": true,
+                                    },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
                                     },
 
                                     "id": {
@@ -1737,6 +1730,11 @@ export type TestQuery$artifact = typeof artifact
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -1768,12 +1766,12 @@ export type B$input = null | undefined;
 
 export type B$unmasked = {
 	readonly newUser: {
-		readonly __typename: "NewUserResult";
 		readonly user: {
-			readonly __typename: "User";
 			readonly firstName: string;
+			readonly __typename: "User";
 			readonly id: string;
 		};
+		readonly __typename: "NewUserResult";
 	};
 };
 
@@ -1864,28 +1862,28 @@ fragment UserThings on User {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "id": {
                             "type": "ID",
                             "keyRaw": "id",
                             "visible": true,
                         },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
+                        },
                     },
                     "abstractFields": {
                         "fields": {
                             "User": {
-                                "__typename": {
-                                    "type": "String",
-                                    "keyRaw": "__typename",
-                                    "visible": true,
-                                },
                                 "id": {
                                     "type": "ID",
                                     "keyRaw": "id",
+                                    "visible": true,
+                                },
+                                "__typename": {
+                                    "type": "String",
+                                    "keyRaw": "__typename",
                                     "visible": true,
                                 },
                                 "name": {
@@ -2019,11 +2017,6 @@ query TestQuery {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "id": {
                             "type": "ID",
                             "keyRaw": "id",
@@ -2040,14 +2033,15 @@ query TestQuery {
 
                             "visible": true,
                         },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
+                        },
                     },
                     "abstractFields": {
                         "fields": {
                             "User": {
-                                "__typename": {
-                                    "type": "String",
-                                    "keyRaw": "__typename",
-                                },
                                 "id": {
                                     "type": "ID",
                                     "keyRaw": "id",
@@ -2063,6 +2057,10 @@ query TestQuery {
                                     }],
 
                                     "visible": true,
+                                },
+                                "__typename": {
+                                    "type": "String",
+                                    "keyRaw": "__typename",
                                 },
                             },
                         },
@@ -2180,15 +2178,15 @@ query TestQuery {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "id": {
                             "type": "ID",
                             "keyRaw": "id",
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                     "abstractFields": {
@@ -2198,15 +2196,15 @@ query TestQuery {
                                     "type": "String",
                                     "keyRaw": "__typename",
                                 },
-                                "field": {
-                                    "type": "String",
-                                    "keyRaw": "field(filter: \"Foo\")",
-                                    "nullable": true,
-                                },
                                 "id": {
                                     "type": "ID",
                                     "keyRaw": "id",
                                     "visible": true,
+                                },
+                                "field": {
+                                    "type": "String",
+                                    "keyRaw": "field(filter: \"Foo\")",
+                                    "nullable": true,
                                 },
                             },
                         },
@@ -2259,8 +2257,8 @@ export type TestQuery$unmasked = {
 	readonly node: {
 		readonly id: string;
 	} & (({
-		readonly field: string | null;
 		readonly id: string;
+		readonly field: string | null;
 		readonly __typename: "User";
 	}) | ({
 		readonly " $fragments"?: {};
@@ -2298,7 +2296,7 @@ export type TestQuery$artifact = typeof artifact
 					"TestQuery": tests.Dedent(`const artifact = {
     "name": "TestQuery",
     "kind": "HoudiniQuery",
-    "hash": "2c800aa339ee6e032fa3556fa5dfcc560d01248a07b93986477de07f63f176e8",
+    "hash": "80a445aa2ef23273c4390e698526aa1072fd9d7941a36173634b473f8237e110",
     "raw": ` + "`" + `query TestQuery {
     user {
         ...UserPets_qkFx4
@@ -2310,7 +2308,7 @@ export type TestQuery$artifact = typeof artifact
 fragment UserPets_qkFx4 on User {
     __typename
     id
-    pets(filter: {age_gt: 5}, name: "test") {
+    pets(name: "test", filter: {age_gt: 5}) {
         ... on Cat {
             name
             __typename
@@ -2344,7 +2342,7 @@ fragment UserPets_qkFx4 on User {
 
                         "pets": {
                             "type": "Pet",
-                            "keyRaw": "pets(filter: {age_gt: 5}, name: \"test\")",
+                            "keyRaw": "pets(name: \"test\", filter: {age_gt: 5})",
 
                             "selection": {
                                 "fields": {
@@ -2356,6 +2354,10 @@ fragment UserPets_qkFx4 on User {
                                 "abstractFields": {
                                     "fields": {
                                         "Cat": {
+                                            "name": {
+                                                "type": "String",
+                                                "keyRaw": "name",
+                                            },
                                             "__typename": {
                                                 "type": "String",
                                                 "keyRaw": "__typename",
@@ -2363,10 +2365,6 @@ fragment UserPets_qkFx4 on User {
                                             "id": {
                                                 "type": "ID",
                                                 "keyRaw": "id",
-                                            },
-                                            "name": {
-                                                "type": "String",
-                                                "keyRaw": "name",
                                             },
                                         },
                                     },
@@ -2433,8 +2431,8 @@ export type TestQuery$unmasked = {
 		readonly __typename: "User";
 		readonly id: string;
 		readonly pets: ({} & (({
-			readonly id: string;
 			readonly name: string;
+			readonly id: string;
 			readonly __typename: "Cat";
 		})))[];
 	};
@@ -2442,7 +2440,7 @@ export type TestQuery$unmasked = {
 
 export type TestQuery$artifact = typeof artifact
 
-"HoudiniHash=2c800aa339ee6e032fa3556fa5dfcc560d01248a07b93986477de07f63f176e8"`),
+"HoudiniHash=80a445aa2ef23273c4390e698526aa1072fd9d7941a36173634b473f8237e110"`),
 				},
 			},
 			{
@@ -2504,12 +2502,22 @@ fragment UserFriends_TXXm0 on User {
                             "keyRaw": "__typename",
                         },
 
+                        "id": {
+                            "type": "ID",
+                            "keyRaw": "id",
+                        },
+
                         "friendsByNames": {
                             "type": "User",
                             "keyRaw": "friendsByNames(names: [\"Foo\", \"Bar\"])",
 
                             "selection": {
                                 "fields": {
+                                    "name": {
+                                        "type": "String",
+                                        "keyRaw": "name",
+                                    },
+
                                     "__typename": {
                                         "type": "String",
                                         "keyRaw": "__typename",
@@ -2519,19 +2527,9 @@ fragment UserFriends_TXXm0 on User {
                                         "type": "ID",
                                         "keyRaw": "id",
                                     },
-
-                                    "name": {
-                                        "type": "String",
-                                        "keyRaw": "name",
-                                    },
                                 },
                             },
 
-                        },
-
-                        "id": {
-                            "type": "ID",
-                            "keyRaw": "id",
                         },
                     },
 
@@ -2583,12 +2581,12 @@ export type TestQuery$input = null | undefined;
 export type TestQuery$unmasked = {
 	readonly user: {
 		readonly __typename: "User";
+		readonly id: string;
 		readonly friendsByNames: ({
+			readonly name: string;
 			readonly __typename: "User";
 			readonly id: string;
-			readonly name: string;
 		})[];
-		readonly id: string;
 	};
 };
 
@@ -2621,7 +2619,7 @@ export type TestQuery$artifact = typeof artifact
 				Extra: map[string]any{"TestQuery": `const artifact = {
     "name": "TestQuery",
     "kind": "HoudiniQuery",
-    "hash": "ce82d4bfec4f59a3ff03dfa23351f52b6486e062dc440a29d97d8cfe0f3cc98f",
+    "hash": "1a673251e49bab942291ee3b077af2b53c64f853162d28d6048be6fe301d3da2",
     "raw": ` + "`" + `query TestQuery($minAge: Int) {
     user {
         ...UserPetsByAge_qkFx4
@@ -2633,7 +2631,7 @@ export type TestQuery$artifact = typeof artifact
 fragment UserPetsByAge_qkFx4 on User {
     __typename
     id
-    pets(filter: {age_gt: $minAge}, name: "test") {
+    pets(name: "test", filter: {age_gt: $minAge}) {
         ... on Cat {
             name
             __typename
@@ -2667,7 +2665,7 @@ fragment UserPetsByAge_qkFx4 on User {
 
                         "pets": {
                             "type": "Pet",
-                            "keyRaw": "pets(filter: {age_gt: $minAge}, name: \"test\")",
+                            "keyRaw": "pets(name: \"test\", filter: {age_gt: $minAge})",
 
                             "selection": {
                                 "fields": {
@@ -2679,6 +2677,10 @@ fragment UserPetsByAge_qkFx4 on User {
                                 "abstractFields": {
                                     "fields": {
                                         "Cat": {
+                                            "name": {
+                                                "type": "String",
+                                                "keyRaw": "name",
+                                            },
                                             "__typename": {
                                                 "type": "String",
                                                 "keyRaw": "__typename",
@@ -2686,10 +2688,6 @@ fragment UserPetsByAge_qkFx4 on User {
                                             "id": {
                                                 "type": "ID",
                                                 "keyRaw": "id",
-                                            },
-                                            "name": {
-                                                "type": "String",
-                                                "keyRaw": "name",
                                             },
                                         },
                                     },
@@ -2774,8 +2772,8 @@ export type TestQuery$unmasked = {
 		readonly __typename: "User";
 		readonly id: string;
 		readonly pets: ({} & (({
-			readonly id: string;
 			readonly name: string;
+			readonly id: string;
 			readonly __typename: "Cat";
 		})))[];
 	};
@@ -2783,7 +2781,7 @@ export type TestQuery$unmasked = {
 
 export type TestQuery$artifact = typeof artifact
 
-"HoudiniHash=ce82d4bfec4f59a3ff03dfa23351f52b6486e062dc440a29d97d8cfe0f3cc98f"`},
+"HoudiniHash=1a673251e49bab942291ee3b077af2b53c64f853162d28d6048be6fe301d3da2"`},
 			},
 			{
 				Name: "fragment variables are embedded in artifact",
@@ -2827,9 +2825,9 @@ fragment UserMore on User {
 
     "selection": {
         "fields": {
-            "__typename": {
-                "type": "String",
-                "keyRaw": "__typename",
+            "id": {
+                "type": "ID",
+                "keyRaw": "id",
                 "visible": true,
             },
 
@@ -2839,9 +2837,9 @@ fragment UserMore on User {
                 "visible": true,
             },
 
-            "id": {
-                "type": "ID",
-                "keyRaw": "id",
+            "__typename": {
+                "type": "String",
+                "keyRaw": "__typename",
                 "visible": true,
             },
         },
@@ -2922,15 +2920,15 @@ export type UserBase$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "id": {
                             "type": "ID",
                             "keyRaw": "id",
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -2980,8 +2978,8 @@ export type AnimalsOverview$input = {
 
 export type AnimalsOverview$unmasked = {
 	readonly node: {
-		readonly __typename: string;
 		readonly id: string;
+		readonly __typename: string;
 	} | null;
 };
 
@@ -3008,10 +3006,10 @@ export type AnimalsOverview$artifact = typeof artifact
 					"UserFriends": tests.Dedent(`const artifact = {
     "name": "UserFriends",
     "kind": "HoudiniQuery",
-    "hash": "1be5e9c7dbda921f62f3e53a7ce7cca4649d50adaa16a7bfcabc5d2e711f7f73",
+    "hash": "3f34b66aa48b1354515892f2b53ff3a2e1d4a2f9167a0e7197039416f292fa15",
     "raw": ` + "`" + `query UserFriends($count: Int = 10, $search: String = "bob") {
     user {
-        friendsByOffset(filter: $search, offset: $count) {
+        friendsByOffset(offset: $count, filter: $search) {
             name
             __typename
             id
@@ -3033,17 +3031,18 @@ export type AnimalsOverview$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "friendsByOffset": {
                             "type": "User",
-                            "keyRaw": "friendsByOffset(filter: $search, offset: $count)",
+                            "keyRaw": "friendsByOffset(offset: $count, filter: $search)",
 
                             "selection": {
                                 "fields": {
+                                    "name": {
+                                        "type": "String",
+                                        "keyRaw": "name",
+                                        "visible": true,
+                                    },
+
                                     "__typename": {
                                         "type": "String",
                                         "keyRaw": "__typename",
@@ -3053,16 +3052,15 @@ export type AnimalsOverview$artifact = typeof artifact
                                         "type": "ID",
                                         "keyRaw": "id",
                                     },
-
-                                    "name": {
-                                        "type": "String",
-                                        "keyRaw": "name",
-                                        "visible": true,
-                                    },
                                 },
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
 
                         "id": {
@@ -3121,19 +3119,19 @@ export type UserFriends$input = {
 
 export type UserFriends$unmasked = {
 	readonly user: {
-		readonly __typename: "User";
 		readonly friendsByOffset: ({
+			readonly name: string;
 			readonly __typename: "User";
 			readonly id: string;
-			readonly name: string;
 		})[];
+		readonly __typename: "User";
 		readonly id: string;
 	};
 };
 
 export type UserFriends$artifact = typeof artifact
 
-"HoudiniHash=1be5e9c7dbda921f62f3e53a7ce7cca4649d50adaa16a7bfcabc5d2e711f7f73"`),
+"HoudiniHash=3f34b66aa48b1354515892f2b53ff3a2e1d4a2f9167a0e7197039416f292fa15"`),
 				},
 			},
 			{
@@ -3152,9 +3150,9 @@ export type UserFriends$artifact = typeof artifact
 					"ListUsers": tests.Dedent(`const artifact = {
     "name": "ListUsers",
     "kind": "HoudiniQuery",
-    "hash": "459f81b6ef22858bdc88408194bf27be86886c2819e4498d57f211dca4e6499b",
+    "hash": "1c40bc981f913914f0485ffa13adde3f107bbc114e47d54206b07200f581414e",
     "raw": ` + "`" + `query ListUsers($bool: Boolean = true, $float: Float = 3.14, $int: Int = 5, $string: String = "hello world") {
-    users(boolValue: $bool, floatValue: $float, intValue: $int, stringValue: $string) {
+    users(boolValue: $bool, intValue: $int, floatValue: $float, stringValue: $string) {
         name
         __typename
         id
@@ -3169,10 +3167,16 @@ export type UserFriends$artifact = typeof artifact
         "fields": {
             "users": {
                 "type": "User",
-                "keyRaw": "users(boolValue: $bool, floatValue: $float, intValue: $int, stringValue: $string)",
+                "keyRaw": "users(boolValue: $bool, intValue: $int, floatValue: $float, stringValue: $string)",
 
                 "selection": {
                     "fields": {
+                        "name": {
+                            "type": "String",
+                            "keyRaw": "name",
+                            "visible": true,
+                        },
+
                         "__typename": {
                             "type": "String",
                             "keyRaw": "__typename",
@@ -3181,12 +3185,6 @@ export type UserFriends$artifact = typeof artifact
                         "id": {
                             "type": "ID",
                             "keyRaw": "id",
-                        },
-
-                        "name": {
-                            "type": "String",
-                            "keyRaw": "name",
-                            "visible": true,
                         },
                     },
                 },
@@ -3201,8 +3199,8 @@ export type UserFriends$artifact = typeof artifact
     "input": {
         "fields": {
             "bool": "Boolean",
-            "float": "Float",
             "int": "Int",
+            "float": "Float",
             "string": "String",
         },
 
@@ -3210,8 +3208,8 @@ export type UserFriends$artifact = typeof artifact
 
         "defaults": {
             "bool": true,
-            "float": 3.14,
             "int": 5,
+            "float": 3.14,
             "string": "hello world",
         },
 
@@ -3237,22 +3235,22 @@ export type ListUsers$result = {
 
 export type ListUsers$input = {
 	bool?: boolean | null;
-	float?: number | null;
 	int?: number | null;
+	float?: number | null;
 	string?: string | null;
 };
 
 export type ListUsers$unmasked = {
 	readonly users: ({
+		readonly name: string;
 		readonly __typename: "User";
 		readonly id: string;
-		readonly name: string;
 	})[];
 };
 
 export type ListUsers$artifact = typeof artifact
 
-"HoudiniHash=459f81b6ef22858bdc88408194bf27be86886c2819e4498d57f211dca4e6499b"`),
+"HoudiniHash=1c40bc981f913914f0485ffa13adde3f107bbc114e47d54206b07200f581414e"`),
 				},
 			},
 			{
@@ -3268,14 +3266,13 @@ export type ListUsers$artifact = typeof artifact
           `,
 				},
 				Extra: map[string]any{
-					"FindUser": tests.Dedent(
-						`import type { UserFilter } from "$houdini/graphql/inputs";
+					"FindUser": tests.Dedent(`import type { UserFilter } from "$houdini/graphql/inputs";
 const artifact = {
     "name": "FindUser",
     "kind": "HoudiniQuery",
-    "hash": "f960d0440b469f47aa1a2471c9f82a1709fec5959ed1d40aae1f0ecf537da4f7",
+    "hash": "28dd28f302e4cb91a60e37b6780302af39b5d501e522de10a60b3ca34d50714a",
     "raw": ` + "`" + `query FindUser($filter: UserFilter = {name: "bob"}) {
-    users(filter: $filter, offset: 5) {
+    users(offset: 5, filter: $filter) {
         name
         __typename
         id
@@ -3290,10 +3287,16 @@ const artifact = {
         "fields": {
             "users": {
                 "type": "User",
-                "keyRaw": "users(filter: $filter, offset: 5)",
+                "keyRaw": "users(offset: 5, filter: $filter)",
 
                 "selection": {
                     "fields": {
+                        "name": {
+                            "type": "String",
+                            "keyRaw": "name",
+                            "visible": true,
+                        },
+
                         "__typename": {
                             "type": "String",
                             "keyRaw": "__typename",
@@ -3302,12 +3305,6 @@ const artifact = {
                         "id": {
                             "type": "ID",
                             "keyRaw": "id",
-                        },
-
-                        "name": {
-                            "type": "String",
-                            "keyRaw": "name",
-                            "visible": true,
                         },
                     },
                 },
@@ -3372,16 +3369,15 @@ export type FindUser$input = {
 
 export type FindUser$unmasked = {
 	readonly users: ({
+		readonly name: string;
 		readonly __typename: "User";
 		readonly id: string;
-		readonly name: string;
 	})[];
 };
 
 export type FindUser$artifact = typeof artifact
 
-"HoudiniHash=f960d0440b469f47aa1a2471c9f82a1709fec5959ed1d40aae1f0ecf537da4f7"`,
-					),
+"HoudiniHash=28dd28f302e4cb91a60e37b6780302af39b5d501e522de10a60b3ca34d50714a"`),
 				},
 			},
 			{
@@ -3421,6 +3417,12 @@ export type FindUser$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
+                        "name": {
+                            "type": "String",
+                            "keyRaw": "name",
+                            "visible": true,
+                        },
+
                         "__typename": {
                             "type": "String",
                             "keyRaw": "__typename",
@@ -3429,12 +3431,6 @@ export type FindUser$artifact = typeof artifact
                         "id": {
                             "type": "ID",
                             "keyRaw": "id",
-                        },
-
-                        "name": {
-                            "type": "String",
-                            "keyRaw": "name",
-                            "visible": true,
                         },
                     },
                 },
@@ -3471,9 +3467,9 @@ export type FindUser$input = null | undefined;
 
 export type FindUser$unmasked = {
 	readonly users: ({
+		readonly name: string;
 		readonly __typename: "User";
 		readonly id: string;
-		readonly name: string;
 	})[];
 };
 
@@ -3519,6 +3515,12 @@ export type FindUser$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
+                        "name": {
+                            "type": "String",
+                            "keyRaw": "name",
+                            "visible": true,
+                        },
+
                         "__typename": {
                             "type": "String",
                             "keyRaw": "__typename",
@@ -3527,12 +3529,6 @@ export type FindUser$artifact = typeof artifact
                         "id": {
                             "type": "ID",
                             "keyRaw": "id",
-                        },
-
-                        "name": {
-                            "type": "String",
-                            "keyRaw": "name",
-                            "visible": true,
                         },
                     },
                 },
@@ -3569,9 +3565,9 @@ export type FindUser$input = null | undefined;
 
 export type FindUser$unmasked = {
 	readonly users: ({
+		readonly name: string;
 		readonly __typename: "User";
 		readonly id: string;
-		readonly name: string;
 	})[];
 };
 
@@ -3617,6 +3613,12 @@ export type FindUser$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
+                        "name": {
+                            "type": "String",
+                            "keyRaw": "name",
+                            "visible": true,
+                        },
+
                         "__typename": {
                             "type": "String",
                             "keyRaw": "__typename",
@@ -3625,12 +3627,6 @@ export type FindUser$artifact = typeof artifact
                         "id": {
                             "type": "ID",
                             "keyRaw": "id",
-                        },
-
-                        "name": {
-                            "type": "String",
-                            "keyRaw": "name",
-                            "visible": true,
                         },
                     },
                 },
@@ -3667,9 +3663,9 @@ export type FindUser$input = null | undefined;
 
 export type FindUser$unmasked = {
 	readonly users: ({
+		readonly name: string;
 		readonly __typename: "User";
 		readonly id: string;
-		readonly name: string;
 	})[];
 };
 
@@ -3721,31 +3717,31 @@ export type FindUser$artifact = typeof artifact
 
                               "selection": {
                                   "fields": {
-                                      "__typename": {
-                                          "type": "String",
-                                          "keyRaw": "__typename",
-                                      },
-
                                       "friends": {
                                           "type": "User",
                                           "keyRaw": "friends",
 
                                           "selection": {
                                               "fields": {
-                                                  "__typename": {
-                                                      "type": "String",
-                                                      "keyRaw": "__typename",
-                                                  },
-
                                                   "id": {
                                                       "type": "ID",
                                                       "keyRaw": "id",
                                                       "visible": true,
                                                   },
+
+                                                  "__typename": {
+                                                      "type": "String",
+                                                      "keyRaw": "__typename",
+                                                  },
                                               },
                                           },
 
                                           "visible": true,
+                                      },
+
+                                      "__typename": {
+                                          "type": "String",
+                                          "keyRaw": "__typename",
                                       },
 
                                       "id": {
@@ -3784,11 +3780,11 @@ export type FindUser$artifact = typeof artifact
 
               export type CachedFriends$unmasked = {
               	readonly user: {
-              		readonly __typename: "User";
               		readonly friends: ({
-              			readonly __typename: "User";
               			readonly id: string;
+              			readonly __typename: "User";
               		})[];
+              		readonly __typename: "User";
               		readonly id: string;
               	};
               };
@@ -3845,31 +3841,31 @@ export type FindUser$artifact = typeof artifact
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
                                     "friends": {
                                         "type": "User",
                                         "keyRaw": "friends",
 
                                         "selection": {
                                             "fields": {
-                                                "__typename": {
-                                                    "type": "String",
-                                                    "keyRaw": "__typename",
-                                                },
-
                                                 "id": {
                                                     "type": "ID",
                                                     "keyRaw": "id",
                                                     "visible": true,
                                                 },
+
+                                                "__typename": {
+                                                    "type": "String",
+                                                    "keyRaw": "__typename",
+                                                },
                                             },
                                         },
 
                                         "visible": true,
+                                    },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
                                     },
 
                                     "id": {
@@ -3908,11 +3904,11 @@ export type FindUser$artifact = typeof artifact
 
             export type CachedFriends$unmasked = {
             	readonly user: {
-            		readonly __typename: "User";
             		readonly friends: ({
-            			readonly __typename: "User";
             			readonly id: string;
+            			readonly __typename: "User";
             		})[];
+            		readonly __typename: "User";
             		readonly id: string;
             	};
             };
@@ -3966,31 +3962,31 @@ export type FindUser$artifact = typeof artifact
 
                               "selection": {
                                   "fields": {
-                                      "__typename": {
-                                          "type": "String",
-                                          "keyRaw": "__typename",
-                                      },
-
                                       "friends": {
                                           "type": "User",
                                           "keyRaw": "friends",
 
                                           "selection": {
                                               "fields": {
-                                                  "__typename": {
-                                                      "type": "String",
-                                                      "keyRaw": "__typename",
-                                                  },
-
                                                   "id": {
                                                       "type": "ID",
                                                       "keyRaw": "id",
                                                       "visible": true,
                                                   },
+
+                                                  "__typename": {
+                                                      "type": "String",
+                                                      "keyRaw": "__typename",
+                                                  },
                                               },
                                           },
 
                                           "visible": true,
+                                      },
+
+                                      "__typename": {
+                                          "type": "String",
+                                          "keyRaw": "__typename",
                                       },
 
                                       "id": {
@@ -4029,11 +4025,11 @@ export type FindUser$artifact = typeof artifact
 
               export type CachedFriends$unmasked = {
               	readonly user: {
-              		readonly __typename: "User";
               		readonly friends: ({
-              			readonly __typename: "User";
               			readonly id: string;
+              			readonly __typename: "User";
               		})[];
+              		readonly __typename: "User";
               		readonly id: string;
               	};
               };
@@ -4090,31 +4086,31 @@ export type FindUser$artifact = typeof artifact
 
                               "selection": {
                                   "fields": {
-                                      "__typename": {
-                                          "type": "String",
-                                          "keyRaw": "__typename",
-                                      },
-
                                       "friends": {
                                           "type": "User",
                                           "keyRaw": "friends",
 
                                           "selection": {
                                               "fields": {
-                                                  "__typename": {
-                                                      "type": "String",
-                                                      "keyRaw": "__typename",
-                                                  },
-
                                                   "id": {
                                                       "type": "ID",
                                                       "keyRaw": "id",
                                                       "visible": true,
                                                   },
+
+                                                  "__typename": {
+                                                      "type": "String",
+                                                      "keyRaw": "__typename",
+                                                  },
                                               },
                                           },
 
                                           "visible": true,
+                                      },
+
+                                      "__typename": {
+                                          "type": "String",
+                                          "keyRaw": "__typename",
                                       },
 
                                       "id": {
@@ -4153,11 +4149,11 @@ export type FindUser$artifact = typeof artifact
 
               export type CachedFriends$unmasked = {
               	readonly user: {
-              		readonly __typename: "User";
               		readonly friends: ({
-              			readonly __typename: "User";
               			readonly id: string;
+              			readonly __typename: "User";
               		})[];
+              		readonly __typename: "User";
               		readonly id: string;
               	};
               };
@@ -4197,28 +4193,28 @@ export type FindUser$artifact = typeof artifact
                   "kind": "HoudiniQuery",
                   "hash": "41abe068027a3e99325fd911b69effe90a0a3aabbb2e1cdfed73dd37dd73677e",
                   "raw": ` + "`" + `fragment EntityInfo on Entity {
-    ... on User {
-        firstName
-        __typename
-        id
-    }
-    ... on Cat {
-        name
-        __typename
-        id
-    }
-    __typename
-    id
-}
+                  ... on User {
+                      firstName
+                      __typename
+                      id
+                  }
+                  ... on Cat {
+                      name
+                      __typename
+                      id
+                  }
+                  __typename
+                  id
+              }
 
-query EntityList {
-    entities {
-        ...EntityInfo
-        __typename
-        id
-    }
-}
-` + "`" + `,
+              query EntityList {
+                  entities {
+                      ...EntityInfo
+                      __typename
+                      id
+                  }
+              }
+              ` + "`" + `,
 
                   "rootType": "Query",
                   "stripVariables": [] as Array<string>,
@@ -4243,7 +4239,11 @@ query EntityList {
                                   },
                                   "abstractFields": {
                                       "fields": {
-                                          "Cat": {
+                                          "User": {
+                                              "firstName": {
+                                                  "type": "String",
+                                                  "keyRaw": "firstName",
+                                              },
                                               "__typename": {
                                                   "type": "String",
                                                   "keyRaw": "__typename",
@@ -4252,19 +4252,15 @@ query EntityList {
                                                   "type": "ID",
                                                   "keyRaw": "id",
                                               },
+                                          },
+                                          "Cat": {
                                               "name": {
                                                   "type": "String",
                                                   "keyRaw": "name",
                                               },
-                                          },
-                                          "User": {
                                               "__typename": {
                                                   "type": "String",
                                                   "keyRaw": "__typename",
-                                              },
-                                              "firstName": {
-                                                  "type": "String",
-                                                  "keyRaw": "firstName",
                                               },
                                               "id": {
                                                   "type": "ID",
@@ -4313,8 +4309,8 @@ query EntityList {
 
               export type EntityList$unmasked = {
               	readonly entities: ({} & (({
-              		readonly id: string;
               		readonly name: string;
+              		readonly id: string;
               		readonly __typename: "Cat";
               	}) | ({
               		readonly firstName: string;
@@ -4355,26 +4351,26 @@ query EntityList {
                 "kind": "HoudiniQuery",
                 "hash": "51262f47df33c40c18a8f4b081242dedd62c8ffb0fd94595ee122afb0e83ad71",
                 "raw": ` + "`" + `fragment FriendList on User {
-    firstName
-    __typename
-    id
-}
+                firstName
+                __typename
+                id
+            }
 
-fragment UserAvatar on User {
-    firstName
-    ...FriendList
-    __typename
-    id
-}
+            fragment UserAvatar on User {
+                firstName
+                ...FriendList
+                __typename
+                id
+            }
 
-query UserWithAvatar {
-    user {
-        ...UserAvatar
-        __typename
-        id
-    }
-}
-` + "`" + `,
+            query UserWithAvatar {
+                user {
+                    ...UserAvatar
+                    __typename
+                    id
+                }
+            }
+            ` + "`" + `,
 
                 "rootType": "Query",
                 "stripVariables": [] as Array<string>,
@@ -4387,31 +4383,19 @@ query UserWithAvatar {
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
                                     "firstName": {
                                         "type": "String",
                                         "keyRaw": "firstName",
                                     },
 
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
+                                    },
+
                                     "id": {
                                         "type": "ID",
                                         "keyRaw": "id",
-                                    },
-
-                                    "FriendList": {
-                                        "keyRaw": "FriendList",
-                                        "type": "Component",
-                                        "component": {
-                                            "prop": "user",
-                                            "key": "User.FriendList",
-                                            "fragment": "FriendList",
-                                            "variables": {}
-                                        },
-                                        "visible": true,
                                     },
 
                                     "Avatar": {
@@ -4425,13 +4409,25 @@ query UserWithAvatar {
                                         },
                                         "visible": true,
                                     },
+
+                                    "FriendList": {
+                                        "keyRaw": "FriendList",
+                                        "type": "Component",
+                                        "component": {
+                                            "prop": "user",
+                                            "key": "User.FriendList",
+                                            "fragment": "FriendList",
+                                            "variables": {}
+                                        },
+                                        "visible": true,
+                                    },
                                 },
 
                                 "fragments": {
-                                    "FriendList": {
+                                    "UserAvatar": {
                                         "arguments": {}
                                     },
-                                    "UserAvatar": {
+                                    "FriendList": {
                                         "arguments": {}
                                     },
                                 },
@@ -4467,8 +4463,8 @@ query UserWithAvatar {
 
             export type UserWithAvatar$unmasked = {
             	readonly user: {
-            		readonly __typename: "User";
             		readonly firstName: string;
+            		readonly __typename: "User";
             		readonly id: string;
             	};
             };
@@ -4546,9 +4542,9 @@ query UserWithAvatar {
 
 							                "selection": {
 							                    "fields": {
-							                        "__typename": {
+							                        "name": {
 							                            "type": "String",
-							                            "keyRaw": "__typename",
+							                            "keyRaw": "name",
 							                        },
 
 							                        "field": {
@@ -4557,14 +4553,14 @@ query UserWithAvatar {
 							                            "nullable": true,
 							                        },
 
+							                        "__typename": {
+							                            "type": "String",
+							                            "keyRaw": "__typename",
+							                        },
+
 							                        "id": {
 							                            "type": "ID",
 							                            "keyRaw": "id",
-							                        },
-
-							                        "name": {
-							                            "type": "String",
-							                            "keyRaw": "name",
 							                        },
 							                    },
 
@@ -4608,10 +4604,10 @@ query UserWithAvatar {
 
 							export type UserRequiredFragments$unmasked = {
 								readonly user: {
-									readonly __typename: "User";
-									readonly field: string | null;
-									readonly id: string;
 									readonly name: string;
+									readonly field: string | null;
+									readonly __typename: "User";
+									readonly id: string;
 								};
 							};
 
@@ -4651,15 +4647,15 @@ query UserWithAvatar {
 
     "selection": {
         "fields": {
-            "__typename": {
-                "type": "String",
-                "keyRaw": "__typename",
-                "visible": true,
-            },
-
             "firstName": {
                 "type": "String",
                 "keyRaw": "firstName",
+                "visible": true,
+            },
+
+            "__typename": {
+                "type": "String",
+                "keyRaw": "__typename",
                 "visible": true,
             },
 
@@ -4728,15 +4724,15 @@ export type PluralRow$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "id": {
                             "type": "ID",
                             "keyRaw": "id",
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -4792,8 +4788,8 @@ export type CreateUserForm$optimistic = {
 
 export type CreateUserForm$unmasked = {
 	readonly createUser: {
-		readonly __typename: "User";
 		readonly id: string;
+		readonly __typename: "User";
 	};
 };
 
@@ -4834,15 +4830,15 @@ export type CreateUserForm$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "id": {
                             "type": "ID",
                             "keyRaw": "id",
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -4897,8 +4893,8 @@ export type UploadAvatarForm$optimistic = {
 
 export type UploadAvatarForm$unmasked = {
 	readonly uploadAvatar: {
-		readonly __typename: "User";
 		readonly id: string;
+		readonly __typename: "User";
 	};
 };
 
@@ -4939,15 +4935,15 @@ export type UploadAvatarForm$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "id": {
                             "type": "ID",
                             "keyRaw": "id",
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -5002,8 +4998,8 @@ export type CreateUserFieldsForm$optimistic = {
 
 export type CreateUserFieldsForm$unmasked = {
 	readonly createUser: {
-		readonly __typename: "User";
 		readonly id: string;
+		readonly __typename: "User";
 	};
 };
 
@@ -5044,15 +5040,15 @@ export type CreateUserFieldsForm$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "id": {
                             "type": "ID",
                             "keyRaw": "id",
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -5105,8 +5101,8 @@ export type LoginForm$optimistic = {
 
 export type LoginForm$unmasked = {
 	readonly createUser: {
-		readonly __typename: "User";
 		readonly id: string;
+		readonly __typename: "User";
 	};
 };
 
@@ -5126,7 +5122,7 @@ export type LoginForm$artifact = typeof artifact
           }`,
 				},
 				Extra: map[string]any{
-					"NullLiteralQuery": "const artifact = {\n    \"name\": \"NullLiteralQuery\",\n    \"kind\": \"HoudiniQuery\",\n    \"hash\": \"b168d64e381365250361866d0735e605dd687b515c90b497da2f60b02129fbe5\",\n\n    \"refetch\": {\n        \"path\": [\"users\"],\n        \"method\": \"offset\",\n        \"pageSize\": 0,\n        \"embedded\": false,\n        \"targetType\": \"Query\",\n        \"paginated\": false,\n        \"direction\": \"forward\",\n        \"mode\": \"Infinite\"\n    },\n\n    \"raw\": `query NullLiteralQuery($name: String = null) {\n    users(filter: {name: null}, intValue: null, stringValue: $name) {\n        firstName\n        __typename\n        id\n    }\n}\n`,\n\n    \"rootType\": \"Query\",\n    \"stripVariables\": [] as Array<string>,\n\n    \"selection\": {\n        \"fields\": {\n            \"users\": {\n                \"type\": \"User\",\n                \"keyRaw\": \"users(filter: {name: null}, intValue: null, stringValue: $name)\",\n\n                \"directives\": [{\n                    \"name\": \"list\",\n                    \"arguments\": {\n                        \"name\": {\n                            \"kind\": \"StringValue\",\n                            \"value\": \"Null_Users\"\n                        }\n                    }\n                }],\n\n                \"list\": {\n                    \"name\": \"Null_Users\",\n                    \"connection\": false,\n                    \"type\": \"User\"\n                },\n\n                \"selection\": {\n                    \"fields\": {\n                        \"__typename\": {\n                            \"type\": \"String\",\n                            \"keyRaw\": \"__typename\",\n                        },\n\n                        \"firstName\": {\n                            \"type\": \"String\",\n                            \"keyRaw\": \"firstName\",\n                            \"visible\": true,\n                        },\n\n                        \"id\": {\n                            \"type\": \"ID\",\n                            \"keyRaw\": \"id\",\n                        },\n                    },\n                },\n\n                \"filters\": {\n                    \"filter\": {\n                        \"kind\": \"Object\",\n                        \"value\": {\n                            \"name\": {\n                                \"kind\": \"Null\",\n                                \"value\": null\n                            }\n                        }\n                    },\n                    \"intValue\": {\n                        \"kind\": \"Null\",\n                        \"value\": null\n                    },\n                    \"stringValue\": {\n                        \"kind\": \"Variable\",\n                        \"value\": \"name\"\n                    },\n                },\n                \"visible\": true,\n            },\n        },\n    },\n\n    \"pluginData\": {},\n\n    \"input\": {\n        \"fields\": {\n            \"name\": \"String\",\n        },\n\n        \"types\": {},\n\n        \"defaults\": {\n            \"name\": null,\n        },\n\n        \"runtimeScalars\": {},\n    },\n\n    \"policy\": \"CacheOrNetwork\",\n    \"partial\": false\n} as const\n\nexport default artifact\n\nexport type NullLiteralQuery = {\n\treadonly \"input\": NullLiteralQuery$input;\n\treadonly \"result\": NullLiteralQuery$result | undefined;\n};\n\nexport type NullLiteralQuery$result = {\n\treadonly users: ({\n\t\treadonly firstName: string;\n\t})[];\n};\n\nexport type NullLiteralQuery$input = {\n\tname?: string | null;\n};\n\nexport type NullLiteralQuery$unmasked = {\n\treadonly users: ({\n\t\treadonly __typename: \"User\";\n\t\treadonly firstName: string;\n\t\treadonly id: string;\n\t})[];\n};\n\nexport type NullLiteralQuery$artifact = typeof artifact\n\n\"HoudiniHash=b168d64e381365250361866d0735e605dd687b515c90b497da2f60b02129fbe5\"",
+					"NullLiteralQuery": "const artifact = {\n    \"name\": \"NullLiteralQuery\",\n    \"kind\": \"HoudiniQuery\",\n    \"hash\": \"af7a0d601b9d9e84b08016e5eb25a2d289e5851fd23963497cf37d595456045c\",\n\n    \"refetch\": {\n        \"path\": [\"users\"],\n        \"method\": \"offset\",\n        \"pageSize\": 0,\n        \"embedded\": false,\n        \"targetType\": \"Query\",\n        \"paginated\": false,\n        \"direction\": \"forward\",\n        \"mode\": \"Infinite\"\n    },\n\n    \"raw\": `query NullLiteralQuery($name: String = null) {\n    users(stringValue: $name, intValue: null, filter: {name: null}) {\n        firstName\n        __typename\n        id\n    }\n}\n`,\n\n    \"rootType\": \"Query\",\n    \"stripVariables\": [] as Array<string>,\n\n    \"selection\": {\n        \"fields\": {\n            \"users\": {\n                \"type\": \"User\",\n                \"keyRaw\": \"users(stringValue: $name, intValue: null, filter: {name: null})\",\n\n                \"directives\": [{\n                    \"name\": \"list\",\n                    \"arguments\": {\n                        \"name\": {\n                            \"kind\": \"StringValue\",\n                            \"value\": \"Null_Users\"\n                        }\n                    }\n                }],\n\n                \"list\": {\n                    \"name\": \"Null_Users\",\n                    \"connection\": false,\n                    \"type\": \"User\"\n                },\n\n                \"selection\": {\n                    \"fields\": {\n                        \"firstName\": {\n                            \"type\": \"String\",\n                            \"keyRaw\": \"firstName\",\n                            \"visible\": true,\n                        },\n\n                        \"__typename\": {\n                            \"type\": \"String\",\n                            \"keyRaw\": \"__typename\",\n                        },\n\n                        \"id\": {\n                            \"type\": \"ID\",\n                            \"keyRaw\": \"id\",\n                        },\n                    },\n                },\n\n                \"filters\": {\n                    \"stringValue\": {\n                        \"kind\": \"Variable\",\n                        \"value\": \"name\"\n                    },\n                    \"intValue\": {\n                        \"kind\": \"Null\",\n                        \"value\": null\n                    },\n                    \"filter\": {\n                        \"kind\": \"Object\",\n                        \"value\": {\n                            \"name\": {\n                                \"kind\": \"Null\",\n                                \"value\": null\n                            }\n                        }\n                    },\n                },\n                \"visible\": true,\n            },\n        },\n    },\n\n    \"pluginData\": {},\n\n    \"input\": {\n        \"fields\": {\n            \"name\": \"String\",\n        },\n\n        \"types\": {},\n\n        \"defaults\": {\n            \"name\": null,\n        },\n\n        \"runtimeScalars\": {},\n    },\n\n    \"policy\": \"CacheOrNetwork\",\n    \"partial\": false\n} as const\n\nexport default artifact\n\nexport type NullLiteralQuery = {\n\treadonly \"input\": NullLiteralQuery$input;\n\treadonly \"result\": NullLiteralQuery$result | undefined;\n};\n\nexport type NullLiteralQuery$result = {\n\treadonly users: ({\n\t\treadonly firstName: string;\n\t})[];\n};\n\nexport type NullLiteralQuery$input = {\n\tname?: string | null;\n};\n\nexport type NullLiteralQuery$unmasked = {\n\treadonly users: ({\n\t\treadonly firstName: string;\n\t\treadonly __typename: \"User\";\n\t\treadonly id: string;\n\t})[];\n};\n\nexport type NullLiteralQuery$artifact = typeof artifact\n\n\"HoudiniHash=af7a0d601b9d9e84b08016e5eb25a2d289e5851fd23963497cf37d595456045c\"",
 				},
 			},
 			{
@@ -5136,7 +5132,7 @@ export type LoginForm$artifact = typeof artifact
 					`query PercentQuery { user { field(filter: "100%") } }`,
 				},
 				Extra: map[string]any{
-					"PercentQuery": "const artifact = {\n    \"name\": \"PercentQuery\",\n    \"kind\": \"HoudiniQuery\",\n    \"hash\": \"f7405bc779e404e2cf401d43970f163098a1fb64b3467ed16cea305bd6133033\",\n    \"raw\": `query PercentQuery {\n    user {\n        field(filter: \"100%\")\n        __typename\n        id\n    }\n}\n`,\n\n    \"rootType\": \"Query\",\n    \"stripVariables\": [] as Array<string>,\n\n    \"selection\": {\n        \"fields\": {\n            \"user\": {\n                \"type\": \"User\",\n                \"keyRaw\": \"user\",\n\n                \"selection\": {\n                    \"fields\": {\n                        \"__typename\": {\n                            \"type\": \"String\",\n                            \"keyRaw\": \"__typename\",\n                        },\n\n                        \"field\": {\n                            \"type\": \"String\",\n                            \"keyRaw\": \"field(filter: \\\"100%\\\")\",\n                            \"nullable\": true,\n                            \"visible\": true,\n                        },\n\n                        \"id\": {\n                            \"type\": \"ID\",\n                            \"keyRaw\": \"id\",\n                        },\n                    },\n                },\n\n                \"visible\": true,\n            },\n        },\n    },\n\n    \"pluginData\": {},\n    \"policy\": \"CacheOrNetwork\",\n    \"partial\": false\n} as const\n\nexport default artifact\n\nexport type PercentQuery = {\n\treadonly \"input\"?: PercentQuery$input;\n\treadonly \"result\": PercentQuery$result | undefined;\n};\n\nexport type PercentQuery$result = {\n\treadonly user: {\n\t\treadonly field: string | null;\n\t};\n};\n\nexport type PercentQuery$input = null | undefined;\n\nexport type PercentQuery$unmasked = {\n\treadonly user: {\n\t\treadonly __typename: \"User\";\n\t\treadonly field: string | null;\n\t\treadonly id: string;\n\t};\n};\n\nexport type PercentQuery$artifact = typeof artifact\n\n\"HoudiniHash=f7405bc779e404e2cf401d43970f163098a1fb64b3467ed16cea305bd6133033\"",
+					"PercentQuery": "const artifact = {\n    \"name\": \"PercentQuery\",\n    \"kind\": \"HoudiniQuery\",\n    \"hash\": \"f7405bc779e404e2cf401d43970f163098a1fb64b3467ed16cea305bd6133033\",\n    \"raw\": `query PercentQuery {\n    user {\n        field(filter: \"100%\")\n        __typename\n        id\n    }\n}\n`,\n\n    \"rootType\": \"Query\",\n    \"stripVariables\": [] as Array<string>,\n\n    \"selection\": {\n        \"fields\": {\n            \"user\": {\n                \"type\": \"User\",\n                \"keyRaw\": \"user\",\n\n                \"selection\": {\n                    \"fields\": {\n                        \"field\": {\n                            \"type\": \"String\",\n                            \"keyRaw\": \"field(filter: \\\"100%\\\")\",\n                            \"nullable\": true,\n                            \"visible\": true,\n                        },\n\n                        \"__typename\": {\n                            \"type\": \"String\",\n                            \"keyRaw\": \"__typename\",\n                        },\n\n                        \"id\": {\n                            \"type\": \"ID\",\n                            \"keyRaw\": \"id\",\n                        },\n                    },\n                },\n\n                \"visible\": true,\n            },\n        },\n    },\n\n    \"pluginData\": {},\n    \"policy\": \"CacheOrNetwork\",\n    \"partial\": false\n} as const\n\nexport default artifact\n\nexport type PercentQuery = {\n\treadonly \"input\"?: PercentQuery$input;\n\treadonly \"result\": PercentQuery$result | undefined;\n};\n\nexport type PercentQuery$result = {\n\treadonly user: {\n\t\treadonly field: string | null;\n\t};\n};\n\nexport type PercentQuery$input = null | undefined;\n\nexport type PercentQuery$unmasked = {\n\treadonly user: {\n\t\treadonly field: string | null;\n\t\treadonly __typename: \"User\";\n\t\treadonly id: string;\n\t};\n};\n\nexport type PercentQuery$artifact = typeof artifact\n\n\"HoudiniHash=f7405bc779e404e2cf401d43970f163098a1fb64b3467ed16cea305bd6133033\"",
 				},
 			},
 		},
@@ -5168,7 +5164,7 @@ func performArtifactTest(
 	}
 
 	// generate the artifacts
-	_, err = documents.Generate(context.Background(), p.DB, p.Fs, true)
+	_, err = documents.Generate(context.Background(), p.DB, p.Fs)
 	if err != nil {
 		require.False(t, test.Pass, err.Error())
 		return

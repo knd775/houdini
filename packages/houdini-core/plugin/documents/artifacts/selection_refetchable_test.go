@@ -94,14 +94,14 @@ query UserInfo_Refetch_Query($id: ID!) {
                     "abstractFields": {
                         "fields": {
                             "User": {
-                                "__typename": {
-                                    "type": "String",
-                                    "keyRaw": "__typename",
-                                },
                                 "firstName": {
                                     "type": "String",
                                     "keyRaw": "firstName",
                                     "visible": true,
+                                },
+                                "__typename": {
+                                    "type": "String",
+                                    "keyRaw": "__typename",
                                 },
                                 "id": {
                                     "type": "ID",

@@ -88,7 +88,6 @@ func TestMergeSelections(t *testing.T) {
 					context.Background(),
 					p.DB,
 					conn,
-					true,
 				)
 				require.Nil(t, err)
 
@@ -97,7 +96,6 @@ func TestMergeSelections(t *testing.T) {
 					context.Background(),
 					collectedDocs,
 					name,
-					true,
 					true,
 				)
 				require.Nil(t, err)
@@ -241,25 +239,25 @@ func TestMergeSelections(t *testing.T) {
 					"MyQuery": tests.Dedent(`
             query MyQuery {
                 friends {
-                    ... on Cat {
-                        id
+                    ... on Friend {
                         name
-                        owner {
+                    }
+                    ... on User {
+                        id
+                        bestFriend {
                             name
                         }
-                    }
-                    ... on Friend {
                         name
                     }
                     ... on Ghost {
                         id
                         name
                     }
-                    ... on User {
-                        bestFriend {
+                    ... on Cat {
+                        id
+                        owner {
                             name
                         }
-                        id
                         name
                     }
                 }
@@ -396,11 +394,11 @@ func TestMergeSelections(t *testing.T) {
                               id
                               name
                               owner {
-                                  bestFriend {
-                                      id
-                                      name
-                                  }
                                   id
+                                  bestFriend {
+                                      name
+                                      id
+                                  }
                                   name
                                   ...UserInfo
                               }
@@ -447,34 +445,34 @@ func TestMergeSelections(t *testing.T) {
               query MyQuery {
                   node(id: "123") {
                       id
-                      ... on Cat {
-                          id
-                          name
-                          owner {
-                              bestFriend {
-                                  name
-                              }
-                              name
-                          }
-                      }
-                      ... on Friend {
-                          id
-                          name
-                      }
-                      ... on Pet {
-                          id
-                          owner {
-                              bestFriend {
-                                  name
-                              }
-                          }
-                      }
                       ... on User {
                           bestFriend {
                               name
                           }
-                          id
                           name
+                          id
+                      }
+                      ... on Cat {
+                          owner {
+                              name
+                              bestFriend {
+                                  name
+                              }
+                          }
+                          name
+                          id
+                      }
+                      ... on Friend {
+                          name
+                          id
+                      }
+                      ... on Pet {
+                          owner {
+                              bestFriend {
+                                  name
+                              }
+                          }
+                          id
                       }
                   }
               }
@@ -509,10 +507,10 @@ func TestMergeSelections(t *testing.T) {
                 node(id: "123") {
                     id
                     ... on Cat {
-                        id
                         owner {
                             name
                         }
+                        id
                         ...AnimalInfo
                     }
                     ...AnimalInfo
@@ -548,26 +546,26 @@ func TestMergeSelections(t *testing.T) {
               query MyQuery {
                   node(id: "123") {
                       id
-                      ... on Cat {
-                          id
-                          name
-                          owner {
-                              bestFriend {
-                                  name
-                              }
-                          }
-                      }
                       ... on Friend {
-                          id
                           name
+                          id
                       }
                       ... on Pet {
-                          id
                           owner {
                               bestFriend {
                                   name
                               }
                           }
+                          id
+                      }
+                      ... on Cat {
+                          name
+                          owner {
+                              bestFriend {
+                                  name
+                              }
+                          }
+                          id
                       }
                   }
               }

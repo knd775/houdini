@@ -84,26 +84,21 @@ func TestArtifactOperationsGeneration(t *testing.T) {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "friend": {
                             "type": "User",
                             "keyRaw": "friend",
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
                                     "firstName": {
                                         "type": "String",
                                         "keyRaw": "firstName",
                                         "visible": true,
+                                    },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
                                     },
 
                                     "id": {
@@ -114,6 +109,11 @@ func TestArtifactOperationsGeneration(t *testing.T) {
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -153,12 +153,12 @@ export type B$optimistic = {
 
 export type B$unmasked = {
 	readonly addFriend: {
-		readonly __typename: "AddFriendOutput";
 		readonly friend: {
-			readonly __typename: "User";
 			readonly firstName: string;
+			readonly __typename: "User";
 			readonly id: string;
 		};
+		readonly __typename: "AddFriendOutput";
 	};
 };
 
@@ -218,11 +218,6 @@ fragment All_Users_insert on User {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "friend": {
                             "type": "User",
                             "keyRaw": "friend",
@@ -235,14 +230,14 @@ fragment All_Users_insert on User {
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
                                     "firstName": {
                                         "type": "String",
                                         "keyRaw": "firstName",
+                                    },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
                                     },
 
                                     "id": {
@@ -259,6 +254,11 @@ fragment All_Users_insert on User {
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -300,12 +300,12 @@ export type A$optimistic = {
 
 export type A$unmasked = {
 	readonly addFriend: {
-		readonly __typename: "AddFriendOutput";
 		readonly friend: {
-			readonly __typename: "User";
 			readonly firstName: string;
+			readonly __typename: "User";
 			readonly id: string;
 		};
+		readonly __typename: "AddFriendOutput";
 	};
 };
 
@@ -367,11 +367,6 @@ fragment All_Users_insert_kVR6H on User {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "friend": {
                             "type": "User",
                             "keyRaw": "friend",
@@ -384,25 +379,25 @@ fragment All_Users_insert_kVR6H on User {
 
                             "selection": {
                                 "fields": {
+                                    "firstName": {
+                                        "type": "String",
+                                        "keyRaw": "firstName",
+                                    },
+
                                     "__typename": {
                                         "type": "String",
                                         "keyRaw": "__typename",
+                                    },
+
+                                    "id": {
+                                        "type": "ID",
+                                        "keyRaw": "id",
                                     },
 
                                     "field": {
                                         "type": "String",
                                         "keyRaw": "field(filter: \"Hello World\")",
                                         "nullable": true,
-                                    },
-
-                                    "firstName": {
-                                        "type": "String",
-                                        "keyRaw": "firstName",
-                                    },
-
-                                    "id": {
-                                        "type": "ID",
-                                        "keyRaw": "id",
                                     },
                                 },
 
@@ -419,6 +414,11 @@ fragment All_Users_insert_kVR6H on User {
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -461,13 +461,13 @@ export type A$optimistic = {
 
 export type A$unmasked = {
 	readonly addFriend: {
-		readonly __typename: "AddFriendOutput";
 		readonly friend: {
-			readonly __typename: "User";
-			readonly field: string | null;
 			readonly firstName: string;
+			readonly __typename: "User";
 			readonly id: string;
+			readonly field: string | null;
 		};
+		readonly __typename: "AddFriendOutput";
 	};
 };
 
@@ -527,11 +527,6 @@ mutation B {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "friend": {
                             "type": "User",
                             "keyRaw": "friend",
@@ -553,14 +548,14 @@ mutation B {
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
                                     "firstName": {
                                         "type": "String",
                                         "keyRaw": "firstName",
+                                    },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
                                     },
 
                                     "id": {
@@ -577,6 +572,11 @@ mutation B {
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -633,12 +633,12 @@ export type B$optimistic = {
 
 export type B$unmasked = {
 	readonly addFriend: {
-		readonly __typename: "AddFriendOutput";
 		readonly friend: {
-			readonly __typename: "User";
 			readonly firstName: string;
+			readonly __typename: "User";
 			readonly id: string;
 		};
+		readonly __typename: "AddFriendOutput";
 	};
 };
 
@@ -698,11 +698,6 @@ fragment All_Users_insert on User {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "friend": {
                             "type": "User",
                             "keyRaw": "friend",
@@ -724,14 +719,14 @@ fragment All_Users_insert on User {
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
                                     "firstName": {
                                         "type": "String",
                                         "keyRaw": "firstName",
+                                    },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
                                     },
 
                                     "id": {
@@ -748,6 +743,11 @@ fragment All_Users_insert on User {
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -789,12 +789,12 @@ export type A$optimistic = {
 
 export type A$unmasked = {
 	readonly addFriend: {
-		readonly __typename: "AddFriendOutput";
 		readonly friend: {
-			readonly __typename: "User";
 			readonly firstName: string;
+			readonly __typename: "User";
 			readonly id: string;
 		};
+		readonly __typename: "AddFriendOutput";
 	};
 };
 
@@ -854,11 +854,6 @@ fragment All_Users_insert on User {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "friend": {
                             "type": "User",
                             "keyRaw": "friend",
@@ -880,14 +875,14 @@ fragment All_Users_insert on User {
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
                                     "firstName": {
                                         "type": "String",
                                         "keyRaw": "firstName",
+                                    },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
                                     },
 
                                     "id": {
@@ -904,6 +899,11 @@ fragment All_Users_insert on User {
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -945,12 +945,12 @@ export type A$optimistic = {
 
 export type A$unmasked = {
 	readonly addFriend: {
-		readonly __typename: "AddFriendOutput";
 		readonly friend: {
-			readonly __typename: "User";
 			readonly firstName: string;
+			readonly __typename: "User";
 			readonly id: string;
 		};
+		readonly __typename: "AddFriendOutput";
 	};
 };
 
@@ -1010,11 +1010,6 @@ fragment All_Users_insert on User {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "friend": {
                             "type": "User",
                             "keyRaw": "friend",
@@ -1042,14 +1037,14 @@ fragment All_Users_insert on User {
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
                                     "firstName": {
                                         "type": "String",
                                         "keyRaw": "firstName",
+                                    },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
                                     },
 
                                     "id": {
@@ -1066,6 +1061,11 @@ fragment All_Users_insert on User {
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -1107,12 +1107,12 @@ export type A$optimistic = {
 
 export type A$unmasked = {
 	readonly addFriend: {
-		readonly __typename: "AddFriendOutput";
 		readonly friend: {
-			readonly __typename: "User";
 			readonly firstName: string;
+			readonly __typename: "User";
 			readonly id: string;
 		};
+		readonly __typename: "AddFriendOutput";
 	};
 };
 
@@ -1174,11 +1174,6 @@ fragment All_Users_insert_kVR6H on User {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "friend": {
                             "type": "User",
                             "keyRaw": "friend",
@@ -1192,25 +1187,25 @@ fragment All_Users_insert_kVR6H on User {
 
                             "selection": {
                                 "fields": {
+                                    "firstName": {
+                                        "type": "String",
+                                        "keyRaw": "firstName",
+                                    },
+
                                     "__typename": {
                                         "type": "String",
                                         "keyRaw": "__typename",
+                                    },
+
+                                    "id": {
+                                        "type": "ID",
+                                        "keyRaw": "id",
                                     },
 
                                     "field": {
                                         "type": "String",
                                         "keyRaw": "field(filter: \"Hello World\")",
                                         "nullable": true,
-                                    },
-
-                                    "firstName": {
-                                        "type": "String",
-                                        "keyRaw": "firstName",
-                                    },
-
-                                    "id": {
-                                        "type": "ID",
-                                        "keyRaw": "id",
                                     },
                                 },
 
@@ -1227,6 +1222,11 @@ fragment All_Users_insert_kVR6H on User {
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -1269,13 +1269,13 @@ export type A$optimistic = {
 
 export type A$unmasked = {
 	readonly addFriend: {
-		readonly __typename: "AddFriendOutput";
 		readonly friend: {
-			readonly __typename: "User";
-			readonly field: string | null;
 			readonly firstName: string;
+			readonly __typename: "User";
 			readonly id: string;
+			readonly field: string | null;
 		};
+		readonly __typename: "AddFriendOutput";
 	};
 };
 
@@ -1323,22 +1323,12 @@ export type A$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "friend": {
                             "type": "User",
                             "keyRaw": "friend",
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
                                     "id": {
                                         "type": "ID",
                                         "keyRaw": "id",
@@ -1351,10 +1341,20 @@ export type A$artifact = typeof artifact
                                         "optimisticKey": true,
                                         "visible": true,
                                     },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
+                                    },
                                 },
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -1393,11 +1393,11 @@ export type A$optimistic = {
 
 export type A$unmasked = {
 	readonly addFriend: {
-		readonly __typename: "AddFriendOutput";
 		readonly friend: {
-			readonly __typename: "User";
 			readonly id: string;
+			readonly __typename: "User";
 		};
+		readonly __typename: "AddFriendOutput";
 	};
 };
 
@@ -1457,11 +1457,6 @@ fragment All_Users_insert on User {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "friend": {
                             "type": "User",
                             "keyRaw": "friend",
@@ -1475,14 +1470,14 @@ fragment All_Users_insert on User {
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
                                     "firstName": {
                                         "type": "String",
                                         "keyRaw": "firstName",
+                                    },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
                                     },
 
                                     "id": {
@@ -1499,6 +1494,11 @@ fragment All_Users_insert on User {
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -1540,12 +1540,12 @@ export type A$optimistic = {
 
 export type A$unmasked = {
 	readonly addFriend: {
-		readonly __typename: "AddFriendOutput";
 		readonly friend: {
-			readonly __typename: "User";
 			readonly firstName: string;
+			readonly __typename: "User";
 			readonly id: string;
 		};
+		readonly __typename: "AddFriendOutput";
 	};
 };
 
@@ -1604,11 +1604,6 @@ fragment All_Users_remove on User {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "friend": {
                             "type": "User",
                             "keyRaw": "friend",
@@ -1621,14 +1616,14 @@ fragment All_Users_remove on User {
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
                                     "id": {
                                         "type": "ID",
                                         "keyRaw": "id",
+                                    },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
                                     },
                                 },
 
@@ -1640,6 +1635,11 @@ fragment All_Users_remove on User {
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -1679,11 +1679,11 @@ export type A$optimistic = {
 
 export type A$unmasked = {
 	readonly addFriend: {
-		readonly __typename: "AddFriendOutput";
 		readonly friend: {
-			readonly __typename: "User";
 			readonly id: string;
+			readonly __typename: "User";
 		};
+		readonly __typename: "AddFriendOutput";
 	};
 };
 
@@ -1743,11 +1743,6 @@ fragment All_Users_toggle on User {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "friend": {
                             "type": "User",
                             "keyRaw": "friend",
@@ -1761,14 +1756,14 @@ fragment All_Users_toggle on User {
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
                                     "firstName": {
                                         "type": "String",
                                         "keyRaw": "firstName",
+                                    },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
                                     },
 
                                     "id": {
@@ -1785,6 +1780,11 @@ fragment All_Users_toggle on User {
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -1826,12 +1826,12 @@ export type A$optimistic = {
 
 export type A$unmasked = {
 	readonly addFriend: {
-		readonly __typename: "AddFriendOutput";
 		readonly friend: {
-			readonly __typename: "User";
 			readonly firstName: string;
+			readonly __typename: "User";
 			readonly id: string;
 		};
+		readonly __typename: "AddFriendOutput";
 	};
 };
 
@@ -1893,11 +1893,6 @@ fragment All_Users_toggle_kVR6H on User {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "friend": {
                             "type": "User",
                             "keyRaw": "friend",
@@ -1911,25 +1906,25 @@ fragment All_Users_toggle_kVR6H on User {
 
                             "selection": {
                                 "fields": {
+                                    "firstName": {
+                                        "type": "String",
+                                        "keyRaw": "firstName",
+                                    },
+
                                     "__typename": {
                                         "type": "String",
                                         "keyRaw": "__typename",
+                                    },
+
+                                    "id": {
+                                        "type": "ID",
+                                        "keyRaw": "id",
                                     },
 
                                     "field": {
                                         "type": "String",
                                         "keyRaw": "field(filter: \"Hello World\")",
                                         "nullable": true,
-                                    },
-
-                                    "firstName": {
-                                        "type": "String",
-                                        "keyRaw": "firstName",
-                                    },
-
-                                    "id": {
-                                        "type": "ID",
-                                        "keyRaw": "id",
                                     },
                                 },
 
@@ -1946,6 +1941,11 @@ fragment All_Users_toggle_kVR6H on User {
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -1988,13 +1988,13 @@ export type A$optimistic = {
 
 export type A$unmasked = {
 	readonly addFriend: {
-		readonly __typename: "AddFriendOutput";
 		readonly friend: {
-			readonly __typename: "User";
-			readonly field: string | null;
 			readonly firstName: string;
+			readonly __typename: "User";
 			readonly id: string;
+			readonly field: string | null;
 		};
+		readonly __typename: "AddFriendOutput";
 	};
 };
 
@@ -2057,11 +2057,6 @@ fragment All_Users_toggle on User {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "friend": {
                             "type": "User",
                             "keyRaw": "friend",
@@ -2075,14 +2070,14 @@ fragment All_Users_toggle on User {
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
                                     "firstName": {
                                         "type": "String",
                                         "keyRaw": "firstName",
+                                    },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
                                     },
 
                                     "id": {
@@ -2099,6 +2094,11 @@ fragment All_Users_toggle on User {
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -2140,12 +2140,12 @@ export type A$optimistic = {
 
 export type A$unmasked = {
 	readonly addFriend: {
-		readonly __typename: "AddFriendOutput";
 		readonly friend: {
-			readonly __typename: "User";
 			readonly firstName: string;
+			readonly __typename: "User";
 			readonly id: string;
 		};
+		readonly __typename: "AddFriendOutput";
 	};
 };
 
@@ -2208,11 +2208,6 @@ fragment All_Users_toggle on User {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "friend": {
                             "type": "User",
                             "keyRaw": "friend",
@@ -2225,14 +2220,14 @@ fragment All_Users_toggle on User {
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
                                     "firstName": {
                                         "type": "String",
                                         "keyRaw": "firstName",
+                                    },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
                                     },
 
                                     "id": {
@@ -2249,6 +2244,11 @@ fragment All_Users_toggle on User {
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -2290,12 +2290,12 @@ export type A$optimistic = {
 
 export type A$unmasked = {
 	readonly addFriend: {
-		readonly __typename: "AddFriendOutput";
 		readonly friend: {
-			readonly __typename: "User";
 			readonly firstName: string;
+			readonly __typename: "User";
 			readonly id: string;
 		};
+		readonly __typename: "AddFriendOutput";
 	};
 };
 
@@ -2354,11 +2354,6 @@ fragment All_Users_remove on User {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "friend": {
                             "type": "User",
                             "keyRaw": "friend",
@@ -2370,14 +2365,14 @@ fragment All_Users_remove on User {
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
                                     "id": {
                                         "type": "ID",
                                         "keyRaw": "id",
+                                    },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
                                     },
                                 },
 
@@ -2389,6 +2384,11 @@ fragment All_Users_remove on User {
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -2428,11 +2428,11 @@ export type A$optimistic = {
 
 export type A$unmasked = {
 	readonly addFriend: {
-		readonly __typename: "AddFriendOutput";
 		readonly friend: {
-			readonly __typename: "User";
 			readonly id: string;
+			readonly __typename: "User";
 		};
+		readonly __typename: "AddFriendOutput";
 	};
 };
 
@@ -2480,11 +2480,6 @@ export type A$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "userID": {
                             "type": "ID",
                             "keyRaw": "userID",
@@ -2501,6 +2496,11 @@ export type A$artifact = typeof artifact
                                 "type": "User"
                             }],
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -2536,8 +2536,8 @@ export type A$optimistic = {
 
 export type A$unmasked = {
 	readonly deleteUser: {
-		readonly __typename: "DeleteUserOutput";
 		readonly userID: string | null;
+		readonly __typename: "DeleteUserOutput";
 	};
 };
 
@@ -2585,11 +2585,6 @@ export type A$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "userID": {
                             "type": "ID",
                             "keyRaw": "userID",
@@ -2623,6 +2618,11 @@ export type A$artifact = typeof artifact
                                 },
                             }],
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -2658,8 +2658,8 @@ export type A$optimistic = {
 
 export type A$unmasked = {
 	readonly deleteUser: {
-		readonly __typename: "DeleteUserOutput";
 		readonly userID: string | null;
+		readonly __typename: "DeleteUserOutput";
 	};
 };
 
@@ -2707,11 +2707,6 @@ export type A$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "userID": {
                             "type": "ID",
                             "keyRaw": "userID",
@@ -2745,6 +2740,11 @@ export type A$artifact = typeof artifact
                                 },
                             }],
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -2780,8 +2780,8 @@ export type A$optimistic = {
 
 export type A$unmasked = {
 	readonly deleteUser: {
-		readonly __typename: "DeleteUserOutput";
 		readonly userID: string | null;
+		readonly __typename: "DeleteUserOutput";
 	};
 };
 
@@ -2841,11 +2841,6 @@ fragment All_Users_insert on User {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "friend": {
                             "type": "User",
                             "keyRaw": "friend",
@@ -2863,14 +2858,14 @@ fragment All_Users_insert on User {
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
                                     "firstName": {
                                         "type": "String",
                                         "keyRaw": "firstName",
+                                    },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
                                     },
 
                                     "id": {
@@ -2887,6 +2882,11 @@ fragment All_Users_insert on User {
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -2928,12 +2928,12 @@ export type A$optimistic = {
 
 export type A$unmasked = {
 	readonly addFriend: {
-		readonly __typename: "AddFriendOutput";
 		readonly friend: {
-			readonly __typename: "User";
 			readonly firstName: string;
+			readonly __typename: "User";
 			readonly id: string;
 		};
+		readonly __typename: "AddFriendOutput";
 	};
 };
 
@@ -2982,11 +2982,6 @@ export type A$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "friend": {
                             "type": "User",
                             "keyRaw": "friend",
@@ -2999,15 +2994,15 @@ export type A$artifact = typeof artifact
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
                                     "firstName": {
                                         "type": "String",
                                         "keyRaw": "firstName",
                                         "visible": true,
+                                    },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
                                     },
 
                                     "id": {
@@ -3018,6 +3013,11 @@ export type A$artifact = typeof artifact
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -3063,12 +3063,12 @@ export type RefetchFriend$optimistic = {
 
 export type RefetchFriend$unmasked = {
 	readonly addFriend: {
-		readonly __typename: "AddFriendOutput";
 		readonly friend: {
-			readonly __typename: "User";
 			readonly firstName: string;
+			readonly __typename: "User";
 			readonly id: string;
 		};
+		readonly __typename: "AddFriendOutput";
 	};
 };
 
@@ -3123,11 +3123,6 @@ export type RefetchFriend$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "friend": {
                             "type": "User",
                             "keyRaw": "friend",
@@ -3140,15 +3135,15 @@ export type RefetchFriend$artifact = typeof artifact
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
                                     "id": {
                                         "type": "ID",
                                         "keyRaw": "id",
                                         "visible": true,
+                                    },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
                                     },
                                 },
                             },
@@ -3169,21 +3164,26 @@ export type RefetchFriend$artifact = typeof artifact
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
                                     "id": {
                                         "type": "ID",
                                         "keyRaw": "id",
                                         "visible": true,
+                                    },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
                                     },
                                 },
                             },
 
                             "abstract": true,
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -3239,15 +3239,15 @@ export type MultiRefetch$optimistic = {
 
 export type MultiRefetch$unmasked = {
 	readonly addFriend: {
-		readonly __typename: "AddFriendOutput";
 		readonly friend: {
-			readonly __typename: "User";
 			readonly id: string;
+			readonly __typename: "User";
 		};
 		readonly node: {
-			readonly __typename: string;
 			readonly id: string;
+			readonly __typename: string;
 		} | null;
+		readonly __typename: "AddFriendOutput";
 	};
 };
 
@@ -3296,11 +3296,6 @@ export type MultiRefetch$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "friends": {
                             "type": "User",
                             "keyRaw": "friends",
@@ -3313,15 +3308,15 @@ export type MultiRefetch$artifact = typeof artifact
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
                                     "firstName": {
                                         "type": "String",
                                         "keyRaw": "firstName",
                                         "visible": true,
+                                    },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
                                     },
 
                                     "id": {
@@ -3332,6 +3327,11 @@ export type MultiRefetch$artifact = typeof artifact
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -3377,12 +3377,12 @@ export type RefetchFriends$optimistic = {
 
 export type RefetchFriends$unmasked = {
 	readonly addFriend: {
-		readonly __typename: "AddFriendOutput";
 		readonly friends: ({
-			readonly __typename: "User";
 			readonly firstName: string;
+			readonly __typename: "User";
 			readonly id: string;
 		})[];
+		readonly __typename: "AddFriendOutput";
 	};
 };
 
@@ -3442,11 +3442,6 @@ export type RefetchFriends$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "node": {
                             "type": "Node",
                             "keyRaw": "node",
@@ -3467,10 +3462,6 @@ export type RefetchFriends$artifact = typeof artifact
                                 "abstractFields": {
                                     "fields": {
                                         "User": {
-                                            "__typename": {
-                                                "type": "String",
-                                                "keyRaw": "__typename",
-                                            },
                                             "bestFriend": {
                                                 "type": "User",
                                                 "keyRaw": "bestFriend",
@@ -3484,20 +3475,24 @@ export type RefetchFriends$artifact = typeof artifact
 
                                                 "selection": {
                                                     "fields": {
-                                                        "__typename": {
-                                                            "type": "String",
-                                                            "keyRaw": "__typename",
-                                                        },
-
                                                         "id": {
                                                             "type": "ID",
                                                             "keyRaw": "id",
                                                             "visible": true,
                                                         },
+
+                                                        "__typename": {
+                                                            "type": "String",
+                                                            "keyRaw": "__typename",
+                                                        },
                                                     },
                                                 },
 
                                                 "visible": true,
+                                            },
+                                            "__typename": {
+                                                "type": "String",
+                                                "keyRaw": "__typename",
                                             },
                                             "id": {
                                                 "type": "ID",
@@ -3512,6 +3507,11 @@ export type RefetchFriends$artifact = typeof artifact
 
                             "abstract": true,
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -3563,15 +3563,15 @@ export type RefetchInline$optimistic = {
 
 export type RefetchInline$unmasked = {
 	readonly addFriend: {
-		readonly __typename: "AddFriendOutput";
 		readonly node: {} & (({
 			readonly bestFriend: {
-				readonly __typename: "User";
 				readonly id: string;
+				readonly __typename: "User";
 			} | null;
 			readonly id: string;
 			readonly __typename: "User";
 		})) | null;
+		readonly __typename: "AddFriendOutput";
 	};
 };
 
@@ -3619,11 +3619,6 @@ export type RefetchInline$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "node": {
                             "type": "Node",
                             "keyRaw": "node",
@@ -3637,21 +3632,26 @@ export type RefetchInline$artifact = typeof artifact
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
                                     "id": {
                                         "type": "ID",
                                         "keyRaw": "id",
                                         "visible": true,
+                                    },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
                                     },
                                 },
                             },
 
                             "abstract": true,
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -3697,11 +3697,11 @@ export type RefetchNode$optimistic = {
 
 export type RefetchNode$unmasked = {
 	readonly addFriend: {
-		readonly __typename: "AddFriendOutput";
 		readonly node: {
-			readonly __typename: string;
 			readonly id: string;
+			readonly __typename: string;
 		} | null;
+		readonly __typename: "AddFriendOutput";
 	};
 };
 

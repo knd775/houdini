@@ -154,7 +154,7 @@ func TestDocumentCollectAndPrint(t *testing.T) {
 				defer p.DB.Put(conn)
 
 				// the first thing we have to do is collect the artifacts.
-				collected, err := collected.CollectDocuments(context.Background(), p.DB, conn, true)
+				collected, err := collected.CollectDocuments(context.Background(), p.DB, conn)
 				require.Nil(t, err)
 
 				// print the document we found
@@ -241,12 +241,12 @@ func TestDocumentCollectAndPrint(t *testing.T) {
 				Extra: map[string]any{
 					"queryName": tests.Dedent(`
               query queryName($foo: Boolean!, $site: Site = MOBILE) @onQuery {
-                  whoever123is: node(foo: $site, id: 123) {
+                  whoever123is: node(id: 123, foo: $site) {
                       id
                       ... on User @onInlineFragment {
                           field2 {
                               id
-                              alias: field1(after: $foo, first: 10) @include(if: $foo) {
+                              alias: field1(first: 10, after: $foo) @include(if: $foo) {
                                   id
                                   ...frag @onFragmentSpread
                               }
@@ -342,7 +342,7 @@ func TestDocumentCollectAndPrint(t *testing.T) {
 				Extra: map[string]any{
 					"frag": tests.Dedent(`
             fragment frag on Friend @onFragmentDefinition {
-                foo(bar: $b, obj: {key: "value", block: "block string uses quotes"}, size: $size)
+                foo(size: $size, bar: $b, obj: {key: "value", block: "block string uses quotes"})
             }
           `),
 				},
@@ -392,7 +392,7 @@ func TestDocumentCollectAndPrint(t *testing.T) {
 				Extra: map[string]any{
 					"EnumObjFrag": tests.Dedent(`
 					fragment EnumObjFrag on Friend {
-					    foo(bar: $b, obj: {key: "value", site: MOBILE}, size: $size)
+					    foo(size: $size, bar: $b, obj: {key: "value", site: MOBILE})
 					}
 				`),
 				},

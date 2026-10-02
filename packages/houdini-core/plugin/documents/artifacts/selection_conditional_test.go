@@ -77,9 +77,10 @@ fragment UserDetails on User {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
+                        "id": {
+                            "type": "ID",
+                            "keyRaw": "id",
+                            "visible": true,
                         },
 
                         "firstName": {
@@ -99,10 +100,9 @@ fragment UserDetails on User {
                             "visible": true,
                         },
 
-                        "id": {
-                            "type": "ID",
-                            "keyRaw": "id",
-                            "visible": true,
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
 
@@ -144,9 +144,9 @@ export type TestQuery$input = null | undefined;
 
 export type TestQuery$unmasked = {
 	readonly user: {
-		readonly __typename: "User";
-		readonly firstName: string;
 		readonly id: string;
+		readonly firstName: string;
+		readonly __typename: "User";
 	};
 };
 
@@ -201,24 +201,20 @@ fragment UserDetails on User {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "id": {
                             "type": "ID",
                             "keyRaw": "id",
                             "visible": true,
                         },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
+                        },
                     },
                     "abstractFields": {
                         "fields": {
                             "User": {
-                                "__typename": {
-                                    "type": "String",
-                                    "keyRaw": "__typename",
-                                },
                                 "firstName": {
                                     "type": "String",
                                     "keyRaw": "firstName",
@@ -237,6 +233,10 @@ fragment UserDetails on User {
                                     }],
 
                                     "visible": true,
+                                },
+                                "__typename": {
+                                    "type": "String",
+                                    "keyRaw": "__typename",
                                 },
                                 "id": {
                                     "type": "ID",
@@ -360,9 +360,10 @@ fragment UserDetails on User {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
+                        "id": {
+                            "type": "ID",
+                            "keyRaw": "id",
+                            "visible": true,
                         },
 
                         "firstName": {
@@ -384,10 +385,9 @@ fragment UserDetails on User {
 
                         },
 
-                        "id": {
-                            "type": "ID",
-                            "keyRaw": "id",
-                            "visible": true,
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
 
@@ -443,9 +443,9 @@ export type TestQuery$input = {
 
 export type TestQuery$unmasked = {
 	readonly user: {
-		readonly __typename: "User";
-		readonly firstName: string;
 		readonly id: string;
+		readonly firstName: string;
+		readonly __typename: "User";
 	};
 };
 

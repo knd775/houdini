@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"maps"
 	"runtime"
-	"sort"
 	"strings"
 	"sync"
 
@@ -51,7 +50,6 @@ func CollectDocuments(
 	ctx context.Context,
 	db plugins.DatabasePool[config.PluginConfig],
 	conn plugins.Conn,
-	sortKeys bool,
 ) (*Documents, error) {
 	result := &Documents{
 		Selections:      map[string]*Document{},
@@ -139,7 +137,7 @@ func CollectDocuments(
 	var wg sync.WaitGroup
 	for range runtime.NumCPU() {
 		wg.Add(1)
-		go collectDoc(ctx, db, &wg, batchCh, resultCh, errList, sortKeys, paddedBatchSize)
+		go collectDoc(ctx, db, &wg, batchCh, resultCh, errList, paddedBatchSize)
 	}
 
 	// partition the docIDs into batches and send them to the workers
@@ -201,7 +199,6 @@ func collectDoc(
 	docIDs <-chan []int64,
 	resultCh chan<- collectResult,
 	errs *plugins.ErrorList,
-	sortKeys bool,
 	paddedBatchSize int,
 ) {
 	defer wg.Done()
@@ -604,12 +601,6 @@ func collectDoc(
 							argumentValues[*arg.ValueID] = nil
 							argumentsWithValues = append(argumentsWithValues, arg)
 						}
-					}
-
-					if sortKeys {
-						sort.Slice(args, func(i, j int) bool {
-							return args[i].Name < args[j].Name
-						})
 					}
 
 					selection.Arguments = args

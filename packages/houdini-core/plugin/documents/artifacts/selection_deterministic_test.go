@@ -13,10 +13,10 @@ import (
 	"code.houdinigraphql.com/plugins/tests"
 )
 
-// Production codegen runs with sortKeys off, and every other artifact test runs with it on,
-// which hides any output built by ranging over a Go map. Go randomizes map order per range,
-// so regenerating a few times is enough to catch an unsorted loop.
-func TestArtifactsAreDeterministicWithoutSortKeys(t *testing.T) {
+// A golden test only sees one generation, so output built by ranging over a Go map can
+// match by luck. Go randomizes map order per range, so regenerating a few times is enough
+// to catch an unsorted loop.
+func TestArtifactsAreDeterministic(t *testing.T) {
 	tests.RunTable(t, tests.Table[config.PluginConfig, *plugin.HoudiniCore]{
 		Schema: `
       enum Color { RED GREEN BLUE }
@@ -64,7 +64,7 @@ func TestArtifactsAreDeterministicWithoutSortKeys(t *testing.T) {
 
 			var first string
 			for range 20 {
-				_, err := documents.Generate(context.Background(), p.DB, p.Fs, false)
+				_, err := documents.Generate(context.Background(), p.DB, p.Fs)
 				require.NoError(t, err)
 
 				content, err := afero.ReadFile(p.Fs, artifactPath)

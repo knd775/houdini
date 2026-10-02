@@ -112,17 +112,7 @@ func TestAbstractTypeMapExcludesOwnFragments(t *testing.T) {
                     },
                     "abstractFields": {
                         "fields": {
-                            "Article": {
-                                "__typename": {
-                                    "type": "String",
-                                    "keyRaw": "__typename",
-                                    "visible": true,
-                                },
-                                "author": {
-                                    "type": "String",
-                                    "keyRaw": "author",
-                                    "visible": true,
-                                },
+                            "ContentItem": {
                                 "id": {
                                     "type": "ID",
                                     "keyRaw": "id",
@@ -133,13 +123,23 @@ func TestAbstractTypeMapExcludesOwnFragments(t *testing.T) {
                                     "keyRaw": "title",
                                     "visible": true,
                                 },
+                                "__typename": {
+                                    "type": "String",
+                                    "keyRaw": "__typename",
+                                    "visible": true,
+                                },
+                            },
+                            "Article": {
+                                "author": {
+                                    "type": "String",
+                                    "keyRaw": "author",
+                                    "visible": true,
+                                },
                                 "wordCount": {
                                     "type": "Int",
                                     "keyRaw": "wordCount",
                                     "visible": true,
                                 },
-                            },
-                            "ContentItem": {
                                 "__typename": {
                                     "type": "String",
                                     "keyRaw": "__typename",
@@ -157,14 +157,14 @@ func TestAbstractTypeMapExcludesOwnFragments(t *testing.T) {
                                 },
                             },
                             "Video": {
-                                "__typename": {
-                                    "type": "String",
-                                    "keyRaw": "__typename",
-                                    "visible": true,
-                                },
                                 "durationSeconds": {
                                     "type": "Int",
                                     "keyRaw": "durationSeconds",
+                                    "visible": true,
+                                },
+                                "__typename": {
+                                    "type": "String",
+                                    "keyRaw": "__typename",
                                     "visible": true,
                                 },
                                 "id": {
@@ -227,9 +227,9 @@ export type Search$input = null | undefined;
 
 export type Search$unmasked = {
 	readonly search: ({} & (({
-		readonly author: string;
 		readonly id: string;
 		readonly title: string;
+		readonly author: string;
 		readonly wordCount: number;
 		readonly __typename: "Article";
 	}) | ({
@@ -237,9 +237,9 @@ export type Search$unmasked = {
 		readonly title: string;
 		readonly __typename: "Podcast";
 	}) | ({
-		readonly durationSeconds: number;
 		readonly id: string;
 		readonly title: string;
+		readonly durationSeconds: number;
 		readonly __typename: "Video";
 	})))[];
 };

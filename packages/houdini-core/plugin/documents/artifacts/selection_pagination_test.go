@@ -128,7 +128,7 @@ func TestPaginationArtifacts(t *testing.T) {
 					"PaginatedFragment": tests.Dedent(`const artifact = {
     "name": "PaginatedFragment",
     "kind": "HoudiniFragment",
-    "hash": "984a385c590d094c53d7c6fb08bcabddd2f0cbfd0df69d49b3743fd0e046a66b",
+    "hash": "75c244fe159df1685c5d0b36a0a64e28c3bc8a26ae858c5394c1552977329f97",
 
     "refetch": {
         "path": ["friendsByCursor"],
@@ -142,7 +142,7 @@ func TestPaginationArtifacts(t *testing.T) {
     },
 
     "raw": ` + "`" + `fragment PaginatedFragment on User {
-    friendsByCursor(filter: "hello", first: 10) {
+    friendsByCursor(first: 10, filter: "hello") {
         edges {
             node {
                 id
@@ -169,12 +169,6 @@ func TestPaginationArtifacts(t *testing.T) {
 
     "selection": {
         "fields": {
-            "__typename": {
-                "type": "String",
-                "keyRaw": "__typename",
-                "visible": true,
-            },
-
             "friendsByCursor": {
                 "type": "UserConnection",
                 "keyRaw": "friendsByCursor(filter: \"hello\")::paginated",
@@ -188,11 +182,6 @@ func TestPaginationArtifacts(t *testing.T) {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "edges": {
                             "type": "UserEdge",
                             "keyRaw": "edges",
@@ -200,6 +189,29 @@ func TestPaginationArtifacts(t *testing.T) {
 
                             "selection": {
                                 "fields": {
+                                    "node": {
+                                        "type": "User",
+                                        "keyRaw": "node",
+                                        "nullable": true,
+
+                                        "selection": {
+                                            "fields": {
+                                                "id": {
+                                                    "type": "ID",
+                                                    "keyRaw": "id",
+                                                    "visible": true,
+                                                },
+
+                                                "__typename": {
+                                                    "type": "String",
+                                                    "keyRaw": "__typename",
+                                                },
+                                            },
+                                        },
+
+                                        "visible": true,
+                                    },
+
                                     "__typename": {
                                         "type": "String",
                                         "keyRaw": "__typename",
@@ -210,33 +222,15 @@ func TestPaginationArtifacts(t *testing.T) {
                                         "keyRaw": "cursor",
                                         "visible": true,
                                     },
-
-                                    "node": {
-                                        "type": "User",
-                                        "keyRaw": "node",
-                                        "nullable": true,
-
-                                        "selection": {
-                                            "fields": {
-                                                "__typename": {
-                                                    "type": "String",
-                                                    "keyRaw": "__typename",
-                                                },
-
-                                                "id": {
-                                                    "type": "ID",
-                                                    "keyRaw": "id",
-                                                    "visible": true,
-                                                },
-                                            },
-                                        },
-
-                                        "visible": true,
-                                    },
                                 },
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
 
                         "pageInfo": {
@@ -245,14 +239,6 @@ func TestPaginationArtifacts(t *testing.T) {
 
                             "selection": {
                                 "fields": {
-                                    "endCursor": {
-                                        "type": "String",
-                                        "keyRaw": "endCursor",
-                                        "updates": ["append"],
-                                        "nullable": true,
-                                        "visible": true,
-                                    },
-
                                     "hasNextPage": {
                                         "type": "Boolean",
                                         "keyRaw": "hasNextPage",
@@ -274,6 +260,14 @@ func TestPaginationArtifacts(t *testing.T) {
                                         "nullable": true,
                                         "visible": true,
                                     },
+
+                                    "endCursor": {
+                                        "type": "String",
+                                        "keyRaw": "endCursor",
+                                        "updates": ["append"],
+                                        "nullable": true,
+                                        "visible": true,
+                                    },
                                 },
                             },
 
@@ -282,6 +276,12 @@ func TestPaginationArtifacts(t *testing.T) {
                     },
                 },
 
+                "visible": true,
+            },
+
+            "__typename": {
+                "type": "String",
+                "keyRaw": "__typename",
                 "visible": true,
             },
 
@@ -326,7 +326,7 @@ export type PaginatedFragment$data = {
 
 export type PaginatedFragment$artifact = typeof artifact
 
-"HoudiniHash=984a385c590d094c53d7c6fb08bcabddd2f0cbfd0df69d49b3743fd0e046a66b"`),
+"HoudiniHash=75c244fe159df1685c5d0b36a0a64e28c3bc8a26ae858c5394c1552977329f97"`),
 				},
 			},
 			{
@@ -349,7 +349,7 @@ export type PaginatedFragment$artifact = typeof artifact
 					"PaginatedFragment": tests.Dedent(`const artifact = {
     "name": "PaginatedFragment",
     "kind": "HoudiniFragment",
-    "hash": "984a385c590d094c53d7c6fb08bcabddd2f0cbfd0df69d49b3743fd0e046a66b",
+    "hash": "75c244fe159df1685c5d0b36a0a64e28c3bc8a26ae858c5394c1552977329f97",
 
     "refetch": {
         "path": ["friendsByCursor"],
@@ -363,7 +363,7 @@ export type PaginatedFragment$artifact = typeof artifact
     },
 
     "raw": ` + "`" + `fragment PaginatedFragment on User {
-    friendsByCursor(filter: "hello", first: 10) {
+    friendsByCursor(first: 10, filter: "hello") {
         edges {
             node {
                 id
@@ -390,12 +390,6 @@ export type PaginatedFragment$artifact = typeof artifact
 
     "selection": {
         "fields": {
-            "__typename": {
-                "type": "String",
-                "keyRaw": "__typename",
-                "visible": true,
-            },
-
             "friendsByCursor": {
                 "type": "UserConnection",
                 "keyRaw": "friendsByCursor(first: 10, after: null, last: null, before: null, filter: \"hello\")",
@@ -414,17 +408,35 @@ export type PaginatedFragment$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "edges": {
                             "type": "UserEdge",
                             "keyRaw": "edges",
 
                             "selection": {
                                 "fields": {
+                                    "node": {
+                                        "type": "User",
+                                        "keyRaw": "node",
+                                        "nullable": true,
+
+                                        "selection": {
+                                            "fields": {
+                                                "id": {
+                                                    "type": "ID",
+                                                    "keyRaw": "id",
+                                                    "visible": true,
+                                                },
+
+                                                "__typename": {
+                                                    "type": "String",
+                                                    "keyRaw": "__typename",
+                                                },
+                                            },
+                                        },
+
+                                        "visible": true,
+                                    },
+
                                     "__typename": {
                                         "type": "String",
                                         "keyRaw": "__typename",
@@ -435,33 +447,15 @@ export type PaginatedFragment$artifact = typeof artifact
                                         "keyRaw": "cursor",
                                         "visible": true,
                                     },
-
-                                    "node": {
-                                        "type": "User",
-                                        "keyRaw": "node",
-                                        "nullable": true,
-
-                                        "selection": {
-                                            "fields": {
-                                                "__typename": {
-                                                    "type": "String",
-                                                    "keyRaw": "__typename",
-                                                },
-
-                                                "id": {
-                                                    "type": "ID",
-                                                    "keyRaw": "id",
-                                                    "visible": true,
-                                                },
-                                            },
-                                        },
-
-                                        "visible": true,
-                                    },
                                 },
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
 
                         "pageInfo": {
@@ -470,13 +464,6 @@ export type PaginatedFragment$artifact = typeof artifact
 
                             "selection": {
                                 "fields": {
-                                    "endCursor": {
-                                        "type": "String",
-                                        "keyRaw": "endCursor",
-                                        "nullable": true,
-                                        "visible": true,
-                                    },
-
                                     "hasNextPage": {
                                         "type": "Boolean",
                                         "keyRaw": "hasNextPage",
@@ -495,6 +482,13 @@ export type PaginatedFragment$artifact = typeof artifact
                                         "nullable": true,
                                         "visible": true,
                                     },
+
+                                    "endCursor": {
+                                        "type": "String",
+                                        "keyRaw": "endCursor",
+                                        "nullable": true,
+                                        "visible": true,
+                                    },
                                 },
                             },
 
@@ -503,6 +497,12 @@ export type PaginatedFragment$artifact = typeof artifact
                     },
                 },
 
+                "visible": true,
+            },
+
+            "__typename": {
+                "type": "String",
+                "keyRaw": "__typename",
                 "visible": true,
             },
 
@@ -547,7 +547,7 @@ export type PaginatedFragment$data = {
 
 export type PaginatedFragment$artifact = typeof artifact
 
-"HoudiniHash=984a385c590d094c53d7c6fb08bcabddd2f0cbfd0df69d49b3743fd0e046a66b"`),
+"HoudiniHash=75c244fe159df1685c5d0b36a0a64e28c3bc8a26ae858c5394c1552977329f97"`),
 				},
 			},
 			{
@@ -566,7 +566,7 @@ export type PaginatedFragment$artifact = typeof artifact
 					"PaginatedFragment": tests.Dedent(`const artifact = {
     "name": "PaginatedFragment",
     "kind": "HoudiniFragment",
-    "hash": "3da994a95a263e64c158d256500bc9339f871692f1943d6f4c1e45aeecbeea2d",
+    "hash": "1597445f56596d6d12bcb090d3455b4cef0fd38128e7312bc313e9c5e0685294",
 
     "refetch": {
         "path": ["friendsByOffset"],
@@ -580,7 +580,7 @@ export type PaginatedFragment$artifact = typeof artifact
     },
 
     "raw": ` + "`" + `fragment PaginatedFragment on User {
-    friendsByOffset(filter: "hello", limit: 10) {
+    friendsByOffset(limit: 10, filter: "hello") {
         id
         __typename
     }
@@ -594,12 +594,6 @@ export type PaginatedFragment$artifact = typeof artifact
 
     "selection": {
         "fields": {
-            "__typename": {
-                "type": "String",
-                "keyRaw": "__typename",
-                "visible": true,
-            },
-
             "friendsByOffset": {
                 "type": "User",
                 "keyRaw": "friendsByOffset(filter: \"hello\")::paginated",
@@ -613,19 +607,25 @@ export type PaginatedFragment$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "id": {
                             "type": "ID",
                             "keyRaw": "id",
                             "visible": true,
                         },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
+                        },
                     },
                 },
 
+                "visible": true,
+            },
+
+            "__typename": {
+                "type": "String",
+                "keyRaw": "__typename",
                 "visible": true,
             },
 
@@ -659,7 +659,7 @@ export type PaginatedFragment$data = {
 
 export type PaginatedFragment$artifact = typeof artifact
 
-"HoudiniHash=3da994a95a263e64c158d256500bc9339f871692f1943d6f4c1e45aeecbeea2d"`),
+"HoudiniHash=1597445f56596d6d12bcb090d3455b4cef0fd38128e7312bc313e9c5e0685294"`),
 				},
 			},
 			{
@@ -690,7 +690,7 @@ export type PaginatedFragment$artifact = typeof artifact
 					"ScalarPagination": tests.Dedent(`const artifact = {
     "name": "ScalarPagination",
     "kind": "HoudiniQuery",
-    "hash": "7f2262dcaf136ea17500364d6ca7be04eca17f9950a9177287240aba89d8f8e7",
+    "hash": "e6262d66ee80a4cec14b10ec68a46cae9ad74079f8286b94f77a7b13a0eeab96",
 
     "refetch": {
         "path": ["user","friendsByCursorScalar"],
@@ -705,7 +705,7 @@ export type PaginatedFragment$artifact = typeof artifact
 
     "raw": ` + "`" + `query ScalarPagination($after: Cursor, $before: Cursor, $first: Int = 10, $last: Int) {
     user {
-        friendsByCursorScalar(after: $after, before: $before, filter: "hello", first: $first, last: $last) {
+        friendsByCursorScalar(filter: "hello", first: $first, after: $after, last: $last, before: $before) {
             edges {
                 node {
                     friendsByCursor {
@@ -749,11 +749,6 @@ export type PaginatedFragment$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "friendsByCursorScalar": {
                             "type": "UserConnection",
                             "keyRaw": "friendsByCursorScalar(filter: \"hello\")::paginated",
@@ -766,11 +761,6 @@ export type PaginatedFragment$artifact = typeof artifact
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
                                     "edges": {
                                         "type": "UserEdge",
                                         "keyRaw": "edges",
@@ -778,17 +768,6 @@ export type PaginatedFragment$artifact = typeof artifact
 
                                         "selection": {
                                             "fields": {
-                                                "__typename": {
-                                                    "type": "String",
-                                                    "keyRaw": "__typename",
-                                                },
-
-                                                "cursor": {
-                                                    "type": "String",
-                                                    "keyRaw": "cursor",
-                                                    "visible": true,
-                                                },
-
                                                 "node": {
                                                     "type": "User",
                                                     "keyRaw": "node",
@@ -796,11 +775,6 @@ export type PaginatedFragment$artifact = typeof artifact
 
                                                     "selection": {
                                                         "fields": {
-                                                            "__typename": {
-                                                                "type": "String",
-                                                                "keyRaw": "__typename",
-                                                            },
-
                                                             "friendsByCursor": {
                                                                 "type": "UserConnection",
                                                                 "keyRaw": "friendsByCursor",
@@ -808,22 +782,12 @@ export type PaginatedFragment$artifact = typeof artifact
 
                                                                 "selection": {
                                                                     "fields": {
-                                                                        "__typename": {
-                                                                            "type": "String",
-                                                                            "keyRaw": "__typename",
-                                                                        },
-
                                                                         "edges": {
                                                                             "type": "UserEdge",
                                                                             "keyRaw": "edges",
 
                                                                             "selection": {
                                                                                 "fields": {
-                                                                                    "__typename": {
-                                                                                        "type": "String",
-                                                                                        "keyRaw": "__typename",
-                                                                                    },
-
                                                                                     "node": {
                                                                                         "type": "User",
                                                                                         "keyRaw": "node",
@@ -831,30 +795,45 @@ export type PaginatedFragment$artifact = typeof artifact
 
                                                                                         "selection": {
                                                                                             "fields": {
-                                                                                                "__typename": {
-                                                                                                    "type": "String",
-                                                                                                    "keyRaw": "__typename",
-                                                                                                },
-
                                                                                                 "id": {
                                                                                                     "type": "ID",
                                                                                                     "keyRaw": "id",
                                                                                                     "visible": true,
+                                                                                                },
+
+                                                                                                "__typename": {
+                                                                                                    "type": "String",
+                                                                                                    "keyRaw": "__typename",
                                                                                                 },
                                                                                             },
                                                                                         },
 
                                                                                         "visible": true,
                                                                                     },
+
+                                                                                    "__typename": {
+                                                                                        "type": "String",
+                                                                                        "keyRaw": "__typename",
+                                                                                    },
                                                                                 },
                                                                             },
 
                                                                             "visible": true,
                                                                         },
+
+                                                                        "__typename": {
+                                                                            "type": "String",
+                                                                            "keyRaw": "__typename",
+                                                                        },
                                                                     },
                                                                 },
 
                                                                 "visible": true,
+                                                            },
+
+                                                            "__typename": {
+                                                                "type": "String",
+                                                                "keyRaw": "__typename",
                                                             },
 
                                                             "id": {
@@ -866,10 +845,26 @@ export type PaginatedFragment$artifact = typeof artifact
 
                                                     "visible": true,
                                                 },
+
+                                                "__typename": {
+                                                    "type": "String",
+                                                    "keyRaw": "__typename",
+                                                },
+
+                                                "cursor": {
+                                                    "type": "String",
+                                                    "keyRaw": "cursor",
+                                                    "visible": true,
+                                                },
                                             },
                                         },
 
                                         "visible": true,
+                                    },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
                                     },
 
                                     "pageInfo": {
@@ -878,14 +873,6 @@ export type PaginatedFragment$artifact = typeof artifact
 
                                         "selection": {
                                             "fields": {
-                                                "endCursor": {
-                                                    "type": "String",
-                                                    "keyRaw": "endCursor",
-                                                    "updates": ["append"],
-                                                    "nullable": true,
-                                                    "visible": true,
-                                                },
-
                                                 "hasNextPage": {
                                                     "type": "Boolean",
                                                     "keyRaw": "hasNextPage",
@@ -907,6 +894,14 @@ export type PaginatedFragment$artifact = typeof artifact
                                                     "nullable": true,
                                                     "visible": true,
                                                 },
+
+                                                "endCursor": {
+                                                    "type": "String",
+                                                    "keyRaw": "endCursor",
+                                                    "updates": ["append"],
+                                                    "nullable": true,
+                                                    "visible": true,
+                                                },
                                             },
                                         },
 
@@ -916,6 +911,11 @@ export type PaginatedFragment$artifact = typeof artifact
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
 
                         "id": {
@@ -939,10 +939,10 @@ export type PaginatedFragment$artifact = typeof artifact
 
     "input": {
         "fields": {
-            "after": "Cursor",
-            "before": "Cursor",
             "first": "Int",
+            "after": "Cursor",
             "last": "Int",
+            "before": "Cursor",
         },
 
         "types": {},
@@ -991,49 +991,49 @@ export type ScalarPagination$result = {
 };
 
 export type ScalarPagination$input = {
-	after?: Cursor | null;
-	before?: Cursor | null;
 	first?: number | null;
+	after?: Cursor | null;
 	last?: number | null;
+	before?: Cursor | null;
 };
 
 export type ScalarPagination$unmasked = {
 	readonly user: {
-		readonly __typename: "User";
 		readonly friendsByCursorScalar: {
-			readonly __typename: "UserConnection";
 			readonly edges: ({
-				readonly __typename: "UserEdge";
-				readonly cursor: string;
 				readonly node: {
-					readonly __typename: "User";
 					readonly friendsByCursor: {
-						readonly __typename: "UserConnection";
 						readonly edges: ({
-							readonly __typename: "UserEdge";
 							readonly node: {
-								readonly __typename: "User";
 								readonly id: string;
+								readonly __typename: "User";
 							} | null;
+							readonly __typename: "UserEdge";
 						})[];
+						readonly __typename: "UserConnection";
 					} | null;
+					readonly __typename: "User";
 					readonly id: string;
 				} | null;
+				readonly __typename: "UserEdge";
+				readonly cursor: string;
 			})[];
+			readonly __typename: "UserConnection";
 			readonly pageInfo: {
-				readonly endCursor: string | null;
 				readonly hasNextPage: boolean;
 				readonly hasPreviousPage: boolean;
 				readonly startCursor: string | null;
+				readonly endCursor: string | null;
 			};
 		};
+		readonly __typename: "User";
 		readonly id: string;
 	};
 };
 
 export type ScalarPagination$artifact = typeof artifact
 
-"HoudiniHash=7f2262dcaf136ea17500364d6ca7be04eca17f9950a9177287240aba89d8f8e7"`),
+"HoudiniHash=e6262d66ee80a4cec14b10ec68a46cae9ad74079f8286b94f77a7b13a0eeab96"`),
 				},
 			},
 			{
@@ -1075,7 +1075,7 @@ export type ScalarPagination$artifact = typeof artifact
 					"PaginatedFragment": tests.Dedent(`const artifact = {
     "name": "PaginatedFragment",
     "kind": "HoudiniFragment",
-    "hash": "284c586ae2cb137877c64127e51f7278ece65613b171ea54d035e759b271f035",
+    "hash": "78b80c2614cff7e081e6fe51e406113e0133a05c144e66959fbda996cfac5217",
 
     "refetch": {
         "path": ["friendsByCursor"],
@@ -1089,7 +1089,7 @@ export type ScalarPagination$artifact = typeof artifact
     },
 
     "raw": ` + "`" + `fragment PaginatedFragment on User {
-    friendsByCursor(filter: "hello", first: 10) {
+    friendsByCursor(first: 10, filter: "hello") {
         edges {
             node {
                 friendsByCursor {
@@ -1116,7 +1116,7 @@ export type ScalarPagination$artifact = typeof artifact
             endCursor
         }
     }
-    friends: friendsByCursor(filter: "hello", first: 10) {
+    friends: friendsByCursor(first: 10, filter: "hello") {
         edges {
             node {
                 friendsByCursor {
@@ -1146,123 +1146,6 @@ export type ScalarPagination$artifact = typeof artifact
 
     "selection": {
         "fields": {
-            "__typename": {
-                "type": "String",
-                "keyRaw": "__typename",
-                "visible": true,
-            },
-
-            "friends": {
-                "type": "UserConnection",
-                "keyRaw": "friends(filter: \"hello\", first: 10)",
-                "nullable": true,
-
-                "selection": {
-                    "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
-                        "edges": {
-                            "type": "UserEdge",
-                            "keyRaw": "edges",
-
-                            "selection": {
-                                "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
-                                    "node": {
-                                        "type": "User",
-                                        "keyRaw": "node",
-                                        "nullable": true,
-
-                                        "selection": {
-                                            "fields": {
-                                                "__typename": {
-                                                    "type": "String",
-                                                    "keyRaw": "__typename",
-                                                },
-
-                                                "friendsByCursor": {
-                                                    "type": "UserConnection",
-                                                    "keyRaw": "friendsByCursor",
-                                                    "nullable": true,
-
-                                                    "selection": {
-                                                        "fields": {
-                                                            "__typename": {
-                                                                "type": "String",
-                                                                "keyRaw": "__typename",
-                                                            },
-
-                                                            "edges": {
-                                                                "type": "UserEdge",
-                                                                "keyRaw": "edges",
-
-                                                                "selection": {
-                                                                    "fields": {
-                                                                        "__typename": {
-                                                                            "type": "String",
-                                                                            "keyRaw": "__typename",
-                                                                        },
-
-                                                                        "node": {
-                                                                            "type": "User",
-                                                                            "keyRaw": "node",
-                                                                            "nullable": true,
-
-                                                                            "selection": {
-                                                                                "fields": {
-                                                                                    "__typename": {
-                                                                                        "type": "String",
-                                                                                        "keyRaw": "__typename",
-                                                                                    },
-
-                                                                                    "id": {
-                                                                                        "type": "ID",
-                                                                                        "keyRaw": "id",
-                                                                                        "visible": true,
-                                                                                    },
-                                                                                },
-                                                                            },
-
-                                                                            "visible": true,
-                                                                        },
-                                                                    },
-                                                                },
-
-                                                                "visible": true,
-                                                            },
-                                                        },
-                                                    },
-
-                                                    "visible": true,
-                                                },
-
-                                                "id": {
-                                                    "type": "ID",
-                                                    "keyRaw": "id",
-                                                },
-                                            },
-                                        },
-
-                                        "visible": true,
-                                    },
-                                },
-                            },
-
-                            "visible": true,
-                        },
-                    },
-                },
-
-                "visible": true,
-            },
-
             "friendsByCursor": {
                 "type": "UserConnection",
                 "keyRaw": "friendsByCursor(filter: \"hello\")::paginated",
@@ -1276,11 +1159,6 @@ export type ScalarPagination$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "edges": {
                             "type": "UserEdge",
                             "keyRaw": "edges",
@@ -1288,17 +1166,6 @@ export type ScalarPagination$artifact = typeof artifact
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
-                                    "cursor": {
-                                        "type": "String",
-                                        "keyRaw": "cursor",
-                                        "visible": true,
-                                    },
-
                                     "node": {
                                         "type": "User",
                                         "keyRaw": "node",
@@ -1306,11 +1173,6 @@ export type ScalarPagination$artifact = typeof artifact
 
                                         "selection": {
                                             "fields": {
-                                                "__typename": {
-                                                    "type": "String",
-                                                    "keyRaw": "__typename",
-                                                },
-
                                                 "friendsByCursor": {
                                                     "type": "UserConnection",
                                                     "keyRaw": "friendsByCursor",
@@ -1318,22 +1180,12 @@ export type ScalarPagination$artifact = typeof artifact
 
                                                     "selection": {
                                                         "fields": {
-                                                            "__typename": {
-                                                                "type": "String",
-                                                                "keyRaw": "__typename",
-                                                            },
-
                                                             "edges": {
                                                                 "type": "UserEdge",
                                                                 "keyRaw": "edges",
 
                                                                 "selection": {
                                                                     "fields": {
-                                                                        "__typename": {
-                                                                            "type": "String",
-                                                                            "keyRaw": "__typename",
-                                                                        },
-
                                                                         "node": {
                                                                             "type": "User",
                                                                             "keyRaw": "node",
@@ -1341,30 +1193,45 @@ export type ScalarPagination$artifact = typeof artifact
 
                                                                             "selection": {
                                                                                 "fields": {
-                                                                                    "__typename": {
-                                                                                        "type": "String",
-                                                                                        "keyRaw": "__typename",
-                                                                                    },
-
                                                                                     "id": {
                                                                                         "type": "ID",
                                                                                         "keyRaw": "id",
                                                                                         "visible": true,
+                                                                                    },
+
+                                                                                    "__typename": {
+                                                                                        "type": "String",
+                                                                                        "keyRaw": "__typename",
                                                                                     },
                                                                                 },
                                                                             },
 
                                                                             "visible": true,
                                                                         },
+
+                                                                        "__typename": {
+                                                                            "type": "String",
+                                                                            "keyRaw": "__typename",
+                                                                        },
                                                                     },
                                                                 },
 
                                                                 "visible": true,
                                                             },
+
+                                                            "__typename": {
+                                                                "type": "String",
+                                                                "keyRaw": "__typename",
+                                                            },
                                                         },
                                                     },
 
                                                     "visible": true,
+                                                },
+
+                                                "__typename": {
+                                                    "type": "String",
+                                                    "keyRaw": "__typename",
                                                 },
 
                                                 "id": {
@@ -1376,10 +1243,26 @@ export type ScalarPagination$artifact = typeof artifact
 
                                         "visible": true,
                                     },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
+                                    },
+
+                                    "cursor": {
+                                        "type": "String",
+                                        "keyRaw": "cursor",
+                                        "visible": true,
+                                    },
                                 },
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
 
                         "pageInfo": {
@@ -1388,14 +1271,6 @@ export type ScalarPagination$artifact = typeof artifact
 
                             "selection": {
                                 "fields": {
-                                    "endCursor": {
-                                        "type": "String",
-                                        "keyRaw": "endCursor",
-                                        "updates": ["append"],
-                                        "nullable": true,
-                                        "visible": true,
-                                    },
-
                                     "hasNextPage": {
                                         "type": "Boolean",
                                         "keyRaw": "hasNextPage",
@@ -1417,6 +1292,14 @@ export type ScalarPagination$artifact = typeof artifact
                                         "nullable": true,
                                         "visible": true,
                                     },
+
+                                    "endCursor": {
+                                        "type": "String",
+                                        "keyRaw": "endCursor",
+                                        "updates": ["append"],
+                                        "nullable": true,
+                                        "visible": true,
+                                    },
                                 },
                             },
 
@@ -1425,6 +1308,123 @@ export type ScalarPagination$artifact = typeof artifact
                     },
                 },
 
+                "visible": true,
+            },
+
+            "friends": {
+                "type": "UserConnection",
+                "keyRaw": "friends(first: 10, filter: \"hello\")",
+                "nullable": true,
+
+                "selection": {
+                    "fields": {
+                        "edges": {
+                            "type": "UserEdge",
+                            "keyRaw": "edges",
+
+                            "selection": {
+                                "fields": {
+                                    "node": {
+                                        "type": "User",
+                                        "keyRaw": "node",
+                                        "nullable": true,
+
+                                        "selection": {
+                                            "fields": {
+                                                "friendsByCursor": {
+                                                    "type": "UserConnection",
+                                                    "keyRaw": "friendsByCursor",
+                                                    "nullable": true,
+
+                                                    "selection": {
+                                                        "fields": {
+                                                            "edges": {
+                                                                "type": "UserEdge",
+                                                                "keyRaw": "edges",
+
+                                                                "selection": {
+                                                                    "fields": {
+                                                                        "node": {
+                                                                            "type": "User",
+                                                                            "keyRaw": "node",
+                                                                            "nullable": true,
+
+                                                                            "selection": {
+                                                                                "fields": {
+                                                                                    "id": {
+                                                                                        "type": "ID",
+                                                                                        "keyRaw": "id",
+                                                                                        "visible": true,
+                                                                                    },
+
+                                                                                    "__typename": {
+                                                                                        "type": "String",
+                                                                                        "keyRaw": "__typename",
+                                                                                    },
+                                                                                },
+                                                                            },
+
+                                                                            "visible": true,
+                                                                        },
+
+                                                                        "__typename": {
+                                                                            "type": "String",
+                                                                            "keyRaw": "__typename",
+                                                                        },
+                                                                    },
+                                                                },
+
+                                                                "visible": true,
+                                                            },
+
+                                                            "__typename": {
+                                                                "type": "String",
+                                                                "keyRaw": "__typename",
+                                                            },
+                                                        },
+                                                    },
+
+                                                    "visible": true,
+                                                },
+
+                                                "__typename": {
+                                                    "type": "String",
+                                                    "keyRaw": "__typename",
+                                                },
+
+                                                "id": {
+                                                    "type": "ID",
+                                                    "keyRaw": "id",
+                                                },
+                                            },
+                                        },
+
+                                        "visible": true,
+                                    },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
+                                    },
+                                },
+                            },
+
+                            "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
+                        },
+                    },
+                },
+
+                "visible": true,
+            },
+
+            "__typename": {
+                "type": "String",
+                "keyRaw": "__typename",
                 "visible": true,
             },
 
@@ -1488,7 +1488,7 @@ export type PaginatedFragment$data = {
 
 export type PaginatedFragment$artifact = typeof artifact
 
-"HoudiniHash=284c586ae2cb137877c64127e51f7278ece65613b171ea54d035e759b271f035"`),
+"HoudiniHash=78b80c2614cff7e081e6fe51e406113e0133a05c144e66959fbda996cfac5217"`),
 				},
 			},
 			{
@@ -1513,7 +1513,7 @@ export type PaginatedFragment$artifact = typeof artifact
 					"TestQuery": tests.Dedent(`const artifact = {
     "name": "TestQuery",
     "kind": "HoudiniQuery",
-    "hash": "0d0fa55060035d4eb6ae7de938bdcfe8703aecff0becc0a479b6e29ffa999e4b",
+    "hash": "65dcad7518a83fd849c7da587f62a08ba62b9eb6e226eb95fb1c9a276575b9c1",
 
     "refetch": {
         "path": ["entitiesByCursor"],
@@ -1527,7 +1527,7 @@ export type PaginatedFragment$artifact = typeof artifact
     },
 
     "raw": ` + "`" + `query TestQuery($after: String, $before: String, $first: Int = 10, $last: Int) {
-    entitiesByCursor(after: $after, before: $before, first: $first, last: $last) {
+    entitiesByCursor(first: $first, after: $after, last: $last, before: $before) {
         edges {
             node {
                 ... on User {
@@ -1578,11 +1578,6 @@ export type PaginatedFragment$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "edges": {
                             "type": "EntityEdge",
                             "keyRaw": "edges",
@@ -1590,17 +1585,6 @@ export type PaginatedFragment$artifact = typeof artifact
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
-                                    "cursor": {
-                                        "type": "String",
-                                        "keyRaw": "cursor",
-                                        "visible": true,
-                                    },
-
                                     "node": {
                                         "type": "Entity",
                                         "keyRaw": "node",
@@ -1616,14 +1600,14 @@ export type PaginatedFragment$artifact = typeof artifact
                                             "abstractFields": {
                                                 "fields": {
                                                     "User": {
-                                                        "__typename": {
-                                                            "type": "String",
-                                                            "keyRaw": "__typename",
-                                                        },
                                                         "firstName": {
                                                             "type": "String",
                                                             "keyRaw": "firstName",
                                                             "visible": true,
+                                                        },
+                                                        "__typename": {
+                                                            "type": "String",
+                                                            "keyRaw": "__typename",
                                                         },
                                                         "id": {
                                                             "type": "ID",
@@ -1639,10 +1623,26 @@ export type PaginatedFragment$artifact = typeof artifact
                                         "abstract": true,
                                         "visible": true,
                                     },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
+                                    },
+
+                                    "cursor": {
+                                        "type": "String",
+                                        "keyRaw": "cursor",
+                                        "visible": true,
+                                    },
                                 },
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
 
                         "pageInfo": {
@@ -1651,14 +1651,6 @@ export type PaginatedFragment$artifact = typeof artifact
 
                             "selection": {
                                 "fields": {
-                                    "endCursor": {
-                                        "type": "String",
-                                        "keyRaw": "endCursor",
-                                        "updates": ["append"],
-                                        "nullable": true,
-                                        "visible": true,
-                                    },
-
                                     "hasNextPage": {
                                         "type": "Boolean",
                                         "keyRaw": "hasNextPage",
@@ -1680,6 +1672,14 @@ export type PaginatedFragment$artifact = typeof artifact
                                         "nullable": true,
                                         "visible": true,
                                     },
+
+                                    "endCursor": {
+                                        "type": "String",
+                                        "keyRaw": "endCursor",
+                                        "updates": ["append"],
+                                        "nullable": true,
+                                        "visible": true,
+                                    },
                                 },
                             },
 
@@ -1689,21 +1689,21 @@ export type PaginatedFragment$artifact = typeof artifact
                 },
 
                 "filters": {
-                    "after": {
-                        "kind": "Variable",
-                        "value": "after"
-                    },
-                    "before": {
-                        "kind": "Variable",
-                        "value": "before"
-                    },
                     "first": {
                         "kind": "Variable",
                         "value": "first"
                     },
+                    "after": {
+                        "kind": "Variable",
+                        "value": "after"
+                    },
                     "last": {
                         "kind": "Variable",
                         "value": "last"
+                    },
+                    "before": {
+                        "kind": "Variable",
+                        "value": "before"
                     },
                 },
                 "visible": true,
@@ -1720,10 +1720,10 @@ export type PaginatedFragment$artifact = typeof artifact
 
     "input": {
         "fields": {
-            "after": "String",
-            "before": "String",
             "first": "Int",
+            "after": "String",
             "last": "Int",
+            "before": "String",
         },
 
         "types": {},
@@ -1768,18 +1768,15 @@ export type TestQuery$result = {
 };
 
 export type TestQuery$input = {
-	after?: string | null;
-	before?: string | null;
 	first?: number | null;
+	after?: string | null;
 	last?: number | null;
+	before?: string | null;
 };
 
 export type TestQuery$unmasked = {
 	readonly entitiesByCursor: {
-		readonly __typename: "EntityConnection";
 		readonly edges: ({
-			readonly __typename: "EntityEdge";
-			readonly cursor: string;
 			readonly node: {} & (({
 				readonly firstName: string;
 				readonly id: string;
@@ -1788,19 +1785,22 @@ export type TestQuery$unmasked = {
 				readonly " $fragments"?: {};
 				readonly __typename: "non-exhaustive; don't match this";
 			})) | null;
+			readonly __typename: "EntityEdge";
+			readonly cursor: string;
 		})[];
+		readonly __typename: "EntityConnection";
 		readonly pageInfo: {
-			readonly endCursor: string | null;
 			readonly hasNextPage: boolean;
 			readonly hasPreviousPage: boolean;
 			readonly startCursor: string | null;
+			readonly endCursor: string | null;
 		};
 	};
 };
 
 export type TestQuery$artifact = typeof artifact
 
-"HoudiniHash=0d0fa55060035d4eb6ae7de938bdcfe8703aecff0becc0a479b6e29ffa999e4b"`),
+"HoudiniHash=65dcad7518a83fd849c7da587f62a08ba62b9eb6e226eb95fb1c9a276575b9c1"`),
 				},
 			},
 			{
@@ -1828,7 +1828,7 @@ export type TestQuery$artifact = typeof artifact
 					"Info": tests.Dedent(`const artifact = {
     "name": "Info",
     "kind": "HoudiniQuery",
-    "hash": "8c477355428da3ad46b8438259e16cda72a336392b61e06b7130fa99bf103631",
+    "hash": "209cda5570b08d7a05a24baf7296a43a140c8f832e2628e54ae4710c838b736f",
 
     "refetch": {
         "path": ["species","moves"],
@@ -1844,7 +1844,7 @@ export type TestQuery$artifact = typeof artifact
     "raw": ` + "`" + `query Info($after: String, $first: Int = 1, $id: Int = 1) {
     species(id: $id) {
         id
-        moves(after: $after, first: $first) {
+        moves(first: $first, after: $after) {
             edges {
                 node {
                     id
@@ -1879,11 +1879,6 @@ export type TestQuery$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "id": {
                             "type": "Int",
                             "keyRaw": "id",
@@ -1907,17 +1902,35 @@ export type TestQuery$artifact = typeof artifact
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
                                     "edges": {
                                         "type": "SpeciesMoveEdge",
                                         "keyRaw": "edges",
 
                                         "selection": {
                                             "fields": {
+                                                "node": {
+                                                    "type": "SpeciesMove",
+                                                    "keyRaw": "node",
+                                                    "nullable": true,
+
+                                                    "selection": {
+                                                        "fields": {
+                                                            "id": {
+                                                                "type": "Int",
+                                                                "keyRaw": "id",
+                                                                "visible": true,
+                                                            },
+
+                                                            "__typename": {
+                                                                "type": "String",
+                                                                "keyRaw": "__typename",
+                                                            },
+                                                        },
+                                                    },
+
+                                                    "visible": true,
+                                                },
+
                                                 "__typename": {
                                                     "type": "String",
                                                     "keyRaw": "__typename",
@@ -1926,29 +1939,6 @@ export type TestQuery$artifact = typeof artifact
                                                 "cursor": {
                                                     "type": "String",
                                                     "keyRaw": "cursor",
-                                                    "visible": true,
-                                                },
-
-                                                "node": {
-                                                    "type": "SpeciesMove",
-                                                    "keyRaw": "node",
-                                                    "nullable": true,
-
-                                                    "selection": {
-                                                        "fields": {
-                                                            "__typename": {
-                                                                "type": "String",
-                                                                "keyRaw": "__typename",
-                                                            },
-
-                                                            "id": {
-                                                                "type": "Int",
-                                                                "keyRaw": "id",
-                                                                "visible": true,
-                                                            },
-                                                        },
-                                                    },
-
                                                     "visible": true,
                                                 },
                                             },
@@ -1963,18 +1953,6 @@ export type TestQuery$artifact = typeof artifact
 
                                         "selection": {
                                             "fields": {
-                                                "__typename": {
-                                                    "type": "String",
-                                                    "keyRaw": "__typename",
-                                                },
-
-                                                "endCursor": {
-                                                    "type": "String",
-                                                    "keyRaw": "endCursor",
-                                                    "nullable": true,
-                                                    "visible": true,
-                                                },
-
                                                 "hasNextPage": {
                                                     "type": "Boolean",
                                                     "keyRaw": "hasNextPage",
@@ -1987,9 +1965,21 @@ export type TestQuery$artifact = typeof artifact
                                                     "visible": true,
                                                 },
 
+                                                "__typename": {
+                                                    "type": "String",
+                                                    "keyRaw": "__typename",
+                                                },
+
                                                 "startCursor": {
                                                     "type": "String",
                                                     "keyRaw": "startCursor",
+                                                    "nullable": true,
+                                                    "visible": true,
+                                                },
+
+                                                "endCursor": {
+                                                    "type": "String",
+                                                    "keyRaw": "endCursor",
                                                     "nullable": true,
                                                     "visible": true,
                                                 },
@@ -1998,10 +1988,20 @@ export type TestQuery$artifact = typeof artifact
 
                                         "visible": true,
                                     },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
+                                    },
                                 },
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
                 },
@@ -2020,16 +2020,16 @@ export type TestQuery$artifact = typeof artifact
 
     "input": {
         "fields": {
-            "after": "String",
-            "first": "Int",
             "id": "Int",
+            "first": "Int",
+            "after": "String",
         },
 
         "types": {},
 
         "defaults": {
-            "first": 1,
             "id": 1,
+            "first": 1,
         },
 
         "runtimeScalars": {},
@@ -2067,39 +2067,39 @@ export type Info$result = {
 };
 
 export type Info$input = {
-	after?: string | null;
-	first?: number | null;
 	id?: number | null;
+	first?: number | null;
+	after?: string | null;
 };
 
 export type Info$unmasked = {
 	readonly species: {
-		readonly __typename: "Species";
 		readonly id: number;
 		readonly moves: {
-			readonly __typename: "SpeciesMoveConnection";
 			readonly edges: ({
+				readonly node: {
+					readonly id: number;
+					readonly __typename: "SpeciesMove";
+				} | null;
 				readonly __typename: "SpeciesMoveEdge";
 				readonly cursor: string;
-				readonly node: {
-					readonly __typename: "SpeciesMove";
-					readonly id: number;
-				} | null;
 			})[];
 			readonly pageInfo: {
-				readonly __typename: "PageInfo";
-				readonly endCursor: string | null;
 				readonly hasNextPage: boolean;
 				readonly hasPreviousPage: boolean;
+				readonly __typename: "PageInfo";
 				readonly startCursor: string | null;
+				readonly endCursor: string | null;
 			};
+			readonly __typename: "SpeciesMoveConnection";
 		};
+		readonly __typename: "Species";
 	} | null;
 };
 
 export type Info$artifact = typeof artifact
 
-"HoudiniHash=8c477355428da3ad46b8438259e16cda72a336392b61e06b7130fa99bf103631"`),
+"HoudiniHash=209cda5570b08d7a05a24baf7296a43a140c8f832e2628e54ae4710c838b736f"`),
 				},
 			},
 		},

@@ -133,7 +133,7 @@ func TestListArtifacts(t *testing.T) {
               const artifact = {
                   "name": "TestQuery",
                   "kind": "HoudiniQuery",
-                  "hash": "dc502dd533f31553a3c311a7aaa782d82f81d7f7a8816d5095f96584a7600004",
+                  "hash": "121c8dac4c48788c96e80022506483e7a03b440a7a9dd1a87ada4908b6b49669",
 
                   "refetch": {
                       "path": ["users"],
@@ -147,13 +147,13 @@ func TestListArtifacts(t *testing.T) {
                   },
 
                   "raw": ` + "`" + `query TestQuery($value: String!) {
-    users(boolValue: true, floatValue: 1.2, intValue: 1, stringValue: $value) {
-        firstName
-        __typename
-        id
-    }
-}
-` + "`" + `,
+                  users(stringValue: $value, boolValue: true, floatValue: 1.2, intValue: 1) {
+                      firstName
+                      __typename
+                      id
+                  }
+              }
+              ` + "`" + `,
 
                   "rootType": "Query",
                   "stripVariables": [] as Array<string>,
@@ -162,7 +162,7 @@ func TestListArtifacts(t *testing.T) {
                       "fields": {
                           "users": {
                               "type": "User",
-                              "keyRaw": "users(boolValue: true, floatValue: 1.2, intValue: 1, stringValue: $value)",
+                              "keyRaw": "users(stringValue: $value, boolValue: true, floatValue: 1.2, intValue: 1)",
 
                               "directives": [{
                                   "name": "list",
@@ -182,15 +182,15 @@ func TestListArtifacts(t *testing.T) {
 
                               "selection": {
                                   "fields": {
-                                      "__typename": {
-                                          "type": "String",
-                                          "keyRaw": "__typename",
-                                      },
-
                                       "firstName": {
                                           "type": "String",
                                           "keyRaw": "firstName",
                                           "visible": true,
+                                      },
+
+                                      "__typename": {
+                                          "type": "String",
+                                          "keyRaw": "__typename",
                                       },
 
                                       "id": {
@@ -201,6 +201,10 @@ func TestListArtifacts(t *testing.T) {
                               },
 
                               "filters": {
+                                  "stringValue": {
+                                      "kind": "Variable",
+                                      "value": "value"
+                                  },
                                   "boolValue": {
                                       "kind": "Boolean",
                                       "value": true
@@ -212,10 +216,6 @@ func TestListArtifacts(t *testing.T) {
                                   "intValue": {
                                       "kind": "Int",
                                       "value": 1
-                                  },
-                                  "stringValue": {
-                                      "kind": "Variable",
-                                      "value": "value"
                                   },
                               },
                               "visible": true,
@@ -260,16 +260,15 @@ func TestListArtifacts(t *testing.T) {
 
               export type TestQuery$unmasked = {
               	readonly users: ({
-              		readonly __typename: "User";
               		readonly firstName: string;
+              		readonly __typename: "User";
               		readonly id: string;
               	})[];
               };
 
               export type TestQuery$artifact = typeof artifact
 
-              "HoudiniHash=dc502dd533f31553a3c311a7aaa782d82f81d7f7a8816d5095f96584a7600004"
-
+              "HoudiniHash=121c8dac4c48788c96e80022506483e7a03b440a7a9dd1a87ada4908b6b49669"
           `),
 				},
 			},
@@ -353,28 +352,12 @@ func TestListArtifacts(t *testing.T) {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "edges": {
                             "type": "UserEdge",
                             "keyRaw": "edges",
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
-                                    "cursor": {
-                                        "type": "String",
-                                        "keyRaw": "cursor",
-                                        "visible": true,
-                                    },
-
                                     "node": {
                                         "type": "User",
                                         "keyRaw": "node",
@@ -382,15 +365,15 @@ func TestListArtifacts(t *testing.T) {
 
                                         "selection": {
                                             "fields": {
-                                                "__typename": {
-                                                    "type": "String",
-                                                    "keyRaw": "__typename",
-                                                },
-
                                                 "firstName": {
                                                     "type": "String",
                                                     "keyRaw": "firstName",
                                                     "visible": true,
+                                                },
+
+                                                "__typename": {
+                                                    "type": "String",
+                                                    "keyRaw": "__typename",
                                                 },
 
                                                 "id": {
@@ -402,10 +385,26 @@ func TestListArtifacts(t *testing.T) {
 
                                         "visible": true,
                                     },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
+                                    },
+
+                                    "cursor": {
+                                        "type": "String",
+                                        "keyRaw": "cursor",
+                                        "visible": true,
+                                    },
                                 },
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
 
                         "pageInfo": {
@@ -414,13 +413,6 @@ func TestListArtifacts(t *testing.T) {
 
                             "selection": {
                                 "fields": {
-                                    "endCursor": {
-                                        "type": "String",
-                                        "keyRaw": "endCursor",
-                                        "nullable": true,
-                                        "visible": true,
-                                    },
-
                                     "hasNextPage": {
                                         "type": "Boolean",
                                         "keyRaw": "hasNextPage",
@@ -436,6 +428,13 @@ func TestListArtifacts(t *testing.T) {
                                     "startCursor": {
                                         "type": "String",
                                         "keyRaw": "startCursor",
+                                        "nullable": true,
+                                        "visible": true,
+                                    },
+
+                                    "endCursor": {
+                                        "type": "String",
+                                        "keyRaw": "endCursor",
                                         "nullable": true,
                                         "visible": true,
                                     },
@@ -485,21 +484,21 @@ export type TestQuery$input = null | undefined;
 
 export type TestQuery$unmasked = {
 	readonly usersByCursor: {
-		readonly __typename: "UserConnection";
 		readonly edges: ({
-			readonly __typename: "UserEdge";
-			readonly cursor: string;
 			readonly node: {
-				readonly __typename: "User";
 				readonly firstName: string;
+				readonly __typename: "User";
 				readonly id: string;
 			} | null;
+			readonly __typename: "UserEdge";
+			readonly cursor: string;
 		})[];
+		readonly __typename: "UserConnection";
 		readonly pageInfo: {
-			readonly endCursor: string | null;
 			readonly hasNextPage: boolean;
 			readonly hasPreviousPage: boolean;
 			readonly startCursor: string | null;
+			readonly endCursor: string | null;
 		};
 	};
 };
@@ -527,7 +526,7 @@ export type TestQuery$artifact = typeof artifact
 					"TestQuery": tests.Dedent(`const artifact = {
     "name": "TestQuery",
     "kind": "HoudiniQuery",
-    "hash": "2ab71008736af6ef21d3e5a414af57585acb8921743df58a4f258a88407fd212",
+    "hash": "a84634a4d691a47b7ae51ea8cd7698405f414c4341332f0fbbc1ebf7cc9d736d",
 
     "refetch": {
         "path": ["usersByCursor"],
@@ -541,7 +540,7 @@ export type TestQuery$artifact = typeof artifact
     },
 
     "raw": ` + "`" + `query TestQuery($after: String, $before: String, $first: Int = 10, $last: Int) {
-    usersByCursor(after: $after, before: $before, first: $first, last: $last) {
+    usersByCursor(first: $first, after: $after, last: $last, before: $before) {
         edges {
             node {
                 firstName
@@ -589,11 +588,6 @@ export type TestQuery$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "edges": {
                             "type": "UserEdge",
                             "keyRaw": "edges",
@@ -601,17 +595,6 @@ export type TestQuery$artifact = typeof artifact
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
-                                    "cursor": {
-                                        "type": "String",
-                                        "keyRaw": "cursor",
-                                        "visible": true,
-                                    },
-
                                     "node": {
                                         "type": "User",
                                         "keyRaw": "node",
@@ -619,15 +602,15 @@ export type TestQuery$artifact = typeof artifact
 
                                         "selection": {
                                             "fields": {
-                                                "__typename": {
-                                                    "type": "String",
-                                                    "keyRaw": "__typename",
-                                                },
-
                                                 "firstName": {
                                                     "type": "String",
                                                     "keyRaw": "firstName",
                                                     "visible": true,
+                                                },
+
+                                                "__typename": {
+                                                    "type": "String",
+                                                    "keyRaw": "__typename",
                                                 },
 
                                                 "id": {
@@ -639,10 +622,26 @@ export type TestQuery$artifact = typeof artifact
 
                                         "visible": true,
                                     },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
+                                    },
+
+                                    "cursor": {
+                                        "type": "String",
+                                        "keyRaw": "cursor",
+                                        "visible": true,
+                                    },
                                 },
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
 
                         "pageInfo": {
@@ -651,14 +650,6 @@ export type TestQuery$artifact = typeof artifact
 
                             "selection": {
                                 "fields": {
-                                    "endCursor": {
-                                        "type": "String",
-                                        "keyRaw": "endCursor",
-                                        "updates": ["append"],
-                                        "nullable": true,
-                                        "visible": true,
-                                    },
-
                                     "hasNextPage": {
                                         "type": "Boolean",
                                         "keyRaw": "hasNextPage",
@@ -680,6 +671,14 @@ export type TestQuery$artifact = typeof artifact
                                         "nullable": true,
                                         "visible": true,
                                     },
+
+                                    "endCursor": {
+                                        "type": "String",
+                                        "keyRaw": "endCursor",
+                                        "updates": ["append"],
+                                        "nullable": true,
+                                        "visible": true,
+                                    },
                                 },
                             },
 
@@ -689,21 +688,21 @@ export type TestQuery$artifact = typeof artifact
                 },
 
                 "filters": {
-                    "after": {
-                        "kind": "Variable",
-                        "value": "after"
-                    },
-                    "before": {
-                        "kind": "Variable",
-                        "value": "before"
-                    },
                     "first": {
                         "kind": "Variable",
                         "value": "first"
                     },
+                    "after": {
+                        "kind": "Variable",
+                        "value": "after"
+                    },
                     "last": {
                         "kind": "Variable",
                         "value": "last"
+                    },
+                    "before": {
+                        "kind": "Variable",
+                        "value": "before"
                     },
                 },
                 "visible": true,
@@ -720,10 +719,10 @@ export type TestQuery$artifact = typeof artifact
 
     "input": {
         "fields": {
-            "after": "String",
-            "before": "String",
             "first": "Int",
+            "after": "String",
             "last": "Int",
+            "before": "String",
         },
 
         "types": {},
@@ -764,36 +763,36 @@ export type TestQuery$result = {
 };
 
 export type TestQuery$input = {
-	after?: string | null;
-	before?: string | null;
 	first?: number | null;
+	after?: string | null;
 	last?: number | null;
+	before?: string | null;
 };
 
 export type TestQuery$unmasked = {
 	readonly usersByCursor: {
-		readonly __typename: "UserConnection";
 		readonly edges: ({
-			readonly __typename: "UserEdge";
-			readonly cursor: string;
 			readonly node: {
-				readonly __typename: "User";
 				readonly firstName: string;
+				readonly __typename: "User";
 				readonly id: string;
 			} | null;
+			readonly __typename: "UserEdge";
+			readonly cursor: string;
 		})[];
+		readonly __typename: "UserConnection";
 		readonly pageInfo: {
-			readonly endCursor: string | null;
 			readonly hasNextPage: boolean;
 			readonly hasPreviousPage: boolean;
 			readonly startCursor: string | null;
+			readonly endCursor: string | null;
 		};
 	};
 };
 
 export type TestQuery$artifact = typeof artifact
 
-"HoudiniHash=2ab71008736af6ef21d3e5a414af57585acb8921743df58a4f258a88407fd212"`),
+"HoudiniHash=a84634a4d691a47b7ae51ea8cd7698405f414c4341332f0fbbc1ebf7cc9d736d"`),
 				},
 			},
 			{
@@ -814,7 +813,7 @@ export type TestQuery$artifact = typeof artifact
 					"TestQuery": tests.Dedent(`const artifact = {
     "name": "TestQuery",
     "kind": "HoudiniQuery",
-    "hash": "2ab71008736af6ef21d3e5a414af57585acb8921743df58a4f258a88407fd212",
+    "hash": "a84634a4d691a47b7ae51ea8cd7698405f414c4341332f0fbbc1ebf7cc9d736d",
 
     "refetch": {
         "path": ["usersByCursor"],
@@ -828,7 +827,7 @@ export type TestQuery$artifact = typeof artifact
     },
 
     "raw": ` + "`" + `query TestQuery($after: String, $before: String, $first: Int = 10, $last: Int) {
-    usersByCursor(after: $after, before: $before, first: $first, last: $last) {
+    usersByCursor(first: $first, after: $after, last: $last, before: $before) {
         edges {
             node {
                 firstName
@@ -880,28 +879,12 @@ export type TestQuery$artifact = typeof artifact
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "edges": {
                             "type": "UserEdge",
                             "keyRaw": "edges",
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
-                                    "cursor": {
-                                        "type": "String",
-                                        "keyRaw": "cursor",
-                                        "visible": true,
-                                    },
-
                                     "node": {
                                         "type": "User",
                                         "keyRaw": "node",
@@ -909,15 +892,15 @@ export type TestQuery$artifact = typeof artifact
 
                                         "selection": {
                                             "fields": {
-                                                "__typename": {
-                                                    "type": "String",
-                                                    "keyRaw": "__typename",
-                                                },
-
                                                 "firstName": {
                                                     "type": "String",
                                                     "keyRaw": "firstName",
                                                     "visible": true,
+                                                },
+
+                                                "__typename": {
+                                                    "type": "String",
+                                                    "keyRaw": "__typename",
                                                 },
 
                                                 "id": {
@@ -929,10 +912,26 @@ export type TestQuery$artifact = typeof artifact
 
                                         "visible": true,
                                     },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
+                                    },
+
+                                    "cursor": {
+                                        "type": "String",
+                                        "keyRaw": "cursor",
+                                        "visible": true,
+                                    },
                                 },
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
 
                         "pageInfo": {
@@ -941,13 +940,6 @@ export type TestQuery$artifact = typeof artifact
 
                             "selection": {
                                 "fields": {
-                                    "endCursor": {
-                                        "type": "String",
-                                        "keyRaw": "endCursor",
-                                        "nullable": true,
-                                        "visible": true,
-                                    },
-
                                     "hasNextPage": {
                                         "type": "Boolean",
                                         "keyRaw": "hasNextPage",
@@ -966,6 +958,13 @@ export type TestQuery$artifact = typeof artifact
                                         "nullable": true,
                                         "visible": true,
                                     },
+
+                                    "endCursor": {
+                                        "type": "String",
+                                        "keyRaw": "endCursor",
+                                        "nullable": true,
+                                        "visible": true,
+                                    },
                                 },
                             },
 
@@ -975,21 +974,21 @@ export type TestQuery$artifact = typeof artifact
                 },
 
                 "filters": {
-                    "after": {
-                        "kind": "Variable",
-                        "value": "after"
-                    },
-                    "before": {
-                        "kind": "Variable",
-                        "value": "before"
-                    },
                     "first": {
                         "kind": "Variable",
                         "value": "first"
                     },
+                    "after": {
+                        "kind": "Variable",
+                        "value": "after"
+                    },
                     "last": {
                         "kind": "Variable",
                         "value": "last"
+                    },
+                    "before": {
+                        "kind": "Variable",
+                        "value": "before"
                     },
                 },
                 "visible": true,
@@ -1006,10 +1005,10 @@ export type TestQuery$artifact = typeof artifact
 
     "input": {
         "fields": {
-            "after": "String",
-            "before": "String",
             "first": "Int",
+            "after": "String",
             "last": "Int",
+            "before": "String",
         },
 
         "types": {},
@@ -1050,36 +1049,36 @@ export type TestQuery$result = {
 };
 
 export type TestQuery$input = {
-	after?: string | null;
-	before?: string | null;
 	first?: number | null;
+	after?: string | null;
 	last?: number | null;
+	before?: string | null;
 };
 
 export type TestQuery$unmasked = {
 	readonly usersByCursor: {
-		readonly __typename: "UserConnection";
 		readonly edges: ({
-			readonly __typename: "UserEdge";
-			readonly cursor: string;
 			readonly node: {
-				readonly __typename: "User";
 				readonly firstName: string;
+				readonly __typename: "User";
 				readonly id: string;
 			} | null;
+			readonly __typename: "UserEdge";
+			readonly cursor: string;
 		})[];
+		readonly __typename: "UserConnection";
 		readonly pageInfo: {
-			readonly endCursor: string | null;
 			readonly hasNextPage: boolean;
 			readonly hasPreviousPage: boolean;
 			readonly startCursor: string | null;
+			readonly endCursor: string | null;
 		};
 	};
 };
 
 export type TestQuery$artifact = typeof artifact
 
-"HoudiniHash=2ab71008736af6ef21d3e5a414af57585acb8921743df58a4f258a88407fd212"`),
+"HoudiniHash=a84634a4d691a47b7ae51ea8cd7698405f414c4341332f0fbbc1ebf7cc9d736d"`),
 				},
 			},
 			{
@@ -1188,26 +1187,15 @@ fragment MonkeyList on MonkeyConnection {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "pageInfo": {
                             "type": "PageInfo",
                             "keyRaw": "pageInfo",
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
-                                    "endCursor": {
-                                        "type": "String",
-                                        "keyRaw": "endCursor",
-                                        "nullable": true,
+                                    "hasPreviousPage": {
+                                        "type": "Boolean",
+                                        "keyRaw": "hasPreviousPage",
                                         "visible": true,
                                     },
 
@@ -1217,42 +1205,44 @@ fragment MonkeyList on MonkeyConnection {
                                         "visible": true,
                                     },
 
-                                    "hasPreviousPage": {
-                                        "type": "Boolean",
-                                        "keyRaw": "hasPreviousPage",
-                                        "visible": true,
-                                    },
-
                                     "startCursor": {
                                         "type": "String",
                                         "keyRaw": "startCursor",
                                         "nullable": true,
                                         "visible": true,
                                     },
+
+                                    "endCursor": {
+                                        "type": "String",
+                                        "keyRaw": "endCursor",
+                                        "nullable": true,
+                                        "visible": true,
+                                    },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
+                                    },
                                 },
                             },
 
                             "visible": true,
                         },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
+                        },
                     },
                     "abstractFields": {
                         "fields": {
                             "MonkeyConnection": {
-                                "__typename": {
-                                    "type": "String",
-                                    "keyRaw": "__typename",
-                                },
                                 "edges": {
                                     "type": "MonkeyEdge",
                                     "keyRaw": "edges",
 
                                     "selection": {
                                         "fields": {
-                                            "__typename": {
-                                                "type": "String",
-                                                "keyRaw": "__typename",
-                                            },
-
                                             "node": {
                                                 "type": "Monkey",
                                                 "keyRaw": "node",
@@ -1260,14 +1250,14 @@ fragment MonkeyList on MonkeyConnection {
 
                                                 "selection": {
                                                     "fields": {
-                                                        "__typename": {
-                                                            "type": "String",
-                                                            "keyRaw": "__typename",
-                                                        },
-
                                                         "hasBanana": {
                                                             "type": "Boolean",
                                                             "keyRaw": "hasBanana",
+                                                        },
+
+                                                        "__typename": {
+                                                            "type": "String",
+                                                            "keyRaw": "__typename",
                                                         },
 
                                                         "id": {
@@ -1289,9 +1279,18 @@ fragment MonkeyList on MonkeyConnection {
                                                 },
 
                                             },
+
+                                            "__typename": {
+                                                "type": "String",
+                                                "keyRaw": "__typename",
+                                            },
                                         },
                                     },
 
+                                },
+                                "__typename": {
+                                    "type": "String",
+                                    "keyRaw": "__typename",
                                 },
                                 "pageInfo": {
                                     "type": "PageInfo",
@@ -1299,15 +1298,9 @@ fragment MonkeyList on MonkeyConnection {
 
                                     "selection": {
                                         "fields": {
-                                            "__typename": {
-                                                "type": "String",
-                                                "keyRaw": "__typename",
-                                            },
-
-                                            "endCursor": {
-                                                "type": "String",
-                                                "keyRaw": "endCursor",
-                                                "nullable": true,
+                                            "hasPreviousPage": {
+                                                "type": "Boolean",
+                                                "keyRaw": "hasPreviousPage",
                                                 "visible": true,
                                             },
 
@@ -1317,17 +1310,23 @@ fragment MonkeyList on MonkeyConnection {
                                                 "visible": true,
                                             },
 
-                                            "hasPreviousPage": {
-                                                "type": "Boolean",
-                                                "keyRaw": "hasPreviousPage",
-                                                "visible": true,
-                                            },
-
                                             "startCursor": {
                                                 "type": "String",
                                                 "keyRaw": "startCursor",
                                                 "nullable": true,
                                                 "visible": true,
+                                            },
+
+                                            "endCursor": {
+                                                "type": "String",
+                                                "keyRaw": "endCursor",
+                                                "nullable": true,
+                                                "visible": true,
+                                            },
+
+                                            "__typename": {
+                                                "type": "String",
+                                                "keyRaw": "__typename",
                                             },
                                         },
                                     },
@@ -1341,10 +1340,10 @@ fragment MonkeyList on MonkeyConnection {
                     },
 
                     "fragments": {
-                        "AnimalList": {
+                        "MonkeyList": {
                             "arguments": {}
                         },
-                        "MonkeyList": {
+                        "AnimalList": {
                             "arguments": {}
                         },
                     },
@@ -1387,28 +1386,28 @@ export type AnimalQuery$input = null | undefined;
 export type AnimalQuery$unmasked = {
 	readonly animals: {
 		readonly pageInfo: {
-			readonly __typename: "PageInfo";
-			readonly endCursor: string | null;
-			readonly hasNextPage: boolean;
 			readonly hasPreviousPage: boolean;
+			readonly hasNextPage: boolean;
 			readonly startCursor: string | null;
+			readonly endCursor: string | null;
+			readonly __typename: "PageInfo";
 		};
 	} & (({
 		readonly edges: ({
-			readonly __typename: "MonkeyEdge";
 			readonly node: {
-				readonly __typename: "Monkey";
 				readonly hasBanana: boolean;
+				readonly __typename: "Monkey";
 				readonly id: string;
 				readonly name: string;
 			} | null;
+			readonly __typename: "MonkeyEdge";
 		})[];
 		readonly pageInfo: {
-			readonly __typename: "PageInfo";
-			readonly endCursor: string | null;
-			readonly hasNextPage: boolean;
 			readonly hasPreviousPage: boolean;
+			readonly hasNextPage: boolean;
 			readonly startCursor: string | null;
+			readonly endCursor: string | null;
+			readonly __typename: "PageInfo";
 		};
 		readonly __typename: "MonkeyConnection";
 	})) | null;
@@ -1497,22 +1496,12 @@ fragment MonkeyFragment on Monkey {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "edges": {
                             "type": "AnimalEdge",
                             "keyRaw": "edges",
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
                                     "node": {
                                         "type": "Animal",
                                         "keyRaw": "node",
@@ -1533,14 +1522,6 @@ fragment MonkeyFragment on Monkey {
                                             "abstractFields": {
                                                 "fields": {
                                                     "Monkey": {
-                                                        "__typename": {
-                                                            "type": "String",
-                                                            "keyRaw": "__typename",
-                                                        },
-                                                        "hasBanana": {
-                                                            "type": "Boolean",
-                                                            "keyRaw": "hasBanana",
-                                                        },
                                                         "id": {
                                                             "type": "ID",
                                                             "keyRaw": "id",
@@ -1548,6 +1529,14 @@ fragment MonkeyFragment on Monkey {
                                                         "name": {
                                                             "type": "String",
                                                             "keyRaw": "name",
+                                                        },
+                                                        "hasBanana": {
+                                                            "type": "Boolean",
+                                                            "keyRaw": "hasBanana",
+                                                        },
+                                                        "__typename": {
+                                                            "type": "String",
+                                                            "keyRaw": "__typename",
                                                         },
                                                     },
                                                 },
@@ -1564,10 +1553,20 @@ fragment MonkeyFragment on Monkey {
 
                                         "abstract": true,
                                     },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
+                                    },
                                 },
                             },
 
                             "abstract": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
 
@@ -1608,16 +1607,16 @@ export type AnimalsOverview$input = null | undefined;
 
 export type AnimalsOverview$unmasked = {
 	readonly animals: {
-		readonly __typename: string;
 		readonly edges: ({
-			readonly __typename: string;
 			readonly node: {} & (({
-				readonly hasBanana: boolean;
 				readonly id: string;
 				readonly name: string;
+				readonly hasBanana: boolean;
 				readonly __typename: "Monkey";
 			})) | null;
+			readonly __typename: string;
 		})[];
+		readonly __typename: string;
 	} | null;
 };
 
@@ -1720,7 +1719,12 @@ export type AnimalsOverview$artifact = typeof artifact
                     },
                     "abstractFields": {
                         "fields": {
-                            "Cat": {
+                            "User": {
+                                "name": {
+                                    "type": "String",
+                                    "keyRaw": "name",
+                                    "visible": true,
+                                },
                                 "__typename": {
                                     "type": "String",
                                     "keyRaw": "__typename",
@@ -1728,14 +1732,14 @@ export type AnimalsOverview$artifact = typeof artifact
                                 "id": {
                                     "type": "ID",
                                     "keyRaw": "id",
-                                },
-                                "name": {
-                                    "type": "String",
-                                    "keyRaw": "name",
-                                    "visible": true,
                                 },
                             },
-                            "User": {
+                            "Cat": {
+                                "name": {
+                                    "type": "String",
+                                    "keyRaw": "name",
+                                    "visible": true,
+                                },
                                 "__typename": {
                                     "type": "String",
                                     "keyRaw": "__typename",
@@ -1743,11 +1747,6 @@ export type AnimalsOverview$artifact = typeof artifact
                                 "id": {
                                     "type": "ID",
                                     "keyRaw": "id",
-                                },
-                                "name": {
-                                    "type": "String",
-                                    "keyRaw": "name",
-                                    "visible": true,
                                 },
                             },
                         },
@@ -1788,12 +1787,12 @@ export type Entities$input = null | undefined;
 
 export type Entities$unmasked = {
 	readonly entities: ({} & (({
-		readonly id: string;
 		readonly name: string;
+		readonly id: string;
 		readonly __typename: "Cat";
 	}) | ({
-		readonly id: string;
 		readonly name: string;
+		readonly id: string;
 		readonly __typename: "User";
 	})))[];
 };
@@ -1892,28 +1891,12 @@ fragment UserTest on User {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "edges": {
                             "type": "UserEdge",
                             "keyRaw": "edges",
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
-                                    "cursor": {
-                                        "type": "String",
-                                        "keyRaw": "cursor",
-                                        "visible": true,
-                                    },
-
                                     "node": {
                                         "type": "User",
                                         "keyRaw": "node",
@@ -1921,14 +1904,14 @@ fragment UserTest on User {
 
                                         "selection": {
                                             "fields": {
-                                                "__typename": {
-                                                    "type": "String",
-                                                    "keyRaw": "__typename",
-                                                },
-
                                                 "firstName": {
                                                     "type": "String",
                                                     "keyRaw": "firstName",
+                                                },
+
+                                                "__typename": {
+                                                    "type": "String",
+                                                    "keyRaw": "__typename",
                                                 },
 
                                                 "id": {
@@ -1946,10 +1929,26 @@ fragment UserTest on User {
 
                                         "visible": true,
                                     },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
+                                    },
+
+                                    "cursor": {
+                                        "type": "String",
+                                        "keyRaw": "cursor",
+                                        "visible": true,
+                                    },
                                 },
                             },
 
                             "visible": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
 
                         "pageInfo": {
@@ -1958,13 +1957,6 @@ fragment UserTest on User {
 
                             "selection": {
                                 "fields": {
-                                    "endCursor": {
-                                        "type": "String",
-                                        "keyRaw": "endCursor",
-                                        "nullable": true,
-                                        "visible": true,
-                                    },
-
                                     "hasNextPage": {
                                         "type": "Boolean",
                                         "keyRaw": "hasNextPage",
@@ -1980,6 +1972,13 @@ fragment UserTest on User {
                                     "startCursor": {
                                         "type": "String",
                                         "keyRaw": "startCursor",
+                                        "nullable": true,
+                                        "visible": true,
+                                    },
+
+                                    "endCursor": {
+                                        "type": "String",
+                                        "keyRaw": "endCursor",
                                         "nullable": true,
                                         "visible": true,
                                     },
@@ -2031,21 +2030,21 @@ export type TestQuery$input = null | undefined;
 
 export type TestQuery$unmasked = {
 	readonly usersByCursor: {
-		readonly __typename: "UserConnection";
 		readonly edges: ({
-			readonly __typename: "UserEdge";
-			readonly cursor: string;
 			readonly node: {
-				readonly __typename: "User";
 				readonly firstName: string;
+				readonly __typename: "User";
 				readonly id: string;
 			} | null;
+			readonly __typename: "UserEdge";
+			readonly cursor: string;
 		})[];
+		readonly __typename: "UserConnection";
 		readonly pageInfo: {
-			readonly endCursor: string | null;
 			readonly hasNextPage: boolean;
 			readonly hasPreviousPage: boolean;
 			readonly startCursor: string | null;
+			readonly endCursor: string | null;
 		};
 	};
 };

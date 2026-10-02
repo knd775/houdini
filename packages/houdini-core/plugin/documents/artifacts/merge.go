@@ -15,7 +15,6 @@ func FlattenSelection(
 	collectedDocuments *collected.Documents,
 	name string,
 	defaultMask bool,
-	sortKeys bool,
 ) ([]*collected.Selection, error) {
 	// lookup original document
 	doc, ok := collectedDocuments.Selections[name]
@@ -29,7 +28,6 @@ func FlattenSelection(
 		collectedDocuments,
 		defaultMask,
 		doc.TypeCondition,
-		sortKeys,
 	)
 	for _, orig := range doc.Selections {
 		clone := orig.Clone(true)
@@ -56,11 +54,9 @@ func newFieldCollection(
 	docs *collected.Documents,
 	defaultMask bool,
 	parentType string,
-	sortKeys bool,
 ) *fieldCollection {
 	return &fieldCollection{
 		DocumentName:       name,
-		SortKeys:           sortKeys,
 		ParentType:         parentType,
 		CollectedDocuments: docs,
 		DefaultMask:        defaultMask,
@@ -82,7 +78,6 @@ type fieldCollectionField struct {
 
 type fieldCollection struct {
 	DocumentName       string
-	SortKeys           bool
 	ParentType         string
 	CollectedDocuments *collected.Documents
 	DefaultMask        bool
@@ -196,7 +191,6 @@ func (c *fieldCollection) Add(
 					c.CollectedDocuments,
 					c.DefaultMask,
 					selection.FieldType,
-					c.SortKeys,
 				),
 				Visible:       !hidden,
 				Unconditional: unconditional,
@@ -344,7 +338,6 @@ func (c *fieldCollection) WalkInlineFragment(
 				c.CollectedDocuments,
 				hidden,
 				selection.FieldName,
-				c.SortKeys,
 			),
 		}
 		c.inlineFragmentOrder = append(c.inlineFragmentOrder, selection.FieldName)
@@ -449,7 +442,6 @@ func (c *fieldCollection) WalkInlineFragment(
 									c.CollectedDocuments,
 									hidden,
 									concreteType,
-									c.SortKeys,
 								),
 							}
 							c.inlineFragmentOrder = append(c.inlineFragmentOrder, concreteType)
@@ -519,83 +511,35 @@ func (c *fieldCollection) WalkInlineFragment(
 func (c *fieldCollection) ToSelectionSet() []*collected.Selection {
 	result := []*collected.Selection{}
 
-	// if we aren't supposed to sort the keys, emit everything in insertion order so
-	// the flattened output is stable across runs
-	if !c.SortKeys {
-		for _, name := range c.fieldOrder {
-			f := c.Fields[name]
-			local := *f.Field.Clone(false)
-			field := &local
-			field.Directives = f.Directives
-			if f.Selection != nil {
-				field.Children = f.Selection.ToSelectionSet()
-			}
-			// the visibility computed while flattening is authoritative — the flag on
-			// the source selection only says whether a user wrote the field somewhere
-			field.Visible = f.Visible
-			result = append(result, field)
-		}
-
-		for _, name := range c.inlineFragmentOrder {
-			f := c.InlineFragments[name]
-			field := f.Field.Clone(false)
+	// emit everything in insertion order so the flattened output follows the source
+	for _, name := range c.fieldOrder {
+		f := c.Fields[name]
+		local := *f.Field.Clone(false)
+		field := &local
+		field.Directives = f.Directives
+		if f.Selection != nil {
 			field.Children = f.Selection.ToSelectionSet()
-			result = append(result, field)
 		}
+		// the visibility computed while flattening is authoritative — the flag on
+		// the source selection only says whether a user wrote the field somewhere
+		field.Visible = f.Visible
+		result = append(result, field)
+	}
 
-		for _, name := range c.fragmentSpreadOrder {
-			f := c.FragmentSpreads[name]
-			field := f.Field.Clone(false)
-			if f.Visible {
-				field.Visible = true
-			}
-			result = append(result, field)
-		}
-	} else {
-		// we're supposed to sort the keys by (fields, inline fragments, fragments) and then by name
-		fieldNames := []string{}
-		for name := range c.Fields {
-			fieldNames = append(fieldNames, name)
-		}
-		sort.Strings(fieldNames)
-		for _, name := range fieldNames {
-			field := c.Fields[name]
-			selectionField := field.Field.Clone(false)
-			selectionField.Directives = field.Directives
-			if field.Selection != nil {
-				selectionField.Children = field.Selection.ToSelectionSet()
-			}
-			// the visibility computed while flattening is authoritative — the flag on
-			// the source selection only says whether a user wrote the field somewhere
-			selectionField.Visible = field.Visible
-			result = append(result, selectionField)
-		}
+	for _, name := range c.inlineFragmentOrder {
+		f := c.InlineFragments[name]
+		field := f.Field.Clone(false)
+		field.Children = f.Selection.ToSelectionSet()
+		result = append(result, field)
+	}
 
-		// then inline fragments
-		typeConditions := []string{}
-		for name := range c.InlineFragments {
-			typeConditions = append(typeConditions, name)
+	for _, name := range c.fragmentSpreadOrder {
+		f := c.FragmentSpreads[name]
+		field := f.Field.Clone(false)
+		if f.Visible {
+			field.Visible = true
 		}
-		sort.Strings(typeConditions)
-		for _, name := range typeConditions {
-			field := c.InlineFragments[name].Field.Clone(false)
-			field.Children = c.InlineFragments[name].Selection.ToSelectionSet()
-			result = append(result, field)
-		}
-
-		// and finally fragments
-		fragmentNames := []string{}
-		for name := range c.FragmentSpreads {
-			fragmentNames = append(fragmentNames, name)
-		}
-		sort.Strings(fragmentNames)
-		for _, name := range fragmentNames {
-			f := c.FragmentSpreads[name].Field.Clone(false)
-			result = append(result, f)
-			if c.FragmentSpreads[name].Visible {
-				f.Visible = true
-			}
-		}
+		result = append(result, field)
 	}
 
 	return result

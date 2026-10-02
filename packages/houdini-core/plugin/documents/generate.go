@@ -17,7 +17,6 @@ func Generate(
 	ctx context.Context,
 	db plugins.DatabasePool[config.PluginConfig],
 	fs afero.Fs,
-	sortKeys bool,
 ) ([]string, error) {
 	conn, err := db.Take(ctx)
 	if err != nil {
@@ -32,7 +31,7 @@ func Generate(
 	}
 
 	// the first thing we need to do is collect the definitions of all of the necessary documents
-	collected, err := collected.CollectDocuments(ctx, db, conn, sortKeys)
+	collected, err := collected.CollectDocuments(ctx, db, conn)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +58,7 @@ func Generate(
 	fps := plugins.ThreadSafeSlice[string]{}
 
 	group.Go(func() error {
-		files, err := artifacts.GenerateDocumentArtifacts(ctx, db, conn, collected, fs, sortKeys)
+		files, err := artifacts.GenerateDocumentArtifacts(ctx, db, conn, collected, fs)
 		if err != nil {
 			return err
 		}

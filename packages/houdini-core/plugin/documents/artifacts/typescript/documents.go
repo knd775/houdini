@@ -17,7 +17,6 @@ import (
 // and embeds context.Context to serve as both context and document state
 type DocumentContext struct {
 	HasLoading    bool
-	SortKeys      bool
 	ProjectConfig plugins.ProjectConfig
 	EnumTypes     map[string]bool
 	InputTypes    map[string]bool
@@ -206,7 +205,6 @@ func GenerateDocumentTypeDefs(
 	collectedDefinitions *collected.Documents,
 	doc *collected.Document,
 	unmaskedSelection []*collected.Selection,
-	sortKeys bool,
 ) (string, []string, error) {
 	// Calculate root type name once per document
 	rootTypeName := getRootTypeName(doc, rootTypes)
@@ -218,7 +216,6 @@ func GenerateDocumentTypeDefs(
 		doc,
 		collectedDefinitions,
 		unmaskedSelection,
-		sortKeys,
 	)
 	if err != nil {
 		return "", nil, err
@@ -233,12 +230,10 @@ func generateDocumentTypeDef(
 	doc *collected.Document,
 	collectedDocs *collected.Documents,
 	unmaskedSelection []*collected.Selection,
-	sortKeys bool,
 ) (string, []string, error) {
 	// Create document context to pass state instead of using global variables
 	docCtx := DocumentContext{
 		ProjectConfig: projectConfig,
-		SortKeys:      sortKeys,
 		EnumTypes:     make(map[string]bool),
 		InputTypes:    make(map[string]bool),
 		ScalarImports: make(map[string]bool),
@@ -1067,14 +1062,6 @@ func generateInterfaceUnionTypeWithLoading(
 					),
 				)
 			}
-		}
-
-		// union/interface arms merge fields across several inline fragments, so the
-		// per-node sort FlattenSelection applies doesn't survive the merge. only the
-		// $unmasked type wants a stable global order and only tests need it sorted, so
-		// gate on sortKeys to keep production (sortKeys=false) free of the cost.
-		if ctx.SortKeys && unmasked {
-			sort.Strings(fields)
 		}
 
 		// Add " $fragments" marker for named fragment spreads on this concrete type

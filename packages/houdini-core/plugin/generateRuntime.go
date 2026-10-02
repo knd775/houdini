@@ -44,7 +44,7 @@ func (p *HoudiniCore) GenerateRuntime(ctx context.Context) ([]string, error) {
 
 	// generate definitions files (schema.graphql, documents.gql, enums)
 	g.Go(func() error {
-		err = schema.GenerateDefinitionFiles(ctx, p.DB, p.Fs, false)
+		err = schema.GenerateDefinitionFiles(ctx, p.DB, p.Fs)
 		if err != nil {
 			return err
 		}

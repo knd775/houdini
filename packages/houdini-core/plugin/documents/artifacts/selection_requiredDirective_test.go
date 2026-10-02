@@ -132,7 +132,12 @@ query TestQuery($id: ID!) {
                     },
                     "abstractFields": {
                         "fields": {
-                            "Ghost": {
+                            "Legend": {
+                                "name": {
+                                    "type": "String",
+                                    "keyRaw": "name",
+                                    "nullable": true,
+                                },
                                 "__typename": {
                                     "type": "String",
                                     "keyRaw": "__typename",
@@ -141,6 +146,8 @@ query TestQuery($id: ID!) {
                                     "type": "ID",
                                     "keyRaw": "id",
                                 },
+                            },
+                            "Ghost": {
                                 "legends": {
                                     "type": "Legend",
                                     "keyRaw": "legends",
@@ -148,6 +155,12 @@ query TestQuery($id: ID!) {
 
                                     "selection": {
                                         "fields": {
+                                            "name": {
+                                                "type": "String",
+                                                "keyRaw": "name",
+                                                "nullable": true,
+                                            },
+
                                             "__typename": {
                                                 "type": "String",
                                                 "keyRaw": "__typename",
@@ -157,24 +170,11 @@ query TestQuery($id: ID!) {
                                                 "type": "ID",
                                                 "keyRaw": "id",
                                             },
-
-                                            "name": {
-                                                "type": "String",
-                                                "keyRaw": "name",
-                                                "nullable": true,
-                                            },
                                         },
                                     },
 
                                     "abstract": true,
                                 },
-                                "name": {
-                                    "type": "String",
-                                    "keyRaw": "name",
-                                    "nullable": true,
-                                },
-                            },
-                            "Legend": {
                                 "__typename": {
                                     "type": "String",
                                     "keyRaw": "__typename",
@@ -195,13 +195,13 @@ query TestQuery($id: ID!) {
                     },
 
                     "fragments": {
-                        "GhostWithRequiredLegendAndLegendName": {
+                        "LegendWithRequiredName": {
                             "arguments": {}
                         },
                         "GhostWithRequiredLegendName": {
                             "arguments": {}
                         },
-                        "LegendWithRequiredName": {
+                        "GhostWithRequiredLegendAndLegendName": {
                             "arguments": {}
                         },
                     },
@@ -255,13 +255,13 @@ export type TestQuery$input = {
 
 export type TestQuery$unmasked = {
 	readonly node: {} & (({
+		readonly name: string | null;
 		readonly id: string;
 		readonly legends: ({
+			readonly name: string | null;
 			readonly __typename: string;
 			readonly id: string;
-			readonly name: string | null;
 		} | null)[] | null;
-		readonly name: string | null;
 		readonly __typename: "Ghost";
 	}) | ({
 		readonly " $fragments"?: {};

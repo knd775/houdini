@@ -64,7 +64,7 @@ func TestTaskScopedCollectionIncludesOutOfTaskFragments(t *testing.T) {
 			// collection must contain the full spread chain, not just the task documents
 			conn, err = p.DB.Take(taskCtx)
 			require.NoError(t, err)
-			docs, err := collected.CollectDocuments(taskCtx, p.DB, conn, false)
+			docs, err := collected.CollectDocuments(taskCtx, p.DB, conn)
 			p.DB.Put(conn)
 			require.NoError(t, err)
 

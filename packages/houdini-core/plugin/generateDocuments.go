@@ -8,5 +8,5 @@ import (
 
 func (p *HoudiniCore) GenerateDocuments(ctx context.Context) ([]string, error) {
 	// the first thing to do is generate the artifacts
-	return documents.Generate(ctx, p.DB, p.Fs, false)
+	return documents.Generate(ctx, p.DB, p.Fs)
 }

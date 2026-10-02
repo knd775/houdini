@@ -110,8 +110,7 @@ func TestLoadingArtifacts(t *testing.T) {
           `,
 				},
 				Extra: map[string]any{
-					"MonkeyListQuery": tests.Dedent(
-						`import type { LoadingType } from "houdini/runtime";
+					"MonkeyListQuery": tests.Dedent(`import type { LoadingType } from "houdini/runtime";
 const artifact = {
     "name": "MonkeyListQuery",
     "kind": "HoudiniQuery",
@@ -160,54 +159,6 @@ query MonkeyListQuery {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
-                        "edges": {
-                            "type": "AnimalEdge",
-                            "keyRaw": "edges",
-
-                            "selection": {
-                                "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
-                                    "node": {
-                                        "type": "Animal",
-                                        "keyRaw": "node",
-                                        "nullable": true,
-
-                                        "selection": {
-                                            "fields": {
-                                                "__typename": {
-                                                    "type": "String",
-                                                    "keyRaw": "__typename",
-                                                },
-
-                                                "id": {
-                                                    "type": "ID",
-                                                    "keyRaw": "id",
-                                                },
-
-                                                "name": {
-                                                    "type": "String",
-                                                    "keyRaw": "name",
-                                                },
-                                            },
-                                        },
-
-                                        "abstract": true,
-                                    },
-                                },
-                            },
-
-                            "abstract": true,
-                        },
-
                         "pageInfo": {
                             "type": "PageInfo",
                             "keyRaw": "pageInfo",
@@ -220,15 +171,9 @@ query MonkeyListQuery {
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
-                                    "endCursor": {
-                                        "type": "String",
-                                        "keyRaw": "endCursor",
-                                        "nullable": true,
+                                    "hasPreviousPage": {
+                                        "type": "Boolean",
+                                        "keyRaw": "hasPreviousPage",
                                         "visible": true,
                                     },
 
@@ -238,17 +183,23 @@ query MonkeyListQuery {
                                         "visible": true,
                                     },
 
-                                    "hasPreviousPage": {
-                                        "type": "Boolean",
-                                        "keyRaw": "hasPreviousPage",
-                                        "visible": true,
-                                    },
-
                                     "startCursor": {
                                         "type": "String",
                                         "keyRaw": "startCursor",
                                         "nullable": true,
                                         "visible": true,
+                                    },
+
+                                    "endCursor": {
+                                        "type": "String",
+                                        "keyRaw": "endCursor",
+                                        "nullable": true,
+                                        "visible": true,
+                                    },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
                                     },
                                 },
                             },
@@ -257,6 +208,54 @@ query MonkeyListQuery {
                                 "kind": "value",
                             },
                             "visible": true,
+                        },
+
+                        "edges": {
+                            "type": "AnimalEdge",
+                            "keyRaw": "edges",
+
+                            "selection": {
+                                "fields": {
+                                    "node": {
+                                        "type": "Animal",
+                                        "keyRaw": "node",
+                                        "nullable": true,
+
+                                        "selection": {
+                                            "fields": {
+                                                "id": {
+                                                    "type": "ID",
+                                                    "keyRaw": "id",
+                                                },
+
+                                                "name": {
+                                                    "type": "String",
+                                                    "keyRaw": "name",
+                                                },
+
+                                                "__typename": {
+                                                    "type": "String",
+                                                    "keyRaw": "__typename",
+                                                },
+                                            },
+                                        },
+
+                                        "abstract": true,
+                                    },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
+                                    },
+                                },
+                            },
+
+                            "abstract": true,
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
                         },
                     },
 
@@ -314,29 +313,28 @@ export type MonkeyListQuery$input = null | undefined;
 
 export type MonkeyListQuery$unmasked = {
 	readonly monkeys: {
-		readonly __typename: "MonkeyConnection";
+		readonly pageInfo: {
+			readonly hasPreviousPage: boolean;
+			readonly hasNextPage: boolean;
+			readonly startCursor: string | null;
+			readonly endCursor: string | null;
+			readonly __typename: "PageInfo";
+		};
 		readonly edges: ({
-			readonly __typename: string;
 			readonly node: {
-				readonly __typename: string;
 				readonly id: string;
 				readonly name: string;
+				readonly __typename: string;
 			} | null;
+			readonly __typename: string;
 		})[];
-		readonly pageInfo: {
-			readonly __typename: "PageInfo";
-			readonly endCursor: string | null;
-			readonly hasNextPage: boolean;
-			readonly hasPreviousPage: boolean;
-			readonly startCursor: string | null;
-		};
+		readonly __typename: "MonkeyConnection";
 	};
 };
 
 export type MonkeyListQuery$artifact = typeof artifact
 
-"HoudiniHash=ece6ef3e8361e90d01206d34ba36afbeed2fb1903e3946aaa65790ffa7f1d0a2"`,
-					),
+"HoudiniHash=ece6ef3e8361e90d01206d34ba36afbeed2fb1903e3946aaa65790ffa7f1d0a2"`),
 				},
 			},
 			{
@@ -355,8 +353,7 @@ export type MonkeyListQuery$artifact = typeof artifact
           }`,
 				},
 				Extra: map[string]any{
-					"Query": tests.Dedent(
-						`import type { LoadingType } from "houdini/runtime";
+					"Query": tests.Dedent(`import type { LoadingType } from "houdini/runtime";
 const artifact = {
     "name": "Query",
     "kind": "HoudiniQuery",
@@ -394,11 +391,6 @@ const artifact = {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-
                         "cats": {
                             "type": "Cat",
                             "keyRaw": "cats",
@@ -411,11 +403,6 @@ const artifact = {
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
-                                    },
-
                                     "id": {
                                         "type": "ID",
                                         "keyRaw": "id",
@@ -430,6 +417,11 @@ const artifact = {
                                         },
                                         "visible": true,
                                     },
+
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
+                                    },
                                 },
                             },
 
@@ -442,57 +434,15 @@ const artifact = {
                             },
                             "visible": true,
                         },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
+                        },
                     },
                     "abstractFields": {
                         "fields": {
                             "User": {
-                                "__typename": {
-                                    "type": "String",
-                                    "keyRaw": "__typename",
-                                },
-                                "cats": {
-                                    "type": "Cat",
-                                    "keyRaw": "cats",
-
-                                    "directives": [{
-                                        "name": "loading",
-                                        "arguments": {}
-                                    }],
-
-
-                                    "selection": {
-                                        "fields": {
-                                            "__typename": {
-                                                "type": "String",
-                                                "keyRaw": "__typename",
-                                            },
-
-                                            "id": {
-                                                "type": "ID",
-                                                "keyRaw": "id",
-
-                                                "directives": [{
-                                                    "name": "loading",
-                                                    "arguments": {}
-                                                }],
-
-                                                "loading": {
-                                                    "kind": "value",
-                                                },
-                                                "visible": true,
-                                            },
-                                        },
-                                    },
-
-                                    "loading": {
-                                        "kind": "continue",
-                                        "list": {
-                                            "depth": 1,
-                                            "count": 3,
-                                        },
-                                    },
-                                    "visible": true,
-                                },
                                 "firstName": {
                                     "type": "String",
                                     "keyRaw": "firstName",
@@ -507,9 +457,56 @@ const artifact = {
                                     },
                                     "visible": true,
                                 },
+                                "__typename": {
+                                    "type": "String",
+                                    "keyRaw": "__typename",
+                                },
                                 "id": {
                                     "type": "ID",
                                     "keyRaw": "id",
+                                },
+                                "cats": {
+                                    "type": "Cat",
+                                    "keyRaw": "cats",
+
+                                    "directives": [{
+                                        "name": "loading",
+                                        "arguments": {}
+                                    }],
+
+
+                                    "selection": {
+                                        "fields": {
+                                            "id": {
+                                                "type": "ID",
+                                                "keyRaw": "id",
+
+                                                "directives": [{
+                                                    "name": "loading",
+                                                    "arguments": {}
+                                                }],
+
+                                                "loading": {
+                                                    "kind": "value",
+                                                },
+                                                "visible": true,
+                                            },
+
+                                            "__typename": {
+                                                "type": "String",
+                                                "keyRaw": "__typename",
+                                            },
+                                        },
+                                    },
+
+                                    "loading": {
+                                        "kind": "continue",
+                                        "list": {
+                                            "depth": 1,
+                                            "count": 3,
+                                        },
+                                    },
+                                    "visible": true,
                                 },
                             },
                         },
@@ -574,16 +571,16 @@ export type Query$input = null | undefined;
 export type Query$unmasked = {
 	readonly catOwners: ({
 		readonly cats: ({
-			readonly __typename: "Cat";
 			readonly id: string;
+			readonly __typename: "Cat";
 		})[];
 	} & (({
-		readonly cats: ({
-			readonly __typename: "Cat";
-			readonly id: string;
-		})[];
 		readonly firstName: string;
 		readonly id: string;
+		readonly cats: ({
+			readonly id: string;
+			readonly __typename: "Cat";
+		})[];
 		readonly __typename: "User";
 	}) | ({
 		readonly " $fragments"?: {};
@@ -593,8 +590,7 @@ export type Query$unmasked = {
 
 export type Query$artifact = typeof artifact
 
-"HoudiniHash=a7e16dc3a8fe4cc7a47a16444f1809cbc0865be2d997ae28e4e2e2539e890841"`,
-					),
+"HoudiniHash=a7e16dc3a8fe4cc7a47a16444f1809cbc0865be2d997ae28e4e2e2539e890841"`),
 				},
 			},
 			{
@@ -615,8 +611,7 @@ export type Query$artifact = typeof artifact
           `,
 				},
 				Extra: map[string]any{
-					"Query": tests.Dedent(
-						`import type { LoadingType } from "houdini/runtime";
+					"Query": tests.Dedent(`import type { LoadingType } from "houdini/runtime";
 const artifact = {
     "name": "Query",
     "kind": "HoudiniQuery",
@@ -662,35 +657,7 @@ const artifact = {
                     },
                     "abstractFields": {
                         "fields": {
-                            "Cat": {
-                                "__typename": {
-                                    "type": "String",
-                                    "keyRaw": "__typename",
-                                },
-                                "id": {
-                                    "type": "ID",
-                                    "keyRaw": "id",
-                                },
-                                "name": {
-                                    "type": "String",
-                                    "keyRaw": "name",
-
-                                    "directives": [{
-                                        "name": "loading",
-                                        "arguments": {}
-                                    }],
-
-                                    "loading": {
-                                        "kind": "value",
-                                    },
-                                    "visible": true,
-                                },
-                            },
                             "User": {
-                                "__typename": {
-                                    "type": "String",
-                                    "keyRaw": "__typename",
-                                },
                                 "firstName": {
                                     "type": "String",
                                     "keyRaw": "firstName",
@@ -705,6 +672,34 @@ const artifact = {
                                     },
                                     "visible": true,
                                 },
+                                "__typename": {
+                                    "type": "String",
+                                    "keyRaw": "__typename",
+                                },
+                                "id": {
+                                    "type": "ID",
+                                    "keyRaw": "id",
+                                },
+                            },
+                            "Cat": {
+                                "name": {
+                                    "type": "String",
+                                    "keyRaw": "name",
+
+                                    "directives": [{
+                                        "name": "loading",
+                                        "arguments": {}
+                                    }],
+
+                                    "loading": {
+                                        "kind": "value",
+                                    },
+                                    "visible": true,
+                                },
+                                "__typename": {
+                                    "type": "String",
+                                    "keyRaw": "__typename",
+                                },
                                 "id": {
                                     "type": "ID",
                                     "keyRaw": "id",
@@ -715,7 +710,7 @@ const artifact = {
                         "typeMap": {},
                     },
 
-                    "loadingTypes": ["Cat", "User"],
+                    "loadingTypes": ["User", "Cat"],
                 },
 
                 "loading": {
@@ -770,8 +765,8 @@ export type Query$input = null | undefined;
 
 export type Query$unmasked = {
 	readonly entities: ({} & (({
-		readonly id: string;
 		readonly name: string;
+		readonly id: string;
 		readonly __typename: "Cat";
 	}) | ({
 		readonly firstName: string;
@@ -785,8 +780,7 @@ export type Query$unmasked = {
 
 export type Query$artifact = typeof artifact
 
-"HoudiniHash=75a077637efd548c3e2b73c0d6ba3a6b0adbf92d3661c3907253b00c250d594a"`,
-					),
+"HoudiniHash=75a077637efd548c3e2b73c0d6ba3a6b0adbf92d3661c3907253b00c250d594a"`),
 				},
 			},
 			{
@@ -809,8 +803,7 @@ export type Query$artifact = typeof artifact
           `,
 				},
 				Extra: map[string]any{
-					"Query": tests.Dedent(
-						`import type { LoadingType } from "houdini/runtime";
+					"Query": tests.Dedent(`import type { LoadingType } from "houdini/runtime";
 const artifact = {
     "name": "Query",
     "kind": "HoudiniQuery",
@@ -857,10 +850,6 @@ query Query {
                     "abstractFields": {
                         "fields": {
                             "User": {
-                                "__typename": {
-                                    "type": "String",
-                                    "keyRaw": "__typename",
-                                },
                                 "firstName": {
                                     "type": "String",
                                     "keyRaw": "firstName",
@@ -873,6 +862,10 @@ query Query {
                                     "loading": {
                                         "kind": "value",
                                     },
+                                },
+                                "__typename": {
+                                    "type": "String",
+                                    "keyRaw": "__typename",
                                 },
                                 "id": {
                                     "type": "ID",
@@ -945,8 +938,7 @@ export type Query$unmasked = {
 
 export type Query$artifact = typeof artifact
 
-"HoudiniHash=5ba953f37cfa2e0ce515c4c22ce9c6e3206fc05adc5c96fbc7a3184691d672f1"`,
-					),
+"HoudiniHash=5ba953f37cfa2e0ce515c4c22ce9c6e3206fc05adc5c96fbc7a3184691d672f1"`),
 				},
 			},
 			{
@@ -967,8 +959,7 @@ export type Query$artifact = typeof artifact
           `,
 				},
 				Extra: map[string]any{
-					"Query": tests.Dedent(
-						`import type { LoadingType } from "houdini/runtime";
+					"Query": tests.Dedent(`import type { LoadingType } from "houdini/runtime";
 const artifact = {
     "name": "Query",
     "kind": "HoudiniQuery",
@@ -1019,26 +1010,7 @@ const artifact = {
                     },
                     "abstractFields": {
                         "fields": {
-                            "Cat": {
-                                "__typename": {
-                                    "type": "String",
-                                    "keyRaw": "__typename",
-                                },
-                                "id": {
-                                    "type": "ID",
-                                    "keyRaw": "id",
-                                },
-                                "name": {
-                                    "type": "String",
-                                    "keyRaw": "name",
-                                    "visible": true,
-                                },
-                            },
                             "User": {
-                                "__typename": {
-                                    "type": "String",
-                                    "keyRaw": "__typename",
-                                },
                                 "firstName": {
                                     "type": "String",
                                     "keyRaw": "firstName",
@@ -1052,6 +1024,25 @@ const artifact = {
                                         "kind": "value",
                                     },
                                     "visible": true,
+                                },
+                                "__typename": {
+                                    "type": "String",
+                                    "keyRaw": "__typename",
+                                },
+                                "id": {
+                                    "type": "ID",
+                                    "keyRaw": "id",
+                                },
+                            },
+                            "Cat": {
+                                "name": {
+                                    "type": "String",
+                                    "keyRaw": "name",
+                                    "visible": true,
+                                },
+                                "__typename": {
+                                    "type": "String",
+                                    "keyRaw": "__typename",
                                 },
                                 "id": {
                                     "type": "ID",
@@ -1115,8 +1106,8 @@ export type Query$input = null | undefined;
 
 export type Query$unmasked = {
 	readonly entities: ({} & (({
-		readonly id: string;
 		readonly name: string;
+		readonly id: string;
 		readonly __typename: "Cat";
 	}) | ({
 		readonly firstName: string;
@@ -1130,8 +1121,7 @@ export type Query$unmasked = {
 
 export type Query$artifact = typeof artifact
 
-"HoudiniHash=75a077637efd548c3e2b73c0d6ba3a6b0adbf92d3661c3907253b00c250d594a"`,
-					),
+"HoudiniHash=75a077637efd548c3e2b73c0d6ba3a6b0adbf92d3661c3907253b00c250d594a"`),
 				},
 			},
 			{
@@ -1150,8 +1140,7 @@ export type Query$artifact = typeof artifact
           }`,
 				},
 				Extra: map[string]any{
-					"Query": tests.Dedent(
-						`import type { LoadingType } from "houdini/runtime";
+					"Query": tests.Dedent(`import type { LoadingType } from "houdini/runtime";
 const artifact = {
     "name": "Query",
     "kind": "HoudiniQuery",
@@ -1194,7 +1183,15 @@ const artifact = {
                     },
                     "abstractFields": {
                         "fields": {
-                            "Cat": {
+                            "User": {
+                                "firstName": {
+                                    "type": "String",
+                                    "keyRaw": "firstName",
+                                    "loading": {
+                                        "kind": "value",
+                                    },
+                                    "visible": true,
+                                },
                                 "__typename": {
                                     "type": "String",
                                     "keyRaw": "__typename",
@@ -1209,6 +1206,8 @@ const artifact = {
                                         "kind": "value",
                                     },
                                 },
+                            },
+                            "Cat": {
                                 "name": {
                                     "type": "String",
                                     "keyRaw": "name",
@@ -1217,22 +1216,12 @@ const artifact = {
                                     },
                                     "visible": true,
                                 },
-                            },
-                            "User": {
                                 "__typename": {
                                     "type": "String",
                                     "keyRaw": "__typename",
                                     "loading": {
                                         "kind": "value",
                                     },
-                                },
-                                "firstName": {
-                                    "type": "String",
-                                    "keyRaw": "firstName",
-                                    "loading": {
-                                        "kind": "value",
-                                    },
-                                    "visible": true,
                                 },
                                 "id": {
                                     "type": "ID",
@@ -1247,7 +1236,7 @@ const artifact = {
                         "typeMap": {},
                     },
 
-                    "loadingTypes": ["Cat", "User"],
+                    "loadingTypes": ["User", "Cat"],
                 },
 
                 "loading": {
@@ -1304,8 +1293,8 @@ export type Query$input = null | undefined;
 
 export type Query$unmasked = {
 	readonly entities: ({} & (({
-		readonly id: string;
 		readonly name: string;
+		readonly id: string;
 		readonly __typename: "Cat";
 	}) | ({
 		readonly firstName: string;
@@ -1319,8 +1308,7 @@ export type Query$unmasked = {
 
 export type Query$artifact = typeof artifact
 
-"HoudiniHash=75a077637efd548c3e2b73c0d6ba3a6b0adbf92d3661c3907253b00c250d594a"`,
-					),
+"HoudiniHash=75a077637efd548c3e2b73c0d6ba3a6b0adbf92d3661c3907253b00c250d594a"`),
 				},
 			},
 			{
@@ -1347,8 +1335,7 @@ export type Query$artifact = typeof artifact
           `,
 				},
 				Extra: map[string]any{
-					"Query": tests.Dedent(
-						`import type { LoadingType } from "houdini/runtime";
+					"Query": tests.Dedent(`import type { LoadingType } from "houdini/runtime";
 const artifact = {
     "name": "Query",
     "kind": "HoudiniQuery",
@@ -1383,44 +1370,6 @@ const artifact = {
 
     "selection": {
         "fields": {
-            "b": {
-                "type": "Entity",
-                "keyRaw": "b",
-
-                "selection": {
-                    "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                        },
-                    },
-                    "abstractFields": {
-                        "fields": {
-                            "User": {
-                                "__typename": {
-                                    "type": "String",
-                                    "keyRaw": "__typename",
-                                },
-                                "firstName": {
-                                    "type": "String",
-                                    "keyRaw": "firstName",
-                                    "visible": true,
-                                },
-                                "id": {
-                                    "type": "ID",
-                                    "keyRaw": "id",
-                                },
-                            },
-                        },
-
-                        "typeMap": {},
-                    },
-                },
-
-                "abstract": true,
-                "visible": true,
-            },
-
             "entities": {
                 "type": "Entity",
                 "keyRaw": "entities",
@@ -1448,7 +1397,15 @@ const artifact = {
                     },
                     "abstractFields": {
                         "fields": {
-                            "Cat": {
+                            "User": {
+                                "firstName": {
+                                    "type": "String",
+                                    "keyRaw": "firstName",
+                                    "loading": {
+                                        "kind": "value",
+                                    },
+                                    "visible": true,
+                                },
                                 "__typename": {
                                     "type": "String",
                                     "keyRaw": "__typename",
@@ -1463,6 +1420,8 @@ const artifact = {
                                         "kind": "value",
                                     },
                                 },
+                            },
+                            "Cat": {
                                 "name": {
                                     "type": "String",
                                     "keyRaw": "name",
@@ -1471,22 +1430,12 @@ const artifact = {
                                     },
                                     "visible": true,
                                 },
-                            },
-                            "User": {
                                 "__typename": {
                                     "type": "String",
                                     "keyRaw": "__typename",
                                     "loading": {
                                         "kind": "value",
                                     },
-                                },
-                                "firstName": {
-                                    "type": "String",
-                                    "keyRaw": "firstName",
-                                    "loading": {
-                                        "kind": "value",
-                                    },
-                                    "visible": true,
                                 },
                                 "id": {
                                     "type": "ID",
@@ -1501,7 +1450,7 @@ const artifact = {
                         "typeMap": {},
                     },
 
-                    "loadingTypes": ["Cat", "User"],
+                    "loadingTypes": ["User", "Cat"],
                 },
 
                 "loading": {
@@ -1511,6 +1460,44 @@ const artifact = {
                         "count": 3,
                     },
                 },
+                "abstract": true,
+                "visible": true,
+            },
+
+            "b": {
+                "type": "Entity",
+                "keyRaw": "b",
+
+                "selection": {
+                    "fields": {
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
+                        },
+                    },
+                    "abstractFields": {
+                        "fields": {
+                            "User": {
+                                "firstName": {
+                                    "type": "String",
+                                    "keyRaw": "firstName",
+                                    "visible": true,
+                                },
+                                "__typename": {
+                                    "type": "String",
+                                    "keyRaw": "__typename",
+                                },
+                                "id": {
+                                    "type": "ID",
+                                    "keyRaw": "id",
+                                },
+                            },
+                        },
+
+                        "typeMap": {},
+                    },
+                },
+
                 "abstract": true,
                 "visible": true,
             },
@@ -1564,7 +1551,11 @@ export type Query$result = {
 export type Query$input = null | undefined;
 
 export type Query$unmasked = {
-	readonly b: ({} & (({
+	readonly entities: ({} & (({
+		readonly name: string;
+		readonly id: string;
+		readonly __typename: "Cat";
+	}) | ({
 		readonly firstName: string;
 		readonly id: string;
 		readonly __typename: "User";
@@ -1572,11 +1563,7 @@ export type Query$unmasked = {
 		readonly " $fragments"?: {};
 		readonly __typename: "non-exhaustive; don't match this";
 	})))[];
-	readonly entities: ({} & (({
-		readonly id: string;
-		readonly name: string;
-		readonly __typename: "Cat";
-	}) | ({
+	readonly b: ({} & (({
 		readonly firstName: string;
 		readonly id: string;
 		readonly __typename: "User";
@@ -1588,8 +1575,7 @@ export type Query$unmasked = {
 
 export type Query$artifact = typeof artifact
 
-"HoudiniHash=8a12a21168a8db7431b74a680bdce400f24aa9c577674893fddbf89c6d0a7877"`,
-					),
+"HoudiniHash=8a12a21168a8db7431b74a680bdce400f24aa9c577674893fddbf89c6d0a7877"`),
 				},
 			},
 			{
@@ -1616,8 +1602,7 @@ export type Query$artifact = typeof artifact
           `,
 				},
 				Extra: map[string]any{
-					"GlobalLoadingSpreadQuery": tests.Dedent(
-						`import type { LoadingType } from "houdini/runtime";
+					"GlobalLoadingSpreadQuery": tests.Dedent(`import type { LoadingType } from "houdini/runtime";
 const artifact = {
     "name": "GlobalLoadingSpreadQuery",
     "kind": "HoudiniQuery",
@@ -1649,31 +1634,23 @@ query GlobalLoadingSpreadQuery {
 
                 "selection": {
                     "fields": {
-                        "__typename": {
-                            "type": "String",
-                            "keyRaw": "__typename",
-                            "loading": {
-                                "kind": "value",
-                            },
-                        },
-
                         "pageInfo": {
                             "type": "PageInfo",
                             "keyRaw": "pageInfo",
 
                             "selection": {
                                 "fields": {
-                                    "__typename": {
-                                        "type": "String",
-                                        "keyRaw": "__typename",
+                                    "hasNextPage": {
+                                        "type": "Boolean",
+                                        "keyRaw": "hasNextPage",
                                         "loading": {
                                             "kind": "value",
                                         },
                                     },
 
-                                    "hasNextPage": {
-                                        "type": "Boolean",
-                                        "keyRaw": "hasNextPage",
+                                    "__typename": {
+                                        "type": "String",
+                                        "keyRaw": "__typename",
                                         "loading": {
                                             "kind": "value",
                                         },
@@ -1683,6 +1660,14 @@ query GlobalLoadingSpreadQuery {
 
                             "loading": {
                                 "kind": "continue",
+                            },
+                        },
+
+                        "__typename": {
+                            "type": "String",
+                            "keyRaw": "__typename",
+                            "loading": {
+                                "kind": "value",
                             },
                         },
                     },
@@ -1734,18 +1719,17 @@ export type GlobalLoadingSpreadQuery$input = null | undefined;
 
 export type GlobalLoadingSpreadQuery$unmasked = {
 	readonly monkeys: {
-		readonly __typename: "MonkeyConnection";
 		readonly pageInfo: {
-			readonly __typename: "PageInfo";
 			readonly hasNextPage: boolean;
+			readonly __typename: "PageInfo";
 		};
+		readonly __typename: "MonkeyConnection";
 	};
 };
 
 export type GlobalLoadingSpreadQuery$artifact = typeof artifact
 
-"HoudiniHash=f68f32cc631419ea7b0fcbdf8849a91e66be8fbd77af9543cfda312e02438370"`,
-					),
+"HoudiniHash=f68f32cc631419ea7b0fcbdf8849a91e66be8fbd77af9543cfda312e02438370"`),
 				},
 			},
 			{
@@ -1766,7 +1750,7 @@ export type GlobalLoadingSpreadQuery$artifact = typeof artifact
           }`,
 				},
 				Extra: map[string]any{
-					"GlobalListConfig": "import type { LoadingType } from \"houdini/runtime\";\nconst artifact = {\n    \"name\": \"GlobalListConfig\",\n    \"kind\": \"HoudiniQuery\",\n    \"hash\": \"bf928586ecef8632f1df8ce14f2ec7d9012348852c086f026c174035128d92ba\",\n    \"raw\": `query GlobalListConfig {\n    monkeys {\n        pageInfo {\n            hasNextPage\n            __typename\n        }\n        edges {\n            node {\n                id\n                __typename\n            }\n            __typename\n        }\n        __typename\n    }\n}\n`,\n\n    \"rootType\": \"Query\",\n    \"stripVariables\": [] as Array<string>,\n\n    \"selection\": {\n        \"fields\": {\n            \"monkeys\": {\n                \"type\": \"MonkeyConnection\",\n                \"keyRaw\": \"monkeys\",\n\n                \"selection\": {\n                    \"fields\": {\n                        \"__typename\": {\n                            \"type\": \"String\",\n                            \"keyRaw\": \"__typename\",\n                            \"loading\": {\n                                \"kind\": \"value\",\n                            },\n                        },\n\n                        \"edges\": {\n                            \"type\": \"MonkeyEdge\",\n                            \"keyRaw\": \"edges\",\n\n                            \"directives\": [{\n                                \"name\": \"loading\",\n                                \"arguments\": {\n                                    \"count\": {\n                                        \"kind\": \"IntValue\",\n                                        \"value\": \"2\"\n                                    }\n                                }\n                            }],\n\n\n                            \"selection\": {\n                                \"fields\": {\n                                    \"__typename\": {\n                                        \"type\": \"String\",\n                                        \"keyRaw\": \"__typename\",\n                                        \"loading\": {\n                                            \"kind\": \"value\",\n                                        },\n                                    },\n\n                                    \"node\": {\n                                        \"type\": \"Monkey\",\n                                        \"keyRaw\": \"node\",\n                                        \"nullable\": true,\n\n                                        \"selection\": {\n                                            \"fields\": {\n                                                \"__typename\": {\n                                                    \"type\": \"String\",\n                                                    \"keyRaw\": \"__typename\",\n                                                    \"loading\": {\n                                                        \"kind\": \"value\",\n                                                    },\n                                                },\n\n                                                \"id\": {\n                                                    \"type\": \"ID\",\n                                                    \"keyRaw\": \"id\",\n                                                    \"loading\": {\n                                                        \"kind\": \"value\",\n                                                    },\n                                                    \"visible\": true,\n                                                },\n                                            },\n                                        },\n\n                                        \"loading\": {\n                                            \"kind\": \"continue\",\n                                        },\n                                        \"visible\": true,\n                                    },\n                                },\n                            },\n\n                            \"loading\": {\n                                \"kind\": \"continue\",\n                                \"list\": {\n                                    \"depth\": 1,\n                                    \"count\": 2,\n                                },\n                            },\n                            \"visible\": true,\n                        },\n\n                        \"pageInfo\": {\n                            \"type\": \"PageInfo\",\n                            \"keyRaw\": \"pageInfo\",\n\n                            \"selection\": {\n                                \"fields\": {\n                                    \"__typename\": {\n                                        \"type\": \"String\",\n                                        \"keyRaw\": \"__typename\",\n                                        \"loading\": {\n                                            \"kind\": \"value\",\n                                        },\n                                    },\n\n                                    \"hasNextPage\": {\n                                        \"type\": \"Boolean\",\n                                        \"keyRaw\": \"hasNextPage\",\n                                        \"loading\": {\n                                            \"kind\": \"value\",\n                                        },\n                                        \"visible\": true,\n                                    },\n                                },\n                            },\n\n                            \"loading\": {\n                                \"kind\": \"continue\",\n                            },\n                            \"visible\": true,\n                        },\n                    },\n                },\n\n                \"loading\": {\n                    \"kind\": \"continue\",\n                },\n                \"visible\": true,\n            },\n        },\n    },\n\n    \"pluginData\": {},\n    \"enableLoadingState\": \"local\",\n    \"policy\": \"CacheOrNetwork\",\n    \"partial\": false\n} as const\n\nexport default artifact\n\nexport type GlobalListConfig = {\n\treadonly \"input\"?: GlobalListConfig$input;\n\treadonly \"result\": GlobalListConfig$result | undefined;\n};\n\nexport type GlobalListConfig$result = {\n\treadonly monkeys: {\n\t\treadonly pageInfo: {\n\t\t\treadonly hasNextPage: boolean;\n\t\t};\n\t\treadonly edges: ({\n\t\t\treadonly node: {\n\t\t\t\treadonly id: string;\n\t\t\t} | null;\n\t\t})[];\n\t};\n} | {\n\treadonly monkeys: {\n\t\treadonly pageInfo: {\n\t\t\treadonly hasNextPage: LoadingType;\n\t\t};\n\t\treadonly edges: {\n\t\t\treadonly node: {\n\t\t\t\treadonly id: LoadingType;\n\t\t\t};\n\t\t}[];\n\t};\n};\n\nexport type GlobalListConfig$input = null | undefined;\n\nexport type GlobalListConfig$unmasked = {\n\treadonly monkeys: {\n\t\treadonly __typename: \"MonkeyConnection\";\n\t\treadonly edges: ({\n\t\t\treadonly __typename: \"MonkeyEdge\";\n\t\t\treadonly node: {\n\t\t\t\treadonly __typename: \"Monkey\";\n\t\t\t\treadonly id: string;\n\t\t\t} | null;\n\t\t})[];\n\t\treadonly pageInfo: {\n\t\t\treadonly __typename: \"PageInfo\";\n\t\t\treadonly hasNextPage: boolean;\n\t\t};\n\t};\n};\n\nexport type GlobalListConfig$artifact = typeof artifact\n\n\"HoudiniHash=bf928586ecef8632f1df8ce14f2ec7d9012348852c086f026c174035128d92ba\"",
+					"GlobalListConfig": "import type { LoadingType } from \"houdini/runtime\";\nconst artifact = {\n    \"name\": \"GlobalListConfig\",\n    \"kind\": \"HoudiniQuery\",\n    \"hash\": \"bf928586ecef8632f1df8ce14f2ec7d9012348852c086f026c174035128d92ba\",\n    \"raw\": `query GlobalListConfig {\n    monkeys {\n        pageInfo {\n            hasNextPage\n            __typename\n        }\n        edges {\n            node {\n                id\n                __typename\n            }\n            __typename\n        }\n        __typename\n    }\n}\n`,\n\n    \"rootType\": \"Query\",\n    \"stripVariables\": [] as Array<string>,\n\n    \"selection\": {\n        \"fields\": {\n            \"monkeys\": {\n                \"type\": \"MonkeyConnection\",\n                \"keyRaw\": \"monkeys\",\n\n                \"selection\": {\n                    \"fields\": {\n                        \"pageInfo\": {\n                            \"type\": \"PageInfo\",\n                            \"keyRaw\": \"pageInfo\",\n\n                            \"selection\": {\n                                \"fields\": {\n                                    \"hasNextPage\": {\n                                        \"type\": \"Boolean\",\n                                        \"keyRaw\": \"hasNextPage\",\n                                        \"loading\": {\n                                            \"kind\": \"value\",\n                                        },\n                                        \"visible\": true,\n                                    },\n\n                                    \"__typename\": {\n                                        \"type\": \"String\",\n                                        \"keyRaw\": \"__typename\",\n                                        \"loading\": {\n                                            \"kind\": \"value\",\n                                        },\n                                    },\n                                },\n                            },\n\n                            \"loading\": {\n                                \"kind\": \"continue\",\n                            },\n                            \"visible\": true,\n                        },\n\n                        \"edges\": {\n                            \"type\": \"MonkeyEdge\",\n                            \"keyRaw\": \"edges\",\n\n                            \"directives\": [{\n                                \"name\": \"loading\",\n                                \"arguments\": {\n                                    \"count\": {\n                                        \"kind\": \"IntValue\",\n                                        \"value\": \"2\"\n                                    }\n                                }\n                            }],\n\n\n                            \"selection\": {\n                                \"fields\": {\n                                    \"node\": {\n                                        \"type\": \"Monkey\",\n                                        \"keyRaw\": \"node\",\n                                        \"nullable\": true,\n\n                                        \"selection\": {\n                                            \"fields\": {\n                                                \"id\": {\n                                                    \"type\": \"ID\",\n                                                    \"keyRaw\": \"id\",\n                                                    \"loading\": {\n                                                        \"kind\": \"value\",\n                                                    },\n                                                    \"visible\": true,\n                                                },\n\n                                                \"__typename\": {\n                                                    \"type\": \"String\",\n                                                    \"keyRaw\": \"__typename\",\n                                                    \"loading\": {\n                                                        \"kind\": \"value\",\n                                                    },\n                                                },\n                                            },\n                                        },\n\n                                        \"loading\": {\n                                            \"kind\": \"continue\",\n                                        },\n                                        \"visible\": true,\n                                    },\n\n                                    \"__typename\": {\n                                        \"type\": \"String\",\n                                        \"keyRaw\": \"__typename\",\n                                        \"loading\": {\n                                            \"kind\": \"value\",\n                                        },\n                                    },\n                                },\n                            },\n\n                            \"loading\": {\n                                \"kind\": \"continue\",\n                                \"list\": {\n                                    \"depth\": 1,\n                                    \"count\": 2,\n                                },\n                            },\n                            \"visible\": true,\n                        },\n\n                        \"__typename\": {\n                            \"type\": \"String\",\n                            \"keyRaw\": \"__typename\",\n                            \"loading\": {\n                                \"kind\": \"value\",\n                            },\n                        },\n                    },\n                },\n\n                \"loading\": {\n                    \"kind\": \"continue\",\n                },\n                \"visible\": true,\n            },\n        },\n    },\n\n    \"pluginData\": {},\n    \"enableLoadingState\": \"local\",\n    \"policy\": \"CacheOrNetwork\",\n    \"partial\": false\n} as const\n\nexport default artifact\n\nexport type GlobalListConfig = {\n\treadonly \"input\"?: GlobalListConfig$input;\n\treadonly \"result\": GlobalListConfig$result | undefined;\n};\n\nexport type GlobalListConfig$result = {\n\treadonly monkeys: {\n\t\treadonly pageInfo: {\n\t\t\treadonly hasNextPage: boolean;\n\t\t};\n\t\treadonly edges: ({\n\t\t\treadonly node: {\n\t\t\t\treadonly id: string;\n\t\t\t} | null;\n\t\t})[];\n\t};\n} | {\n\treadonly monkeys: {\n\t\treadonly pageInfo: {\n\t\t\treadonly hasNextPage: LoadingType;\n\t\t};\n\t\treadonly edges: {\n\t\t\treadonly node: {\n\t\t\t\treadonly id: LoadingType;\n\t\t\t};\n\t\t}[];\n\t};\n};\n\nexport type GlobalListConfig$input = null | undefined;\n\nexport type GlobalListConfig$unmasked = {\n\treadonly monkeys: {\n\t\treadonly pageInfo: {\n\t\t\treadonly hasNextPage: boolean;\n\t\t\treadonly __typename: \"PageInfo\";\n\t\t};\n\t\treadonly edges: ({\n\t\t\treadonly node: {\n\t\t\t\treadonly id: string;\n\t\t\t\treadonly __typename: \"Monkey\";\n\t\t\t} | null;\n\t\t\treadonly __typename: \"MonkeyEdge\";\n\t\t})[];\n\t\treadonly __typename: \"MonkeyConnection\";\n\t};\n};\n\nexport type GlobalListConfig$artifact = typeof artifact\n\n\"HoudiniHash=bf928586ecef8632f1df8ce14f2ec7d9012348852c086f026c174035128d92ba\"",
 				},
 			},
 			{
@@ -1785,7 +1769,7 @@ export type GlobalLoadingSpreadQuery$artifact = typeof artifact
           }`,
 				},
 				Extra: map[string]any{
-					"CascadeFragmentLoading": "import type { LoadingType } from \"houdini/runtime\";\nconst artifact = {\n    \"name\": \"CascadeFragmentLoading\",\n    \"kind\": \"HoudiniFragment\",\n    \"hash\": \"ae47388a479222f23e79d8bac545d2111a5698c2fcae08e6c8028813d56ec112\",\n    \"raw\": `fragment CascadeFragmentLoading on Cat {\n    name\n    __typename\n    id\n}\n`,\n\n    \"rootType\": \"Cat\",\n    \"stripVariables\": [] as Array<string>,\n\n    \"selection\": {\n        \"fields\": {\n            \"__typename\": {\n                \"type\": \"String\",\n                \"keyRaw\": \"__typename\",\n                \"loading\": {\n                    \"kind\": \"value\",\n                },\n                \"visible\": true,\n            },\n\n            \"id\": {\n                \"type\": \"ID\",\n                \"keyRaw\": \"id\",\n                \"loading\": {\n                    \"kind\": \"value\",\n                },\n                \"visible\": true,\n            },\n\n            \"name\": {\n                \"type\": \"String\",\n                \"keyRaw\": \"name\",\n                \"loading\": {\n                    \"kind\": \"value\",\n                },\n                \"visible\": true,\n            },\n        },\n    },\n\n    \"pluginData\": {},\n    \"enableLoadingState\": \"global\",\n} as const\n\nexport default artifact\n\nexport type CascadeFragmentLoading$input = never;\n\nexport type CascadeFragmentLoading = {\n\treadonly \"shape\"?: CascadeFragmentLoading$data;\n\treadonly \" $fragments\": {\n\t\t\"CascadeFragmentLoading\": { readonly \"expected a CascadeFragmentLoading fragment spread\"?: never } | LoadingType;\n\t};\n};\n\nexport type CascadeFragmentLoading$data = {\n\treadonly name: string;\n} | {\n\treadonly name: LoadingType;\n};\n\nexport type CascadeFragmentLoading$artifact = typeof artifact\n\n\"HoudiniHash=ae47388a479222f23e79d8bac545d2111a5698c2fcae08e6c8028813d56ec112\"",
+					"CascadeFragmentLoading": "import type { LoadingType } from \"houdini/runtime\";\nconst artifact = {\n    \"name\": \"CascadeFragmentLoading\",\n    \"kind\": \"HoudiniFragment\",\n    \"hash\": \"ae47388a479222f23e79d8bac545d2111a5698c2fcae08e6c8028813d56ec112\",\n    \"raw\": `fragment CascadeFragmentLoading on Cat {\n    name\n    __typename\n    id\n}\n`,\n\n    \"rootType\": \"Cat\",\n    \"stripVariables\": [] as Array<string>,\n\n    \"selection\": {\n        \"fields\": {\n            \"name\": {\n                \"type\": \"String\",\n                \"keyRaw\": \"name\",\n                \"loading\": {\n                    \"kind\": \"value\",\n                },\n                \"visible\": true,\n            },\n\n            \"__typename\": {\n                \"type\": \"String\",\n                \"keyRaw\": \"__typename\",\n                \"loading\": {\n                    \"kind\": \"value\",\n                },\n                \"visible\": true,\n            },\n\n            \"id\": {\n                \"type\": \"ID\",\n                \"keyRaw\": \"id\",\n                \"loading\": {\n                    \"kind\": \"value\",\n                },\n                \"visible\": true,\n            },\n        },\n    },\n\n    \"pluginData\": {},\n    \"enableLoadingState\": \"global\",\n} as const\n\nexport default artifact\n\nexport type CascadeFragmentLoading$input = never;\n\nexport type CascadeFragmentLoading = {\n\treadonly \"shape\"?: CascadeFragmentLoading$data;\n\treadonly \" $fragments\": {\n\t\t\"CascadeFragmentLoading\": { readonly \"expected a CascadeFragmentLoading fragment spread\"?: never } | LoadingType;\n\t};\n};\n\nexport type CascadeFragmentLoading$data = {\n\treadonly name: string;\n} | {\n\treadonly name: LoadingType;\n};\n\nexport type CascadeFragmentLoading$artifact = typeof artifact\n\n\"HoudiniHash=ae47388a479222f23e79d8bac545d2111a5698c2fcae08e6c8028813d56ec112\"",
 				},
 			},
 		},

@@ -22,7 +22,6 @@ func GenerateDocumentArtifacts(
 	conn plugins.Conn,
 	collectedDefinitions *collected.Documents,
 	fs afero.Fs,
-	sortKeys bool,
 ) ([]string, error) {
 	// load the project config to look up the default masking
 	projectConfig, err := db.ProjectConfig(ctx)
@@ -80,7 +79,6 @@ func GenerateDocumentArtifacts(
 					collectedDefinitions,
 					name,
 					projectConfig.DefaultFragmentMasking,
-					sortKeys,
 				)
 				if err != nil {
 					errs.Append(plugins.WrapError(err))
@@ -97,7 +95,6 @@ func GenerateDocumentArtifacts(
 					collectedDefinitions,
 					name,
 					selection,
-					sortKeys,
 					typeRoots,
 				)
 				if err != nil {

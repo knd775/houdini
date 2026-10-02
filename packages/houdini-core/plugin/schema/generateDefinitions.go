@@ -18,7 +18,6 @@ func GenerateDefinitionFiles(
 	ctx context.Context,
 	db plugins.DatabasePool[config.PluginConfig],
 	fs afero.Fs,
-	sortKeys bool,
 ) error {
 	projectConfig, err := db.ProjectConfig(ctx)
 	if err != nil {
