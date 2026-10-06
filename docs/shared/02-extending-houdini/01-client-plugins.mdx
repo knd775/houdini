@@ -270,6 +270,8 @@ type ClientPluginContext = {
         applyUpdates?: boolean
     }
     stuff: App.Stuff
+    // true when the store is only being set up: just the start and end hooks run
+    setup?: boolean
 }
 
 type QueryResult = {

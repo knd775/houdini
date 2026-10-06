@@ -11,6 +11,15 @@ const session = graphql(`
 	}
 `)
 
+// read below but never fetched, so a session change has no variables to refetch it with
+const unfetched = graphql(`
+	query UnfetchedAfterInvalidate($id: ID!) {
+		user(id: $id, snapshot: "session-refresh") {
+			id
+		}
+	}
+`)
+
 onMount(() => {
 	session.fetch({ policy: CachePolicy.NetworkOnly })
 })
@@ -26,5 +35,7 @@ async function updateSession() {
 <div id="result">
   {$session.data?.session}
 </div>
+
+<div id="unfetched">{$unfetched.data?.user.id ?? ''}</div>
 
 <button id="update-session" on:click={updateSession}>Update session</button>

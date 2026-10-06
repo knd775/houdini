@@ -202,6 +202,7 @@ export class DocumentStore<
 			artifact: this.artifact,
 			lastVariables: this.#lastVariables,
 			cacheParams,
+			setup,
 		})
 
 		// assign variables to take advantage of the setter on variables
@@ -731,6 +732,8 @@ export type ClientPluginContext = {
 		serverSideFallback?: boolean
 	}
 	stuff: App.Stuff
+	// a setup pass only runs the start and end hooks to initialize the store. no request is sent
+	setup?: boolean
 }
 
 type ClientPluginPhase<Handlers> = (

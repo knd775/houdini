@@ -1,4 +1,5 @@
 import type { RuntimeScalarPayload } from 'houdini'
+import { deepEquals } from 'houdini/runtime'
 import type { Cache } from 'houdini/runtime/cache'
 import { type SubscriptionSpec, ArtifactKind, CachePolicy, DataSource } from 'houdini/runtime/types'
 
@@ -12,6 +13,14 @@ export const query = (cache: Cache) =>
 		// remember the last variables we were called with
 		let lastVariables: Record<string, any> | null = null
 
+		// whether a refetch can replay lastVariables. a store set up before it ever fetched
+		// subscribes with empty variables, and replaying those drops the query's arguments
+		let canRefetch = false
+
+		// setup passes that named no variables, keyed by the send's abort controller since
+		// that's the one per-send value that reaches end unchanged
+		const setupsWithoutVariables = new WeakSet<AbortController>()
+
 		// track the most recent session so that refetch requests triggered by
 		// record.refresh() use the current auth token, not the one from when the
 		// subscription was first created
@@ -22,6 +31,16 @@ export const query = (cache: Cache) =>
 			start(ctx, { next }) {
 				const runtimeScalarPayload: RuntimeScalarPayload = {
 					session: ctx.session,
+				}
+
+				// a store that hasn't fetched yet gets set up with null variables. that only
+				// matters when the query has arguments the caller has to supply
+				const input = ctx.artifact.input
+				const needsArguments = Object.keys(input?.fields ?? {}).some(
+					(name) => !(name in (input?.runtimeScalars ?? {}))
+				)
+				if (ctx.setup && ctx.variables == null && !canRefetch && needsArguments) {
+					setupsWithoutVariables.add(ctx.abortController)
 				}
 
 				// make sure to include the last variables as well as the new ones
@@ -55,6 +74,8 @@ export const query = (cache: Cache) =>
 				// uses the auth token from the most recent send(), not from subscription time
 				lastSession = ctx.session
 
+				const knownVariables = !setupsWithoutVariables.has(ctx.abortController)
+
 				// if the variables have changed we need to setup a new subscription with the cache
 				if (variablesChanged(ctx) && !ctx.cacheParams?.disableSubscriptions) {
 					// if the variables changed we need to unsubscribe from the old fields and
@@ -77,6 +98,9 @@ export const query = (cache: Cache) =>
 							// if the cache asked us to refetch, kick off a brand new request
 							// through the full pipeline so the document reloads from the API
 							if (message.kind === 'refetch') {
+								if (!canRefetch) {
+									return
+								}
 								ctx.documentStore.send({
 									policy: CachePolicy.NetworkOnly,
 									session: 'session' in message ? message.session : lastSession,
@@ -99,6 +123,14 @@ export const query = (cache: Cache) =>
 
 					// make sure we subscribe to the new values
 					cache.subscribe(subscriptionSpec, lastVariables)
+					canRefetch = knownVariables
+				} else if (
+					knownVariables &&
+					subscriptionSpec &&
+					deepEquals(lastVariables, marshalVariables(ctx))
+				) {
+					// a real send with the variables the subscription already has
+					canRefetch = true
 				}
 
 				// we are done
@@ -109,6 +141,7 @@ export const query = (cache: Cache) =>
 					cache.unsubscribe(subscriptionSpec, subscriptionSpec.variables?.())
 					lastVariables = null
 				}
+				canRefetch = false
 			},
 		}
 	})
