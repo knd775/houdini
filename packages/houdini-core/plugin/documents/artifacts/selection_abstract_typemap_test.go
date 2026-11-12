@@ -183,6 +183,8 @@ func TestAbstractTypeMapExcludesOwnFragments(t *testing.T) {
                         "typeMap": {
                             "Podcast": "ContentItem",
                         },
+
+                        "fallbackTypes": ["ContentItem"],
                     },
                 },
 

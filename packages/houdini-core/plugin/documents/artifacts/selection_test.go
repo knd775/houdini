@@ -559,6 +559,8 @@ export type TestQuery$artifact = typeof artifact
                             "Dog": "Friend",
                             "User": "Friend",
                         },
+
+                        "fallbackTypes": ["Friend"],
                     },
                 },
 
