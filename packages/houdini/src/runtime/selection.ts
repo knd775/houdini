@@ -44,22 +44,45 @@ function _getFieldsForType(
 	// and evaluating which selection is the right fit
 
 	let targetSelection = selection.fields || {}
+	const abstractFields = selection.abstractFields
 	// if we have abstract fields, grab the __typename and include them in the list
-	if (selection.abstractFields && __typename) {
+	if (abstractFields && __typename) {
 		// if the type needs to be mapped to an abstract one, use that selection instead
-		const mappedType = selection.abstractFields.typeMap[__typename]
+		const mappedType = abstractFields.typeMap[__typename]
 		if (mappedType) {
-			targetSelection = selection.abstractFields.fields[mappedType]!
-		} else if (selection.abstractFields.fields[__typename]) {
-			targetSelection = selection.abstractFields.fields[__typename]!
+			targetSelection = abstractFields.fields[mappedType]!
+		} else if (abstractFields.fields[__typename]) {
+			targetSelection = abstractFields.fields[__typename]!
+		} else if (abstractFields.fallbackTypes?.length) {
+			// a known member that matches no abstract fragment also lands here. the server
+			// sends none of the fallback-only fields for it, so getSelection skips them and
+			// the result matches the base fields
+			targetSelection = deepMerge(
+				selection.fields,
+				...abstractFields.fallbackTypes.map((type) => abstractFields.fields[type])
+			)
+			_fallbackOnlyFields.set(
+				targetSelection,
+				new Set(Object.keys(targetSelection).filter((key) => !selection.fields?.[key]))
+			)
 		}
 	}
 
 	return targetSelection
 }
 
+const _fallbackOnlyFields = new WeakMap<Required<SubscriptionSelection>['fields'], Set<string>>()
+
+// the fields a result of getFieldsForType took from fallback fragments the type may not
+// match, so a missing value means the field doesn't apply rather than a cache miss
+export function fallbackOnlyFields(
+	fields: Required<SubscriptionSelection>['fields']
+): Set<string> | undefined {
+	return _fallbackOnlyFields.get(fields)
+}
+
 // This function performs a very simple deep merge that shouldn't be used in an open ended response.
-// It's not resilient to things like circular references so it should really only be used for loading states (for now).
+// It's not resilient to things like circular references so it should only be used on artifact selections.
 function deepMerge(...objects: (Record<string, any> | undefined)[]) {
 	const mergedObj: Record<string, any> = {}
 	for (const obj of objects) {

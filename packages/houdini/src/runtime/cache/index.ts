@@ -4,7 +4,7 @@ import { computeID, defaultConfigValues, keyFieldsForType } from '../config.js'
 import { deepEquals } from '../deepEquals.js'
 import { flatten } from '../flatten.js'
 import { computeKey } from '../key.js'
-import { getFieldsForType } from '../selection.js'
+import { fallbackOnlyFields, getFieldsForType } from '../selection.js'
 import { PendingValue } from '../types.js'
 import type {
 	GraphQLObject,
@@ -1231,6 +1231,7 @@ class CacheInternal {
 		const typename = this.storage.getTypename(parent)
 		// collect all of the fields that we need to write
 		const targetSelection = getFieldsForType(selection, typename, !!generateLoading)
+		const optionalFields = fallbackOnlyFields(targetSelection)
 
 		// look at every field in the parentFields
 		for (const [
@@ -1298,6 +1299,12 @@ class CacheInternal {
 
 			// look up the value in our store
 			let { value } = this.storage.get(parent, key, defaultValue)
+
+			// the fallback fields span every abstract fragment, and the server only sent the
+			// ones whose type matched. the rest aren't missing data, they don't apply
+			if (optionalFields?.has(attributeName) && typeof value === 'undefined') {
+				continue
+			}
 
 			// If we have an explicite null, that mean that it's stale and the we should do a network call
 			const dt_field = this.staleManager.getFieldTime(parent, key)

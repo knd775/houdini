@@ -847,6 +847,10 @@ func stringifySelection(
 			}
 		}
 
+		// a member added to the schema after codegen can't be in typeMap, but the server still
+		// matches it against the abstract-type fragments. the runtime falls back to these.
+		fallbackTypes := []string{}
+
 		// now we need to look at every inline fragment we found and see if it corresponds to an abstract type
 		// that a concrete type of the parent implements
 		for _, selection := range selections {
@@ -856,6 +860,7 @@ func stringifySelection(
 
 			// identify concrete types by looking for types that do have possible members
 			if concreteTypes, ok := docs.PossibleTypes[selection.FieldName]; ok {
+				fallbackTypes = append(fallbackTypes, `"`+selection.FieldName+`"`)
 				for concreteType := range concreteTypes {
 					// a concrete type with its own inline fragment already has a complete
 					// entry in fields; the runtime checks typeMap before fields so mapping
@@ -897,17 +902,26 @@ func stringifySelection(
 %s%s`, typeMapBuilder.String(), indent3)
 		}
 
+		fallbackStr := ""
+		if len(fallbackTypes) > 0 {
+			sort.Strings(fallbackTypes)
+			fallbackStr = fmt.Sprintf(`
+
+%s"fallbackTypes": [%s],`, indent3, strings.Join(fallbackTypes, ", "))
+		}
+
 		fmt.Fprintf(&resultBuilder, `%s"abstractFields": {
 %s"fields": {
 %s%s},
 
-%s"typeMap": {%s},
+%s"typeMap": {%s},%s
 %s},`, indent2,
 			indent3,
 			abstractFieldsBuilder.String(),
 			indent3,
 			indent3,
 			typeMapStr,
+			fallbackStr,
 			indent2,
 		)
 	}

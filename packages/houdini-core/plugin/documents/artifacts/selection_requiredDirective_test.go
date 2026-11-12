@@ -192,6 +192,8 @@ query TestQuery($id: ID!) {
                         },
 
                         "typeMap": {},
+
+                        "fallbackTypes": ["Legend"],
                     },
 
                     "fragments": {

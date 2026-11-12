@@ -310,6 +310,10 @@ export type SubscriptionSelection = Readonly<{
 		typeMap: {
 			[typeName: string]: string
 		}
+		// the abstract types (interfaces, unions) of the inline fragments in the selection. a
+		// __typename the artifact doesn't know about (a member added to the schema after codegen)
+		// may match any of them, so it gets their fields
+		fallbackTypes?: readonly string[]
 	}
 }>
 
